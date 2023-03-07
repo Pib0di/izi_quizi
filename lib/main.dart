@@ -246,6 +246,7 @@ import 'server.dart';
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:html' as html;
 
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart' as pathProvider;
@@ -304,7 +305,7 @@ final numAddItem = StateProvider((ref) => 0);
 final ItemId = StateProvider((ref) => 0);
 
 /// номер элемента в слайде для удаления
-final Key key = Key("");
+final Key key = const Key("");
 final delItemId = StateProvider<Key>(
   // We return the default sort type, here name.
       (ref) => key,
@@ -319,7 +320,24 @@ final fileProvider = StateProvider<File>(
 
 
 
-
+// void main() {
+//   final input = html.FileUploadInputElement();
+//   input.onChange.listen((event) {
+//     final file = input.files!.first;
+//     print("${file.relativePath}");
+//     print("${file.name}");
+//     print("${file.size}");
+//     final reader = html.FileReader();
+//     reader.readAsDataUrl(file);
+//     reader.onLoadEnd.listen((event) {
+//       final dataUrl = reader.result;
+//       final img = html.ImageElement(src: dataUrl as String);
+//       html.document.body?.append(img);
+//     });
+//   });
+//
+//   html.document.body?.append(input);
+// }
 
 void main() {
   // WebSocket.connect('ws://localhost:8000').then((WebSocket ws) {
@@ -373,7 +391,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         primarySwatch: Colors.green,
       ),
-      home: Scaffold(
+      home: const Scaffold(
         body: MyStatefulWidget(),
       )
     );
@@ -411,7 +429,7 @@ class _MyStatefulState extends State<MyStateful> {
         height: 500,
         width: 500,
 
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: GestureDetector(
             onPanUpdate: (details) => setState(() => {
               _offset += details.delta,
@@ -468,8 +486,8 @@ class ProgectName extends StatelessWidget {
         restorationId: 'life_story_field',
         textInputAction: TextInputAction.next,
         // focusNode: _lifeStory,
-        decoration: InputDecoration(
-          border: const OutlineInputBorder(),
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
           hintText: "Проективная геометрия 2-3 неделя",
           // helperText: "название вашего iziQuizi",
           labelText: "Имя проекта",
@@ -619,7 +637,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
         backgroundColor: Colors.green,
         toolbarHeight: 50,
         leadingWidth: 120,
-        leading: Center(
+        leading: const Center(
           child: Text(
             'IziQuizi',
             style: TextStyle(
@@ -644,9 +662,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.home),
-                      SizedBox(width:5),
-                      Text("Дом"),
+                      const Icon(Icons.home),
+                      const SizedBox(width:5),
+                      const Text("Дом"),
                     ],
                   ),
                 ),
@@ -654,9 +672,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.av_timer),
-                      SizedBox(width:5),
-                      Text("Мероприятия"),
+                      const Icon(Icons.av_timer),
+                      const SizedBox(width:5),
+                      const Text("Мероприятия"),
                     ],
                   ),
                 ),
@@ -664,9 +682,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.people),
-                      SizedBox(width:5),
-                      Text("Комнаты"),
+                      const Icon(Icons.people),
+                      const SizedBox(width:5),
+                      const Text("Комнаты"),
                     ],
                   ),
                 ),
@@ -689,7 +707,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                 ),
               ),
               icon: const Icon(Icons.add, size: 18, color: Colors.white,),
-              label: Text(
+              label: const Text(
                 'Создать',
                 style: TextStyle(
                   color: Colors.white,
@@ -787,72 +805,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                     ),
                   ];
                 }
-                // children: [
-                //   Row(
-                //     children: [
-                //       Expanded(
-                //         child: TabBar(
-                //           labelColor: Colors.black,
-                //           // isScrollable: true,
-                //           controller: _tabController,
-                //           tabs: [
-                //             Center(
-                //               child: Row(
-                //                 mainAxisAlignment:MainAxisAlignment.center,
-                //                 children: [
-                //                   Icon(Icons.home, color: Colors.black,),
-                //                   SizedBox(width:5),
-                //                   Text("Дом"),
-                //                 ],
-                //               ),
-                //             ),
-                //             Row(
-                //               mainAxisAlignment:MainAxisAlignment.center,
-                //               children: [
-                //                 Icon(Icons.av_timer, color: Colors.black,),
-                //                 SizedBox(width:5),
-                //                 Text("Мероприятия"),
-                //               ],
-                //             ),
-                //             Row(
-                //               mainAxisAlignment:MainAxisAlignment.center,
-                //               children: [
-                //                 Icon(Icons.people, color: Colors.black,),
-                //                 SizedBox(width:5),
-                //                 Text("Комнаты"),
-                //               ],
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //       Container(
-                //         child: OutlinedButton.icon(
-                //           style: ButtonStyle(
-                //             // padding: EdgeInsetsGeometry.,
-                //             // backgroundColor: Colors.lightGreenAccent,
-                //             // elevation: 20.0,
-                //           ),
-                //           icon: const Icon(Icons.add, size: 18, color: Colors.black,),
-                //           label: Text(
-                //             'Создать',
-                //             style: TextStyle(
-                //               color: Colors.black,
-                //             ),
-                //           ),
-                //           onPressed: () {
-                //             _showSimpleDialog();
-                //             setStates();
-                //           },
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ],
                 return ListView(
                   padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
                   children:[
                     JoinThePresentation(),
-                    SizedBox(height: 90,),
+                    const SizedBox(height: 90,),
                     Wrap(
                       runSpacing: 10.0,
                       spacing: 10,
@@ -869,17 +826,17 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
               List<Widget> children;
               if (snapshot.hasData) {
                 if (isAuth) {
-                  return TabBarEvents();
+                  return const TabBarEvents();
                 }
                 else{
-                  return Join();
+                  return const Join();
                 }
               } else if (snapshot.hasError) {
                   if (isAuth) {
-                    return TabBarEvents();
+                    return const TabBarEvents();
                   }
                   else{
-                    return Join();
+                    return const Join();
                   }
               } else {
                 children = const <Widget>[
@@ -925,7 +882,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                   ];
                 }
                 else{
-                  return Join();
+                  return const Join();
                 }
               } else if (snapshot.hasError) {
                 if (isAuth) {
@@ -945,7 +902,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                   ];
                 }
                 else{
-                  return Join();
+                  return const Join();
                 }
               } else {
                 children = const <Widget>[
@@ -992,7 +949,7 @@ Widget txtBox(String txt)
             borderRadius: BorderRadius.circular(15),
           ),
           child: RawMaterialButton(
-            padding: EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.only(bottom: 10),
             shape: const RoundedRectangleBorder(),
             onPressed: (){
             },
@@ -1001,14 +958,14 @@ Widget txtBox(String txt)
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: 10),
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
                   decoration: BoxDecoration(
                     color: const Color(0xE5DFFFD6),
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Text(
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       color: Colors.black54,
                     ),
@@ -1023,7 +980,7 @@ Widget txtBox(String txt)
       Positioned(
         right: 0,
         child: Container(
-          margin: EdgeInsets.all(5),
+          margin: const EdgeInsets.all(5),
           width: 30,
           height: 30,
           child: RawMaterialButton(
@@ -1068,7 +1025,7 @@ String Presentations()
         ];
       }
       return Container(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Wrap(
           spacing: 10,
           children: [
@@ -1117,13 +1074,13 @@ class _MyHomePageState2 extends State<MyHomePage2> {
   _defaultApp(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('The Matrix 3D'), // changed
+        title: const Text('The Matrix 3D'), // changed
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'You have pushed the button this many times:',
             ),
             Text(
@@ -1137,7 +1094,7 @@ class _MyHomePageState2 extends State<MyHomePage2> {
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -1151,21 +1108,21 @@ class _TextMenuButton extends StatelessWidget {
   Widget build(context) {
     return Column(
       children: [
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
         ElevatedButton(
           onPressed: () {
           },
-          child: Text("Заглоовок"),
+          child: const Text("Заглоовок"),
         ),
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
         ElevatedButton(
           onPressed: () {},
-          child: Text("Основной текст"),
+          child: const Text("Основной текст"),
         ),
-        SizedBox(height: 10,),
+        const SizedBox(height: 10,),
         ElevatedButton(
           onPressed: () {},
-          child: Text("Список"),
+          child: const Text("Список"),
         ),
       ],
     );
@@ -1174,29 +1131,6 @@ class _TextMenuButton extends StatelessWidget {
 
 
 
-// class FirstRoute extends StatelessWidget {
-//   const FirstRoute({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('First Route'),
-//       ),
-//       body: Center(
-//         child: ElevatedButton(
-//           child: const Text('Open route'),
-//           onPressed: () {
-//             Navigator.push(
-//               context,
-//               MaterialPageRoute(builder: (context) => const SecondRoute(myController.text)),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
 class SecondRoute1 extends StatelessWidget {
   SecondRoute1(String name) : nameUp = name;
   String nameUp;
@@ -1210,7 +1144,7 @@ class SecondRoute1 extends StatelessWidget {
           context: context,
           builder: (context) {
             return SimpleDialog(
-              title: Text('Переименовать викторину'),
+              title: const Text('Переименовать викторину'),
               children: <Widget>[
                 ProgectName(myController),
                 Container(
@@ -1250,7 +1184,7 @@ class SecondRoute1 extends StatelessWidget {
                           ],
                         ),
                       ),
-                      Spacer(),
+                      const Spacer(),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
                         child: Stack(
@@ -1311,7 +1245,7 @@ class SecondRoute1 extends StatelessWidget {
         actions: [
           Row(
             children: [
-              Text(
+              const Text(
                 "Переименовать",
                 style: TextStyle(
                   color: Colors.white60,
@@ -1320,7 +1254,7 @@ class SecondRoute1 extends StatelessWidget {
               RawMaterialButton(
                 enableFeedback: false,
                 fillColor: Colors.lightGreen,
-                shape: CircleBorder(),
+                shape: const CircleBorder(),
                 onPressed: () {
                   // print("s;ldkfj;");
                   // SQL sql = SQL();
@@ -1333,11 +1267,30 @@ class SecondRoute1 extends StatelessWidget {
                   color: Colors.white60
                 ),
               ),
+              const Text(
+                "Сохранить",
+                style: TextStyle(
+                  color: Colors.white60,
+                  fontWeight: FontWeight.bold, fontSize: 18,),
+              ),
+              RawMaterialButton(
+                enableFeedback: false,
+                fillColor: Colors.lightGreen,
+                shape: const CircleBorder(),
+                onPressed: () {
+                  print("s;ldkfj;");
+
+                },
+                child: const Icon(
+                    Icons.save, size: 25,
+                    color: Colors.white60
+                ),
+              ),
             ],
           )
         ],
       ),
-      body: NavRailDemo(),
+      body: const NavRailDemo(),
     );
   }
 }
@@ -1359,7 +1312,7 @@ class _secondRouteState extends State<secondRoute> {
         actions: [
           Row(
             children: [
-              Text(
+              const Text(
                 "Переименовать",
                 style: TextStyle(
                   fontWeight: FontWeight.bold, fontSize: 18,),
@@ -1377,7 +1330,7 @@ class _secondRouteState extends State<secondRoute> {
           )
         ],
       ),
-      body: NavRailDemo(),
+      body: const NavRailDemo(),
     );
   }
 }
@@ -1418,26 +1371,26 @@ class _ToggleButtonsSampleState extends State<ToggleButtonsSample> {
       children: [
         Column(
           children: [
-            Icon(Icons.sunny,),
-            Text("Слайды")
+            const Icon(Icons.sunny,),
+            const Text("Слайды")
           ],
         ),
         Column(
           children: [
-            Icon(Icons.sunny,),
-            Text("Текст")
+            const Icon(Icons.sunny,),
+            const Text("Текст")
           ],
         ),
         Column(
           children: [
-            Icon(Icons.sunny,),
-            Text("Медиа")
+            const Icon(Icons.sunny,),
+            const Text("Медиа")
           ],
         ),
         Column(
           children: [
-            Icon(Icons.sunny,),
-            Text("Слайды")
+            const Icon(Icons.sunny,),
+            const Text("Слайды")
           ],
         ),
       ],
@@ -1476,7 +1429,7 @@ Widget popapMenu(bool isAuthorized, BuildContext context)
     onSelected: (String item) => {
       showDialog(
         context: context,
-        builder: (BuildContext context) => AlertDialog(
+        builder: (BuildContext context) => const AlertDialog(
           backgroundColor: Colors.transparent,
           content: Join(),
         )
@@ -1503,7 +1456,7 @@ Widget popapMenu(bool isAuthorized, BuildContext context)
 
 
 Widget join(){
-  return Join();
+  return const Join();
 }
 
 class Join extends StatefulWidget {
@@ -1530,7 +1483,7 @@ class _JoinState extends State<Join> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      margin: EdgeInsets.symmetric(vertical: 20,),
+      margin: const EdgeInsets.symmetric(vertical: 20,),
       width: 600,
       height: 200,
       child:  Wrap(
@@ -1543,7 +1496,7 @@ class _JoinState extends State<Join> {
           Container(
             width: 800,
             height: 270,
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             // color: Colors.black,
             decoration: BoxDecoration(
               color: Colors.grey[200],
@@ -1553,7 +1506,7 @@ class _JoinState extends State<Join> {
                   color: Colors.grey.withOpacity(0.5),
                   spreadRadius: 5,
                   blurRadius: 7,
-                  offset: Offset(0, 3), // changes position of shadow
+                  offset: const Offset(0, 3), // changes position of shadow
                 ),
               ],
               border: Border.all(
@@ -1578,8 +1531,8 @@ class _JoinState extends State<Join> {
                           return null;
                         },
                         // focusNode: _lifeStory,
-                        decoration: InputDecoration(
-                          border: const OutlineInputBorder(),
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
                           hintText: "andrey@example.com",
                           // helperText: "название вашего iziQuizi",
                           labelText: "Email",
@@ -1590,7 +1543,7 @@ class _JoinState extends State<Join> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20,),
+                const SizedBox(height: 20,),
                 // PasswordForm(),
                 PasswordField(
                   myControllerPass: myControllerPass,
@@ -1607,14 +1560,14 @@ class _JoinState extends State<Join> {
                     });
                   },
                 ),
-                SizedBox(height: 10,),
+                const SizedBox(height: 10,),
                 Align(
                   alignment: Alignment.centerRight,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(4),
                     child: Row(
                       children: <Widget>[
-                        Spacer(),
+                        const Spacer(),
                         Positioned.fill(
                           child: Container(
                             decoration: const BoxDecoration(
@@ -1713,7 +1666,7 @@ class _JoinState extends State<Join> {
                           },
                           child: const Text('Зарегистрироваться'),
                         ),
-                        SizedBox(width: 10,),
+                        const SizedBox(width: 10,),
                         TextButton(
                           style: TextButton.styleFrom(
                             backgroundColor: Colors.teal,
@@ -2400,7 +2353,7 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
         onPressed: (){
 
         },
-        child: Text('Основной текст'),
+        child: const Text('Основной текст'),
       ),
       ElevatedButtonFactory.numAddItem(
         numAddObj: 3,
@@ -2418,7 +2371,7 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
           context: context,
           builder: (BuildContext context) => AlertDialog(
             title: const Text('Вставьте изображение или gif'),
-            content: Text('AlertDialog description'),
+            content: const Text('AlertDialog description'),
             actions: <Widget>[
               TextButton(
                 onPressed: () => {
@@ -2550,7 +2503,7 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
 
     int index = 0;
     final selectMenu = <Widget>[
-      MyStateful(),
+      const MyStateful(),
       // _MediaMenuButton(),
       _TextMenuButton(context),
     ];
@@ -2705,9 +2658,9 @@ class _ListSlideState extends ConsumerState<ListSlide> {
         children: [
           Expanded(
             child: Container(
-              decoration: BoxDecoration(),
+              decoration: const BoxDecoration(),
               clipBehavior: Clip.hardEdge,
-              padding: EdgeInsets.only(top: 3),
+              padding: const EdgeInsets.only(top: 3),
               child: ListView(
                 clipBehavior: Clip.none,
                 children: i == true ? present.getSlide() : slide,
@@ -2897,7 +2850,7 @@ class TapboxB extends ConsumerWidget {
   void _handleTap() {
     onChanged(active);
   }
-  PresentationCreationArea _area = PresentationCreationArea.hi(0);
+  // PresentationCreationArea _area = PresentationCreationArea.hi(0);
 
   PresentationCreationArea __area = PresentationCreationArea();
   @override
@@ -2944,28 +2897,28 @@ class _MediaMenuButtonState extends State<MediaMenuButton> {
           children: <Widget>[
           Column(
             children: [
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               ElevatedButton(
                 onPressed: () {
                   setState(() {
                     _area.addWidget(0);
                   });
                 },
-                child: Text("Добавить изображение"),
+                child: const Text("Добавить изображение"),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               ElevatedButton(
                 onPressed: () {
 
                 },
-                child: Text("Добавить видео"),
+                child: const Text("Добавить видео"),
               ),
-              SizedBox(height: 10,),
+              const SizedBox(height: 10,),
               ElevatedButton(
                 onPressed: () {
 
                 },
-                child: Text("Добавить аудио"),
+                child: const Text("Добавить аудио"),
               ),
             ],
           ),
@@ -3053,7 +3006,7 @@ class JoinThePresentation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       // color: Colors.black,
       decoration: BoxDecoration(
         color: Colors.grey[200],
@@ -3063,7 +3016,7 @@ class JoinThePresentation extends StatelessWidget {
             color: Colors.grey.withOpacity(0.5),
             spreadRadius: 2,
             blurRadius: 3,
-            offset: Offset(0, 2), // changes position of shadow
+            offset: const Offset(0, 2), // changes position of shadow
           ),
         ],
       ),
@@ -3083,70 +3036,3 @@ class JoinThePresentation extends StatelessWidget {
     );
   }
 }
-
-
-
-// class FrogColor extends InheritedWidget {
-//   const FrogColor({
-//     super.key,
-//     required this.color,
-//     required super.child,
-//   });
-//
-//   final Color color;
-//
-//   static FrogColor of(BuildContext context) {
-//     final FrogColor? result = context.dependOnInheritedWidgetOfExactType<FrogColor>();
-//     assert(result != null, 'No FrogColor found in context');
-//     return result!;
-//   }
-//
-//   @override
-//   bool updateShouldNotify(FrogColor old) => color != old.color;
-// }
-//
-// class MyPage extends StatelessWidget {
-//   const MyPage({super.key});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       body: FrogColor(
-//         color: Colors.green,
-//         child: Builder(
-//           builder: (BuildContext innerContext) {
-//             return Text(
-//               'Hello Frog',
-//               style: TextStyle(color: FrogColor.of(innerContext).color),
-//             );
-//           },
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-//
-// void main() {
-//   runApp(MyApp());
-// }
-//
-// class MyApp extends StatelessWidget {
-//   MyApp({super.key});
-//   SQL sql = SQL();
-//
-//   // This widget is the root of your application.
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       title: 'IziQuizi',
-//       theme: ThemeData(
-//         primarySwatch: Colors.green,
-//       ),
-//       home: Scaffold(
-//         body: MyPage(),
-//       )
-//     );
-//   }
-// }

@@ -1,9 +1,16 @@
+import 'dart:async';
+import 'dart:html';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'main.dart';
-import 'dart:io';
+// ignore: avoid_web_libraries_in_flutter
+import 'dart:html' as html;
+import 'dart:ui' as ui;
 import 'dart:math';
+import 'package:screenshot/screenshot.dart';
 
 
 class Item {
@@ -15,6 +22,51 @@ class Item {
   Widget? widget;
 }
 
+class Data{
+  static final Data _instance = Data._internal();
+  factory Data() { return _instance; }
+  Data._internal();
+
+  List<Slide> listSlide = [];
+
+  // List<Widget> listItems = [];
+  //
+  // int getLengthListItems(){
+  //   return listItems.length;
+  // }
+  //
+  // void addListItems(Widget item){
+  //   listItems.add(item);
+  // }
+  // void delOfKeyListItems(Key delItemId){
+  //   // print ("delItemId=> ${delItemId}");
+  //   listItems.retainWhere((item) => item.key != delItemId);
+  // }
+  // Stack getSlide(){
+  //   return Stack(
+  //     children: listItems,
+  //   );
+  // }
+  // List<Widget> getListItems(){
+  //   return listItems;
+  // }
+
+  void addListSlide(Slide slide){
+    listSlide.add(slide);
+  }
+  int getLengthListSlide(){
+    return listSlide.length;
+  }
+
+  Slide indexOfListSlide(int index){
+    return listSlide[index];
+  }
+
+  List<Slide> getListSlide(){
+    return listSlide;
+  }
+}
+
 class PresentationCreationArea extends ConsumerWidget{
   PresentationCreationArea({Key? key}) : super(key: key);
   PresentationCreationArea.hi(this.numWidget) {}
@@ -22,58 +74,89 @@ class PresentationCreationArea extends ConsumerWidget{
   // final canGoToPreviousPageProvider = Provider<StateProvider<int>((ref) {
   //   return ref.watch(buttonID) != 0;
   // });
+  Data data = Data();
 
   int numWidget = 0;
 
-  List<Widget> listWidgets = [
-    // Text("HELLO"),
-  ];
-  List<Slide> listSlide = [
-    // Text("HELLO"),
-  ];
+  List<Widget> listWidgets = [];
 
-  Future<void> _pickFile(int buttonId, StateController<int> _numAddItemState) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: "Выберите изображение или gif",
-      type: FileType.image,
-      // allowedExtensions: ['jpg','gif','jpeg'],
-    );
+  List<Slide> listSlide = [];
+  Future<Uint8List> imageElementToUint8List(ImageElement imageElement) async {
+    // Create a Canvas element and set its dimensions to match the image element
+    final canvas = CanvasElement(width: imageElement.width, height: imageElement.height);
 
-    if (result != null) {
-      PlatformFile file = result.files.single;
+    // Draw the image element onto the canvas
+    final context = canvas.context2D;
+    context.drawImage(imageElement, 0, 0);
 
-      print(file.path);
-      // File _file = File(file.path!);
-      File _file = File(file.path!);
-      // __fileProvidere.state = _file;
-      // print("${__fileProvidere.state}");
-      Widget imageWidget = Container(
-        // margin: const EdgeInsets.all(0),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: Image.file(_file).image,
-            fit: BoxFit.cover,
-          ),
-        ),
-      );
+    // Get the ImageData object from the canvas
+    final imageData = context.getImageData(0, 0, imageElement.width!.toInt(), imageElement.height!.toInt());
 
-      // TextBox textBox = TextBox.image(UniqueKey(), _file);
-      TextBox imageBox = TextBox.widget(UniqueKey(), imageWidget);
-
-      listSlide[buttonId].addItem(imageBox);
-    } else {
-      // User canceled the picker
-    }
-    _numAddItemState.state = -100;
-
+    // Return a Uint8List containing the pixel data from the ImageData object
+    return Uint8List.view(imageData.data.buffer);
   }
-  // void _pickFile(int buttonId) {
-  //   File _file = File("file.path!");
-  //   print("CEEEERFFF +? ${_file}");
-  //   TextBox textBox = TextBox.image(UniqueKey(), _file);
-  //   listSlide[buttonId].addItem(textBox);
-  // }
+  Future<void> pickFileWeb(int buttonId, StateController<int> _numAddItemState) async {
+    Uint8List? imageData;
 
+    print("_pickFile=>");
+    var input = html.FileUploadInputElement()..click();
+    input.onChange.listen((event) {
+      final file = input.files!.first;
+      final reader = html.FileReader();
+      reader.readAsArrayBuffer(file);
+
+      reader.onLoad.listen((event) {
+        imageData = reader.result as Uint8List;
+        Widget imageWidget = Container(
+          // margin: const EdgeInsets.all(0),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: MemoryImage(imageData!),
+              fit: BoxFit.cover,
+            ),
+          ),
+        );
+        TextBox imageBox = TextBox.widget(UniqueKey(), imageWidget);
+        print ("img => 3333");
+
+        data.indexOfListSlide(buttonId).addItem(imageBox);
+        // listSlide[buttonId].addItem(imageBox);
+      });
+    });
+
+    // FilePickerResult? result = await FilePicker.platform.pickFiles(
+    //   dialogTitle: "Выберите изображение или gif",
+    //   type: FileType.image,
+    //   // allowedExtensions: ['jpg','gif','jpeg'],
+    // );
+    //
+    // if (result != null) {
+    //   PlatformFile file = result.files.single;
+    //
+    //   print(file.path);
+    //   // File _file = File(file.path!);
+    //   File _file = File(file.path!);
+    //   // __fileProvidere.state = _file;
+    //   // print("${__fileProvidere.state}");
+    //   Widget imageWidget = Container(
+    //     // margin: const EdgeInsets.all(0),
+    //     decoration: BoxDecoration(
+    //       image: DecorationImage(
+    //         image: Image.file(_file).image,
+    //         fit: BoxFit.cover,
+    //       ),
+    //     ),
+    //   );
+    //
+    //   // TextBox textBox = TextBox.image(UniqueKey(), _file);
+    //   TextBox imageBox = TextBox.widget(UniqueKey(), imageWidget);
+    //
+    //   listSlide[buttonId].addItem(imageBox);
+    // } else {
+    //   // User canceled the picker
+    // }
+    _numAddItemState.state = -100;
+  }
   void addWidget(int idWidget) {
     // listWidgets.add(_selectWidget[idWidget]);
   }
@@ -85,8 +168,6 @@ class PresentationCreationArea extends ConsumerWidget{
       height: 290,
       color: Colors.yellow,
     ),
-    // _MediaMenuButton(),
-    // _MediaMenuButton(),
   ];
   Widget sideMenu(int numWidget) {
     // listWidgets.add(container);
@@ -133,7 +214,6 @@ class PresentationCreationArea extends ConsumerWidget{
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // ConsumerAddItemsToSlide consumerAddItemsToSlide = ConsumerAddItemsToSlide.ListSlide(listWidgets);
     Slide slide = Slide();
     StateController<int> _buttonID = ref.watch(buttonID.notifier);
     final _counterSlide = ref.watch(counterSlide);
@@ -150,30 +230,28 @@ class PresentationCreationArea extends ConsumerWidget{
 
 
 
-    if (listSlide.length < _counterSlide){
-      listSlide.add(slide);
+    if ( data.getLengthListSlide() < _counterSlide){
+      data.addListSlide(slide);
+      // listSlide.add(slide);
     }
 
     if (_numAddItem == 1){
-      print ("_numAddItem=>${_numAddItem}");
-      TextSlide textBox = TextSlide.Id(listSlide[_buttonID.state].lengthArr());
-      listSlide[_buttonID.state].addItem(textBox.getTextSlide());
+      print ("Add text item =>${_numAddItem}");
+      // TextSlide textBox = TextSlide.Id(listSlide[_buttonID.state].lengthArr());
+      TextSlide textBox = TextSlide.Id(data.indexOfListSlide(_buttonID.state).lengthArr());
+      // listSlide[_buttonID.state].addItem(textBox.getTextSlide());
+      data.indexOfListSlide(_buttonID.state).addItem(textBox.getTextSlide());
     }
 
-    print ("_numAddItem=>${_numAddItem}");
     if (_numAddItem == -4){
-      _pickFile(_buttonID.state, _numAddItemState);
+      print ("Add image item =>${_numAddItem}");
+      pickFileWeb(_buttonID.state, _numAddItemState);
     }
 
 
-    print("_DelItemId=> ${_DelItemId}");
-    listSlide[_buttonID.state].delItem(_DelItemId);
-
-    // if (_DelItemId == 1){
-    //   // listSlide.removeAt(_buttonID.state);
-    // }
-
-
+    // print("_DelItemId=> ${_DelItemId}");
+    // listSlide[_buttonID.state].delItem(_DelItemId);
+    data.indexOfListSlide(_buttonID.state).delItem(_DelItemId);
 
     // print("buttonID.state12=> ${_buttonID.state}");
     return Expanded(
@@ -216,7 +294,8 @@ class PresentationCreationArea extends ConsumerWidget{
                               index: count,
                               children: <Widget>[
                                 // for (Widget name in listWidgets) (name),
-                                for (Slide name in listSlide) (name.getSlide()),
+                                // for (Slide name in listSlide) (name.getSlide()),
+                                for (Slide name in data.getListSlide()) (name.getSlide()),
                               ],
                             ),
                           ],
@@ -225,8 +304,8 @@ class PresentationCreationArea extends ConsumerWidget{
                     ),
                   );
                 }
-              );
-            }
+            );
+          }
         ),
       ),
     );
@@ -257,36 +336,27 @@ class HomeViewState extends ConsumerState<HomeView> {
 }
 
 class Slide extends ConsumerWidget {
-  Slide(){}
+  Slide();
 
   List<Widget> listItems = [];
-  // TextSlide textSlide = TextSlide();
+  // Data data = Data();
+
   int lengthArr(){
     return listItems.length;
+    // return data.getLengthListItems();
   }
 
   void addItem(Widget item){
-    // addItem(textSlide.getTextSlide());
-
+    // data.addListItems(item);
     listItems.add(item);
   }
   void delItem(Key delItemId){
-    // print("listItems.length => ${listItems.length}");
-    // print("delItemId => ${delItemId}");
-
-    // for (int i = 0; i < listItems.length; ++i){
-    //   print("listItems[$i].key => ${listItems[i].key}");
-    //   print("listItems.elementAt($i) => ${listItems.elementAt(i)}");
-    // }
-
-    print ("delItemId=> ${delItemId}");
     listItems.retainWhere((item) => item.key != delItemId);
-
-    // print("listItems.removeAt(${delItemId}) => ${listItems.removeAt(delItemId)}");
+    // data.delOfKeyListItems(delItemId);
   }
 
-
   Stack getSlide(){
+    // return data.getSlide();
     return Stack(
       children: listItems,
     );
@@ -294,12 +364,9 @@ class Slide extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // print("_offset => $_offset, \n width => $width # $txt");
-    // addItem(textSlide.getTextSlide());
-    // addItem(textSlide.getTextSlide());
-
     return Stack(
       children: listItems,
+      // children: data.getListItems(),
     );
   }
 }
@@ -513,24 +580,25 @@ class TextSlide {
 class TextBox extends ConsumerStatefulWidget {
   // TextBox({Key? key}) : super(key: key);
   TextBox.Id(Key key, this.id) : super(key: key);
-  TextBox.image(Key key, this.imageFile) : super(key: key);
+  // TextBox.image(Key key, this.imageFile) : super(key: key);
   TextBox.widget(Key key, this.widget) : super(key: key);
 
   Widget? widget;
-  File imageFile = File('path');
+  // File imageFile = File('path');
   int id = 0;
   @override
-  _TextBoxState createState() => _TextBoxState(id, imageFile, widget);
+  // _TextBoxState createState() => _TextBoxState(id, imageFile, widget);
+  _TextBoxState createState() => _TextBoxState(id, widget);
 }
 class _TextBoxState extends ConsumerState<TextBox> {
   _TextBoxState(
       this.itemId,
-      this.imageFile,
+      // this.imageFile,
       this.widgetInit
   ){}
 
   Widget? widgetInit;
-  File imageFile;
+  // File imageFile;
   // File file = File("C:/Users/2001a/Pictures/Camera Roll/WIN_20220928_14_19_10_Pro.jpg");
 
   late TextEditingController _controller;
@@ -616,7 +684,7 @@ class _TextBoxState extends ConsumerState<TextBox> {
           // },
 
           if (width+_offsetPos.dx > 20 && flag){
-            print("left"),
+            // print("left"),
             left += _offsetPos.dx,
           },
 
@@ -640,21 +708,22 @@ class _TextBoxState extends ConsumerState<TextBox> {
   }
   Widget rotateTriger(){
     return Positioned(
-      top: 20,
+      top: 25,
       left: width/2,
       child: GestureDetector(
         onPanUpdate: (details) => setState(() => {
-          angle = details.delta.distance,
+          print("rotateTriger"),
+          angle += details.delta.dx*0.01,
         }),
         child: Container(
-          height: 10,
-          width: 10,
+          // height: 10,
+          // width: 10,
           decoration: BoxDecoration(
-            color: const Color(0xFF66D286),
+            // color: const Color(0xFF66D286),
             // color: const Color(0xE5DFFFD6),
             borderRadius: BorderRadius.circular(3),
           ),
-          child: const Icon(Icons.ice_skating),
+          child: const Icon(Icons.rotate_right, color: const Color(0xFF66D286)),
         ),
       ),
     );
@@ -717,21 +786,22 @@ class _TextBoxState extends ConsumerState<TextBox> {
                 : _color = Colors.yellow;
           });
         },
-        child: Stack(
-            children: [
-              Positioned(
-                top: top,
-                left: left,
-                child:
-                // Transform(
-                //   transform:Matrix4.identity()
-                //     ..setTranslationRaw(_offset.dx, _offset.dy, 0),
-                //   // ..scale(0.8),
-                //   // ..rotateZ(0.01 * _offset.dx),
-                //   alignment: FractionalOffset.center,
-                Transform.rotate(
-                  angle: angle,
-                  child: MouseRegion(
+        child: Transform.rotate(
+          angle: angle,
+          alignment: Alignment.topLeft,
+          child: Stack(
+              children: [
+                Positioned(
+                  top: top,
+                  left: left,
+                  child:
+                  // Transform(
+                  //   transform:Matrix4.identity()
+                  //     ..setTranslationRaw(_offset.dx, _offset.dy, 0),
+                  //   // ..scale(0.8),
+                  //   // ..rotateZ(0.01 * _offset.dx),
+                  //   alignment: FractionalOffset.center,
+                  MouseRegion(
                     onExit: (e){
                       setState (()=>{
                         border = null,
@@ -751,12 +821,12 @@ class _TextBoxState extends ConsumerState<TextBox> {
                         Container(
                           margin: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
-                            image: DecorationImage(
-                              // image: Image.file(File('dfg')),
-                              image: Image.file(imageFile).image,
-                              // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                              fit: BoxFit.cover,
-                            ),
+                            // image: DecorationImage(
+                            //   // image: Image.file(File('dfg')),
+                            //   image: Image.file(imageFile).image,
+                            //   // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                            //   fit: BoxFit.cover,
+                            // ),
                             // borderRadius: BorderRadius.circular(15),
                             border: _ItemId.state == itemId ? setBorder : border,
 
@@ -811,8 +881,8 @@ class _TextBoxState extends ConsumerState<TextBox> {
                     ),
                   ),
                 ),
-              ),
-            ]
+              ]
+          ),
         ),
       ),
     );
