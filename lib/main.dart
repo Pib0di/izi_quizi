@@ -240,35 +240,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // import 'package:mysql1/mysql1.dart';
+import 'Widgets/Join.dart';
+import 'jsonParse.dart';
+import 'model/AppData.dart';
 import 'slide.dart';
-import 'package:provider/provider.dart';
 import 'server.dart';
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
-import 'dart:html' as html;
 
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart' as pathProvider;
 
 // - - - - - - - - - - - - - SOCKET - - - - - - - - - -
-import 'package:web_socket_channel/web_socket_channel.dart';
 
-import 'dart:io' show WebSocket;
-import 'dart:convert' show json;
 import 'dart:async' show Timer;
 import 'dart:convert';
 
 // - - - - - - - - - - - - - SOCKET - - - - - - - - - - DELETE
-import 'dart:io' show HttpServer, HttpRequest, WebSocket, WebSocketTransformer;
-import 'dart:convert' show json;
-import 'dart:async' show Timer;
 
 
 import 'dart:async';
-import 'dart:io';
-import 'package:mysql_client/mysql_client.dart';
-import 'package:jaguar_jwt/jaguar_jwt.dart';
 
 import 'package:file_picker/file_picker.dart';
 
@@ -280,11 +269,14 @@ ParseMessege parseMessege = ParseMessege();
 bool widgetListIsReload = false;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - -
-bool isAuth = false;
+String idUser = '1';
 String email = '';
+String presentName = '';
 String deletePresent = '';
 List<dynamic?> listStr = ['hi'];
+Map<String, String> userPresent = {};
 
+AppData appData = AppData();
 
 // - PROVIDER - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// не нужон
@@ -305,9 +297,8 @@ final numAddItem = StateProvider((ref) => 0);
 final ItemId = StateProvider((ref) => 0);
 
 /// номер элемента в слайде для удаления
-final Key key = const Key("");
+const Key key = Key("");
 final delItemId = StateProvider<Key>(
-  // We return the default sort type, here name.
       (ref) => key,
 );
 
@@ -316,6 +307,20 @@ final File file = File("");
 final fileProvider = StateProvider<File>(
       (ref) => file,
 );
+
+/// StateProvider<bool> authorization success
+final isAuthorized2 = StateNotifierProvider((ref) {
+  return Counter();
+});
+
+class Counter extends StateNotifier<int> {
+  Counter(): super(0);
+
+  void increment() => state++;
+}
+
+final container = ProviderContainer();
+
 // final delItemId = StateProvider((ref) => 0);
 
 
@@ -340,6 +345,7 @@ final fileProvider = StateProvider<File>(
 // }
 
 void main() {
+
   // WebSocket.connect('ws://localhost:8000').then((WebSocket ws) {
   //   // our websocket server runs on ws://localhost:8000
   //   if (ws?.readyState == WebSocket.open) {
@@ -366,7 +372,6 @@ void main() {
   _socketConnection.getConnection().stream.listen((event) {
     print("event => $event");
     parseMessege.parse(event);
-    print (isAuth);
   });
   // _socketConnection.sendMessage('data');
 
@@ -379,9 +384,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-  SQL sql = SQL();
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -397,14 +399,14 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-class MyStateful extends StatefulWidget {
+class MyStateful extends ConsumerStatefulWidget {
   const MyStateful({super.key});
 
   @override
-  State<MyStateful> createState() => _MyStatefulState();
+  MyStatefulState createState() => MyStatefulState();
 }
 
-class _MyStatefulState extends State<MyStateful> {
+class MyStatefulState extends ConsumerState<MyStateful> {
   Color _color = Colors.white10;
   Offset _offset = Offset.zero;
   double width = 300, height = 300;
@@ -500,20 +502,19 @@ class ProgectName extends StatelessWidget {
 
 
 
-class MyStatefulWidget extends StatefulWidget {
+class MyStatefulWidget extends ConsumerStatefulWidget {
   const MyStatefulWidget({super.key});
 
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+  MyStatefulWidgetState createState() => MyStatefulWidgetState();
 }
 
 /// AnimationControllers can be created with `vsync: this` because of TickerProviderStateMixin.
-class _MyStatefulWidgetState extends State<MyStatefulWidget>
+class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  static SQL sql = SQL();
-  final Future<int> isConnected = sql.connection();
-  final Future<String> isAuthorized = sql.authentication("12", "1234");
+
+  get isAuthorizedd => null;
 
   @override
   void initState() {
@@ -528,13 +529,12 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
       child: Text('$text'),
     );
   }
-  Future<List<String>> _listStr = sql.ListWidget();
   final myController = TextEditingController();
   @override
   void setStates()
   {
     setState(() {
-      request.listWidget();
+      request.listWidget(idUser);
       // listStr.forEach((element) {print("element listStr => $element");});
       // _listStr = sql.ListWidget();
       if (widgetListIsReload){
@@ -543,8 +543,6 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
       }
       else{
       }
-      // isAuth = true;
-      print("$isAuth");
     });
   }
 
@@ -571,6 +569,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
 
   @override
   Widget build(BuildContext context) {
+
+    appData.widgetRef(ref);
+    bool _isAuth = ref.watch(appData.authStateProvider());
+
     void _showSimpleDialog() {
       showDialog(
           context: context,
@@ -613,7 +615,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                         ),
                         onPressed: () {
                           print("myController.text = ${myController.text}");
-                          request.createPresent(email, myController.text);
+                          request.createPresent(idUser, myController.text);
+                          presentName = myController.text;
                           // final Future<void> _listStr =  sql.CreatePresent(myController.text);
                           Navigator.push(
                             context,
@@ -661,33 +664,35 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                 Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.home),
-                      const SizedBox(width:5),
-                      const Text("Дом"),
+                    children: const [
+                      Icon(Icons.home),
+                      SizedBox(width:5),
+                      Text("Дом"),
                     ],
                   ),
                 ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.av_timer),
-                      const SizedBox(width:5),
-                      const Text("Мероприятия"),
-                    ],
-                  ),
-                ),
-                Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.people),
-                      const SizedBox(width:5),
-                      const Text("Комнаты"),
-                    ],
-                  ),
-                ),
+                if (_isAuth)(
+                    Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.av_timer),
+                          SizedBox(width:5),
+                          Text("Мероприятия"),
+                        ],
+                      ),
+                    )),
+                if (_isAuth)
+                  (Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.people),
+                        SizedBox(width:5),
+                        Text("Комнаты"),
+                      ],
+                    ),
+                  ))
               ],
             ),
           ),
@@ -708,7 +713,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
               ),
               icon: const Icon(Icons.add, size: 18, color: Colors.white,),
               label: const Text(
-                'Создать',
+                "Создать",
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -719,43 +724,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
               },
             ),
           ),
-          Builder(
-              builder: (BuildContext context) {
-                if (isAuth) {
-                  return popapMenu(true, context);
-                }
-                else{
-                  return popapMenu(false, context);
-                }
-              }
-          ),
-          FutureBuilder <String>(
-            // future: isConnected,
-            future: isAuthorized,
-            builder: (BuildContext Context, AsyncSnapshot<String> snapshot) {
-              List<Widget> children;
-              if (snapshot.hasData) {
-                print("isAUTH = $isAuth");
-                if (isAuth) {
-                  return popapMenu(true, context);
-                }
-                else{
-                  return popapMenu(true, context);
-                }
-              } else if (snapshot.hasError) {
-                return popapMenu(true, context);
-              } else {
-                children = const <Widget>[
-                ];
-              }
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: children,
-                ),
-              );
-            },
-          ),
+          popapMenu(context),
         ],
       ),
 
@@ -763,47 +732,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
         controller: _tabController,
         children: <Widget>[
           FutureBuilder<List<String>>(
-              future: _listStr,
               builder: (BuildContext Context, AsyncSnapshot<List<String>> snapshot) {
                 List<Widget> childrenn = <Widget>[];
-                for(int i = 0; i < listStr.length; ++i)
+                for(int i = 0; i < appData.getUserPresentName().length; ++i)
                 {
-                  childrenn.add(txtBox(listStr.elementAt(i).toString()));
-                }
-                if (snapshot.hasData) {
-                  // print("SnapshothasData = ${snapshot.data}");
-                  // for(int i = 0; i < listStr.length; ++i)
-                  // {
-                  //   print("$i = ${listStr.elementAt(i).toString()}");
-                  //   childrenn.add(txtBox(listStr.elementAt(i).toString(), setStateDel()));
-                  // }
-                  // for(int i = 0; i < snapshot.data!.length; ++i)
-                  // {
-                  //   // print("$i = ${snapshot.data!.elementAt(i)}");
-                  //   childrenn.add(txtBox(snapshot.data!.elementAt(i), setStateDel()));
-                  // }
-                  // childrenn = <Widget>[
-                  //   Text("${snapshot.data}"),
-                  // ];
-
-                  if (snapshot.data == "Register") {
-                    isAuth = true;
-                  }
-                } else if (snapshot.hasError) {
-                  print("SnapshothasError = ${snapshot.data}");
-                } else {
-                  // print("Snapshot = ${snapshot.data}");
-                  childrenn = const <Widget>[
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator(),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 16),
-                      child: Text('Awaiting result...'),
-                    ),
-                  ];
+                  childrenn.add(PresentCard(
+                      idPresent:  int.parse(appData.getUserPresentName().keys.elementAt(i)).toInt(),
+                      presentName: appData.getUserPresentName().values.elementAt(i),
+                  ));
                 }
                 return ListView(
                   padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
@@ -820,52 +756,28 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                 );
               }
           ),
+          // Join(),
           FutureBuilder<String>(
-            future: isAuthorized,
             builder: (BuildContext Context, AsyncSnapshot<String> snapshot) {
               List<Widget> children;
-              if (snapshot.hasData) {
-                if (isAuth) {
+                if (_isAuth) {
                   return const TabBarEvents();
                 }
-                else{
-                  return const Join();
-                }
-              } else if (snapshot.hasError) {
-                  if (isAuth) {
-                    return const TabBarEvents();
-                  }
-                  else{
-                    return const Join();
-                  }
-              } else {
-                children = const <Widget>[
-                  SizedBox(
-                    width: 60,
-                    height: 60,
-                    child: CircularProgressIndicator(),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Text('Awaiting result...'),
-                  ),
-                ];
-              }
               return Center(
                 // heightFactor: MediaQuery.of(context).size.height+500,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: children,
+                  children:const [ TabBarEvents()],
                 ),
               );
             },
           ),
           FutureBuilder<String>(
-            future: isAuthorized,
+            future: isAuthorizedd,
             builder: (BuildContext Context, AsyncSnapshot<String> snapshot) {
               List<Widget> children;
               if (snapshot.hasData) {
-                if (isAuth) {
+                if (_isAuth) {
                   // return Join();
                   children = <Widget>[
                     const Center(
@@ -885,7 +797,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
                   return const Join();
                 }
               } else if (snapshot.hasError) {
-                if (isAuth) {
+                if (_isAuth) {
                   // return Join();
                   children = <Widget>[
                     const Center(
@@ -932,8 +844,95 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget>
   }
 }
 
+class PresentCard extends StatefulWidget {
+  const PresentCard({
+    Key? key,
+    required this.idPresent,
+    required this.presentName,
+  }) : super(key: key);
+
+  final int idPresent;
+  final String presentName;
+
+  @override
+  State<PresentCard> createState() => _PresentCardState();
+}
+
+class _PresentCardState extends State<PresentCard> {
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        Positioned(
+          child: Container(
+            width: 190,
+            height: 150,
+            decoration: BoxDecoration(
+              color: const Color(0xff7c94b6),
+              image: const DecorationImage(
+                image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                fit: BoxFit.cover,
+              ),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: RawMaterialButton(
+              padding: const EdgeInsets.only(bottom: 10),
+              shape: const RoundedRectangleBorder(),
+              onPressed: (){
+                print("getSlideData");
+                request.getSlideData(widget.idPresent, widget.presentName);
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xE5DFFFD6),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                      widget.presentName,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          right: 0,
+          child: Container(
+            margin: const EdgeInsets.all(5),
+            width: 30,
+            height: 30,
+            child: RawMaterialButton(
+              fillColor: Colors.redAccent,
+              shape: const CircleBorder(),
+              elevation: 0.0,
+              onPressed: () {
+                print("email => $email, txt => ${widget.idPresent.toString()}");
+                request.deletePresent(email, widget.idPresent.toString());
+              },
+              child: const Icon(Icons.delete, size: 20,),
+            ),
+          ),
+        ),
+      ],
+    );;
+  }
+}
+
+
 Widget txtBox(String txt)
 {
+  
   return Stack(
     children: [
       Positioned(
@@ -1001,17 +1000,12 @@ Widget txtBox(String txt)
 
 String Presentations()
 {
-  SQL sql = SQL();
-  final Future<List<String>> _listStr = sql.ListWidget();
-  print("lskdjfa;sidljfasidj");
   FutureBuilder<List<String>>(
-    future: _listStr,
     builder: (BuildContext Context, AsyncSnapshot<List<String>> snapshot) {
       List<String> children;
       if (snapshot.hasData) {
         print("Snapshot = ${snapshot.data}");
         if (snapshot.data == "Register") {
-          isAuth = true;
         }
         children = <String>[
         ];
@@ -1028,7 +1022,7 @@ String Presentations()
         padding: const EdgeInsets.all(10),
         child: Wrap(
           spacing: 10,
-          children: [
+          children: const [
 
           ],
         ),
@@ -1279,7 +1273,9 @@ class SecondRoute1 extends StatelessWidget {
                 shape: const CircleBorder(),
                 onPressed: () {
                   print("s;ldkfj;");
-
+                  var jsonSlide = SlideJson().slideJson();
+                  print("${jsonEncode(jsonSlide.toJson())}");
+                  request.setSlideData(idUser, presentName, jsonEncode(jsonSlide.toJson()));
                 },
                 child: const Icon(
                     Icons.save, size: 25,
@@ -1320,9 +1316,8 @@ class _secondRouteState extends State<secondRoute> {
               RawMaterialButton(
                 enableFeedback: false,
                 fillColor: Colors.lightGreen,
-                shape: new CircleBorder(),
+                shape: const CircleBorder(),
                 onPressed: () {
-                  SQL sql = SQL();
                 },
                 child: const Icon(Icons.refresh, size: 25,),
               ),
@@ -1370,27 +1365,27 @@ class _ToggleButtonsSampleState extends State<ToggleButtonsSample> {
       isSelected: _selectedWeather,
       children: [
         Column(
-          children: [
-            const Icon(Icons.sunny,),
-            const Text("Слайды")
+          children: const [
+            Icon(Icons.sunny,),
+            Text("Слайды")
           ],
         ),
         Column(
-          children: [
-            const Icon(Icons.sunny,),
-            const Text("Текст")
+          children: const [
+            Icon(Icons.sunny,),
+            Text("Текст")
           ],
         ),
         Column(
-          children: [
-            const Icon(Icons.sunny,),
-            const Text("Медиа")
+          children: const [
+            Icon(Icons.sunny,),
+            Text("Медиа")
           ],
         ),
         Column(
-          children: [
-            const Icon(Icons.sunny,),
-            const Text("Слайды")
+          children: const [
+            Icon(Icons.sunny,),
+            Text("Слайды")
           ],
         ),
       ],
@@ -1398,28 +1393,31 @@ class _ToggleButtonsSampleState extends State<ToggleButtonsSample> {
   }
 }
 
-Widget popapMenu(bool isAuthorized, BuildContext context)
+
+
+
+Widget popapMenu(BuildContext context)
 {
-  print("ISCONN = ${isAuthorized}");
-  if (isAuthorized)
+  bool _isAuth = appData.authStateController().state;
+
+  if (_isAuth)
   {
     return PopupMenuButton<String>(
       padding: EdgeInsets.zero,
       onSelected: (String item){
+        if (item == "exit"){
+          appData.authStateController().state = false;
+        }
       },
       itemBuilder: (context) => const <PopupMenuEntry<String>>[
         PopupMenuDivider(),
         PopupMenuItem<String>(
           value: "pref",
-          child: Text(
-              "Настройки"
-          ),
+          child: Text("Настройки"),
         ),
         PopupMenuItem<String>(
           value: "exit",
-          child: Text(
-            "Выход",
-          ),
+          child: Text("Выход",),
         ),
       ],
     );
@@ -1427,6 +1425,9 @@ Widget popapMenu(bool isAuthorized, BuildContext context)
   return PopupMenuButton<String>(
     padding: EdgeInsets.zero,
     onSelected: (String item) => {
+      if (item == "auth"){
+
+      },
       showDialog(
         context: context,
         builder: (BuildContext context) => const AlertDialog(
@@ -1434,345 +1435,26 @@ Widget popapMenu(bool isAuthorized, BuildContext context)
           content: Join(),
         )
       ),
-      print("$item"),
     },
     itemBuilder: (context) => const <PopupMenuEntry<String>>[
       PopupMenuDivider(),
       PopupMenuItem<String>(
-        value: "ууа",
-        child: Text(
-            "Настройки"
-        ),
+        value: "settings",
+        child: Text("Настройки"),
       ),
       PopupMenuItem<String>(
         value: "auth",
-        child: Text(
-          "Авторизоваться",
-        ),
+        child: Text("Авторизоваться",),
       ),
     ],
   );
 }
 
 
-Widget join(){
-  return const Join();
-}
+// Widget Join(){
+//   return const Join();
+// }
 
-class Join extends StatefulWidget {
-  const Join({Key? key}) : super(key: key);
-
-  @override
-  State<Join> createState() => _JoinState();
-}
-
-class _JoinState extends State<Join> {
-  final myControllerEmail = TextEditingController();
-  final myControllerPass = TextEditingController();
-  SQL sql = SQL();
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    myControllerEmail.dispose();
-    myControllerPass.dispose();
-    super.dispose();
-  }
-  final _formKey = GlobalKey<FormState>();
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      margin: const EdgeInsets.symmetric(vertical: 20,),
-      width: 600,
-      height: 200,
-      child:  Wrap(
-        direction: Axis.horizontal,
-        alignment: WrapAlignment.center,
-
-        // spacing: 0,
-        children: [
-          // MyCustomForm(),
-          Container(
-            width: 800,
-            height: 270,
-            padding: const EdgeInsets.all(20),
-            // color: Colors.black,
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3), // changes position of shadow
-                ),
-              ],
-              border: Border.all(
-                width: 4,
-                color: Colors.grey,
-              ),
-            ),
-            child: Column(
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        controller: myControllerEmail,
-                        restorationId: 'life_story_field',
-                        textInputAction: TextInputAction.next,
-                        validator: (value){
-                          if (value == null || value.isEmpty) {
-                            return 'Пожалуйста введите почту';
-                          }
-                          return null;
-                        },
-                        // focusNode: _lifeStory,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: "andrey@example.com",
-                          // helperText: "название вашего iziQuizi",
-                          labelText: "Email",
-                        ),
-                        maxLines: 1,
-                      ),
-
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20,),
-                // PasswordForm(),
-                PasswordField(
-                  myControllerPass: myControllerPass,
-                  restorationId: 'password_field',
-                  textInputAction: TextInputAction.next,
-                  // focusNode: _password,
-                  // fieldKey: _passwordFieldKey,
-                  // helperText: localizations.demoTextFieldNoMoreThan,
-                  // labelText: localizations.demoTextFieldPassword,
-                  onFieldSubmitted: (value) {
-                    setState(() {
-                      // person.password = value;
-                      // _retypePassword.requestFocus();
-                    });
-                  },
-                ),
-                const SizedBox(height: 10,),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: Row(
-                      children: <Widget>[
-                        const Spacer(),
-                        Positioned.fill(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: <Color>[
-                                  Color(0xFF0D47A1),
-                                  Color(0xFF1976D2),
-                                  Color(0xFF42A5F5),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.teal,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.all(16.0),
-                            textStyle: const TextStyle(fontSize: 20),
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate())
-                            {
-                              print("Validateeee");
-                            };
-                            final Future<String> _calculation = sql.Register(myControllerEmail.text.toString(), myControllerPass.text.toString());
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog
-                                  (
-                                    content: FutureBuilder<String>(
-                                      future: _calculation,
-                                      builder: (BuildContext Context, AsyncSnapshot<String> snapshot) {
-                                        List<Widget> children;
-                                        if (snapshot.hasData) {
-                                          // setState(() { isAuth = true; });
-
-                                          // isAuth = true;
-                                          // print("isAuth = $isAuth");
-                                          if (snapshot.data == "Register")
-                                          {
-                                            isAuth = true;
-                                          }
-
-                                          children = <Widget>[
-                                            const Icon(
-                                              Icons.check_circle_outline,
-                                              color: Colors.green,
-                                              size: 60,
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 16),
-                                              child: Text('Result: ${snapshot.data}'),
-                                            ),
-                                          ];
-                                        } else if (snapshot.hasError) {
-                                          children = <Widget>[
-                                            const Icon(
-                                              Icons.error_outline,
-                                              color: Colors.red,
-                                              size: 60,
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 16),
-                                              child: Text('Error: ${snapshot.error}'),
-                                            ),
-                                          ];
-                                        } else {
-                                          children = const <Widget>[
-                                            SizedBox(
-                                              width: 60,
-                                              height: 60,
-                                              child: CircularProgressIndicator(),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(top: 16),
-                                              child: Text('Awaiting result...'),
-                                            ),
-                                          ];
-                                        }
-                                        return Center(
-                                          // heightFactor: MediaQuery.of(context).size.height+500,
-                                          child: Column(
-
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: children,
-                                          ),
-                                        );
-                                      },
-                                    )
-                                );
-                              },
-                            );
-
-                          },
-                          child: const Text('Зарегистрироваться'),
-                        ),
-                        const SizedBox(width: 10,),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            backgroundColor: Colors.teal,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.all(16.0),
-                            textStyle: const TextStyle(fontSize: 20),
-                          ),
-                          onPressed: () {
-
-                            if (_formKey.currentState!.validate())
-                            {
-                              print("Validate");
-                            };
-                            // SqlQuery();
-                            // final Future<String> _calculation = sql.MySql(myControllerEmail.text.toString(), myControllerPass.text.toString());
-                            email = myControllerEmail.text.toString();
-
-                            request.authentication(email, myControllerPass.text.toString());
-                            // final Future<String> _calculation = sql.authentication(email, myControllerPass.text.toString());
-
-                            // SQL().authentication(myControllerEmail.text.toString(), myControllerPass.text.toString());
-                            // String mess = await MySql(myControllerEmail.text.toString(), myControllerPass.text.toString());
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog
-                                  (
-                                  content: FutureBuilder<String>(
-                                    // future: _calculation,
-                                    builder: (BuildContext Context, AsyncSnapshot<String> snapshot) {
-                                      List<Widget> children;
-                                      if (snapshot.hasData) {
-                                        // setState(() { isAuth = true; });
-
-                                        // isAuth = true;
-                                        // print("isAuth = $isAuth");
-                                        if (snapshot.data != "authErr")
-                                        {
-                                          isAuth = true;
-                                        }
-
-                                        children = <Widget>[
-                                          const Icon(
-                                            Icons.check_circle_outline,
-                                            color: Colors.green,
-                                            size: 60,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 16),
-                                            child: Text('Result: ${snapshot.data}'),
-                                          ),
-                                        ];
-                                      } else if (snapshot.hasError) {
-                                        children = <Widget>[
-                                          const Icon(
-                                            Icons.error_outline,
-                                            color: Colors.red,
-                                            size: 60,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 16),
-                                            child: Text('Error: ${snapshot.error}'),
-                                          ),
-                                        ];
-                                      } else {
-                                        children = const <Widget>[
-                                          SizedBox(
-                                            width: 60,
-                                            height: 60,
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(top: 16),
-                                            child: Text('Awaiting result...'),
-                                          ),
-                                        ];
-                                      }
-                                      return Center(
-                                        // heightFactor: MediaQuery.of(context).size.height+500,
-                                        child: Column(
-
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: children,
-                                        ),
-                                      );
-                                    },
-                                  )
-                                  // // QuerySql(),
-                                );
-                              },
-                            );
-                          },
-                          child: const Text('Войти'),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            )
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 
 class PasswordForm extends StatefulWidget {
@@ -2143,88 +1825,6 @@ class _TapBoxCState extends State<TapBoxC> {
 
 
 
-
-
-
-
-
-
-
-class PasswordField extends StatefulWidget {
-  const PasswordField({
-    Key? key,
-    this.restorationId,
-    this.fieldKey,
-    this.hintText,
-    this.labelText,
-    this.helperText,
-    this.onSaved,
-    this.validator,
-    this.onFieldSubmitted,
-    this.focusNode,
-    this.textInputAction,
-    this.myControllerPass,
-  }) : super(key: key);
-
-  final String? restorationId;
-  final Key? fieldKey;
-  final String? hintText;
-  final String? labelText;
-  final String? helperText;
-  final FormFieldSetter<String>? onSaved;
-  final FormFieldValidator<String>? validator;
-  final ValueChanged<String>? onFieldSubmitted;
-  final FocusNode? focusNode;
-  final TextInputAction? textInputAction;
-  final TextEditingController? myControllerPass;
-
-  @override
-  State<PasswordField> createState() => _PasswordFieldState();
-}
-
-class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
-  final RestorableBool _obscureText = RestorableBool(true);
-
-  @override
-  String? get restorationId => widget.restorationId;
-
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_obscureText, 'obscure_text');
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: widget.myControllerPass,
-      key: widget.fieldKey,
-      restorationId: 'password_text_field',
-      obscureText: _obscureText.value,
-      maxLength: 18,
-      onSaved: widget.onSaved,
-      validator: widget.validator,
-      onFieldSubmitted: widget.onFieldSubmitted,
-      decoration: InputDecoration(
-        filled: true,
-        hintText: widget.hintText,
-        labelText: widget.labelText,
-        helperText: widget.helperText,
-        suffixIcon: IconButton(
-          onPressed: () {
-            setState(() {
-              _obscureText.value = !_obscureText.value;
-            });
-          },
-          hoverColor: Colors.transparent,
-          icon: Icon(
-            _obscureText.value ? Icons.visibility : Icons.visibility_off,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class MyCustomForm extends StatefulWidget {
   const MyCustomForm({super.key});
 
@@ -2251,7 +1851,7 @@ class MyCustomFormState extends State<MyCustomForm> {
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: const [
           // TextFormField(
           //   // The validator receives the text that the user has entered.
           //   validator: (value) {
@@ -2346,7 +1946,7 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
         numAddObj: 1,
         onPressed: (){
         },
-        child: Row(children: [const Text('Заголовок',)], mainAxisAlignment: MainAxisAlignment.center,),
+        child: Row(children: const [Text('Заголовок',)], mainAxisAlignment: MainAxisAlignment.center,),
       ),
       ElevatedButtonFactory.numAddItem(
         numAddObj: 2,
