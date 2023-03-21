@@ -2,9 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../Widgets/WidgetsCollection.dart';
 import '../main.dart';
 import '../slide.dart';
-import 'ListDataSlide.dart';
+import '../FactoryСlasses/SlideData.dart';
 
 class ItemsShel extends ConsumerStatefulWidget {
   ItemsShel({
@@ -55,7 +56,7 @@ class ItemsShel extends ConsumerStatefulWidget {
     itemsShelDataText.width = width;
     itemsShelDataText.height = height;
 
-    itemsShelDataText.text = _controller.value.text;
+    itemsShelDataText.text = controller.value.text;
     if (type == "text") {
       return itemsShelDataText;
     }
@@ -79,7 +80,7 @@ class ItemsShel extends ConsumerStatefulWidget {
   }
 
 
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController controller = TextEditingController();
   int itemId = 0;
   String text = '';
   String url = '';
@@ -93,11 +94,11 @@ class ItemsShel extends ConsumerStatefulWidget {
   // File imageFile = File('path');
   @override
   // _TextBoxState createState() => _TextBoxState(id, imageFile, widget);
-  _ItemsShelState createState() => _ItemsShelState();
+  ItemsShelState createState() => ItemsShelState();
 }
 
 
-class _ItemsShelState extends ConsumerState<ItemsShel> {
+class ItemsShelState extends ConsumerState<ItemsShel> {
 
   // TextEditingController get _controller => widget._controller;
 
@@ -214,7 +215,7 @@ class _ItemsShelState extends ConsumerState<ItemsShel> {
 
   BoxBorder? border;
   BoxBorder? setBorder = Border.all(
-    strokeAlign: StrokeAlign.outside,
+    strokeAlign: BorderSide.strokeAlignOutside,
     color: const Color(0xDDB236BD),
     width: 4,
   );
@@ -240,6 +241,8 @@ class _ItemsShelState extends ConsumerState<ItemsShel> {
     final _ItemSelect1 = ref.watch(fileProvider);
 
     // print("imageFile1111 => ${imageFile}");
+
+    widget.controller.text = widget.text;
 
     select = _ItemId.state == itemId ? true : false;
 
@@ -327,7 +330,7 @@ class _ItemsShelState extends ConsumerState<ItemsShel> {
                                       child: TextField(
                                         scrollPhysics: const NeverScrollableScrollPhysics(),
                                         textDirection: TextDirection.ltr,
-                                        controller: widget._controller,
+                                        controller: widget.controller,
                                         clipBehavior: Clip.none,
                                         expands: false,
                                         // maxLength: 10,

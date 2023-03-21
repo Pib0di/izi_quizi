@@ -9,6 +9,7 @@ class AppData{
   factory AppData() { return _instance; }
   AppData._internal();
 
+
   // set of user presentations
   Map<String, dynamic> userPresentName = {};
   void setUserPresentName(Map<String, dynamic> userPresentName){
@@ -25,8 +26,7 @@ class AppData{
   final isAuthorized = StateProvider<bool>(
         (ref) => isAuth,
   );
-
-  void widgetRef (WidgetRef ref){
+  void widgetRef(WidgetRef ref){
     this.ref = ref;
   }
   StateController<bool> authStateController(){
@@ -40,5 +40,5 @@ class AppData{
     ref!.refresh(isAuthorized.notifier).state = valid;
   }
 
-
+  //
 }

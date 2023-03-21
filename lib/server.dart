@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:izi_quizi/Factory%D0%A1lasses/AppData.dart';
 
 // - - - - - - - - - - - - - SOCKET - - - - - - - - - -
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -8,7 +9,7 @@ import 'dart:convert' show json;
 import 'dart:convert';
 import 'jsonParse.dart';
 import 'main.dart';
-import 'model/ListDataSlide.dart';
+import 'FactoryСlasses/SlideData.dart';
 
 class SocketConnection {
   final _channel = WebSocketChannel.connect(
@@ -243,8 +244,12 @@ class ParseMessege {
         {
           print("data['list'] => ${data['list']}");
           // JsonParse jsonParse = JsonParse.fromJson(json.decode(data['list']));
+
+
           SlideData slideData = SlideData();
-          slideData.set(JsonParse.fromJson(json.decode(data['list'])));
+          slideData.setDataSlide(data);
+          // slideData.set(JsonParse.fromJson(json.decode(data['list'])));
+          // slideData.setItemsView(JsonParse.fromJson(json.decode(data['list'])));
           break;
         }
       default:

@@ -1,12 +1,14 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' show BuildContext, Key, Stack, Widget;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../Screen/SingleView/ViewPresentation.dart';
 import 'ItemsShel.dart';
 
 class SlideItems extends ConsumerWidget {
-  SlideItems();
+  SlideItems({super.key});
 
-  List<ItemsShel> listItems = [];
+  final List<ItemsShel> listItems = [];
+  final List<ItemsViewPresentation> listItemsView = [];
   // Data data = Data();
 
   int lengthArr(){
@@ -26,6 +28,10 @@ class SlideItems extends ConsumerWidget {
     listItems.add(itemShel);
   }
 
+  void addItemsView(ItemsViewPresentation itemsView){
+    listItemsView.add(itemsView);
+  }
+
   void delItem(Key delItemId){
     listItems.retainWhere((item) => item.key != delItemId);
   }
@@ -34,6 +40,12 @@ class SlideItems extends ConsumerWidget {
     // return data.getSlide();
     return Stack(
       children: listItems,
+    );
+  }
+  Stack getSlideView(){
+    // return data.getSlide();
+    return Stack(
+      children: listItemsView,
     );
   }
 
