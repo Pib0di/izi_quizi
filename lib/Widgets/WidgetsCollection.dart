@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/Factory%D0%A1lasses/SideSlides.dart';
 
+import '../FactoryСlasses/SlideData.dart';
 import '../main.dart';
 
 class ButtonDelete extends ConsumerWidget {
@@ -25,7 +27,10 @@ class ButtonDelete extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
+            // sideSlides.updateCount();
             print("deleteItemKey => ${deleteItemKey}");
+            SlideData slideData = SlideData();
+            print("sideSlides.length => ${sideSlides.getLengthSideList()}, slideData.length => ${slideData.getLengthListSlide()}");
             _deleteItemKey.state = deleteItemKey;
             _numAddItem.state = -100;
             _numAddItem.state = -10;

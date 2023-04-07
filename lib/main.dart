@@ -242,6 +242,7 @@ import 'package:flutter/material.dart';
 import 'package:izi_quizi/Widgets/PresentationCard.dart';
 // import 'package:mysql1/mysql1.dart';
 // import 'Screen/ViewPresentation.dart';
+import 'FactoryСlasses/MultipleViewData.dart';
 import 'FactoryСlasses/SideSlides.dart';
 import 'Screen/Edit/PresentationEdit.dart';
 import 'Screen/SingleView/ViewPresentation.dart';
@@ -282,6 +283,7 @@ List<dynamic?> listStr = ['hi'];
 Map<String, String> userPresent = {};
 
 AppData appData = AppData();
+MultipleViewData multipleViewData = MultipleViewData();
 
 // - PROVIDER - - - - - - - - - - - - - - - - - - - - - - - - - -
 /// не нужон
@@ -1702,9 +1704,12 @@ Row _Row(List<Widget> wg){
 class JoinThePresentation extends StatelessWidget {
   JoinThePresentation({Key? key}) : super(key: key);
 
+  static final TextEditingController controller = TextEditingController();
+
   final List<Widget> _list = <Widget>[
     Expanded(
       child: TextFormField(
+        controller: controller,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
           labelText: 'Введите код присоединения',
@@ -1735,12 +1740,15 @@ class JoinThePresentation extends StatelessWidget {
         ),
       ),
       onPressed: () {
+        print("roomId => ${controller.text}");
+        request.joinRoom("userName", controller.text);
       },
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
       padding: const EdgeInsets.all(20),
       // color: Colors.black,

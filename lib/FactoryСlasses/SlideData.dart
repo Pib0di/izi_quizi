@@ -11,6 +11,7 @@ import '../model/SlideItem.dart';
 import 'AppData.dart';
 import 'SideSlides.dart';
 
+/// Информация слайда (элементы на нем)
 class SlideData {
   static final SlideData _instance = SlideData._internal();
   factory SlideData() {
@@ -19,6 +20,7 @@ class SlideData {
   SlideData._internal();
 
   List<SlideItems> listSlide = [];
+
 
   Map<String, dynamic> dataSlide = {};
   void setDataSlide(Map<String, dynamic> data) {
@@ -29,9 +31,10 @@ class SlideData {
     return dataSlide;
   }
 
-  void addListSlide(SlideItems slide) {
-    listSlide.add(slide);
+  void addListSlide(SlideItems item) {
+    listSlide.add(item);
   }
+
 
   int getLengthListSlide() {
     return listSlide.length;
@@ -39,6 +42,9 @@ class SlideData {
 
   SlideItems indexOfListSlide(int index) {
     return listSlide[index];
+  }
+  void removeAt(int index){
+    listSlide.removeAt(index);
   }
 
   List<SlideItems> getListSlide() {
@@ -50,20 +56,18 @@ class SlideData {
   }
 
   void setItemsEdit() {
-    AppData appData = AppData();
 
     SideSlides sideSlides = SideSlides();
     JsonParse jsonParse = dataSlideParse(dataSlide);
     listSlide.clear();
     jsonParse.slidesData?.forEach((element) {
       SlideItems slide = SlideItems();
-      final numSlide = appData.ref!.watch(counterSlide.notifier);
-      NavSlideButton navSlideButton = NavSlideButton.buttonID(
-        key: UniqueKey(),
-        buttonId: numSlide.state,
-      );
-      sideSlides.addSlide(navSlideButton);
-      ++numSlide.state;
+
+      // AppData appData = AppData();
+      // final numSlide = appData.ref!.watch(counterSlide.notifier);
+      // ++numSlide.state;
+
+      sideSlides.addSlide();
 
 
       element.textItems?.forEach((element) {

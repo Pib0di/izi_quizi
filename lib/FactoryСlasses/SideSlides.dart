@@ -1,11 +1,19 @@
 
 
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/Widgets/WidgetsCollection.dart';
+import 'package:izi_quizi/model/SlideItem.dart';
+import 'package:screenshot/screenshot.dart';
 
 import '../main.dart';
+import 'AppData.dart';
+import 'SlideData.dart';
 
+///Боковое выбора слайдов при редоактировании
 class SideSlides {
   static final SideSlides _instance = SideSlides._internal();
   factory SideSlides() {
@@ -13,13 +21,42 @@ class SideSlides {
   }
   SideSlides._internal();
 
+  ScreenshotController screenshotController = ScreenshotController();
+  Future updatePreview(int index) async {
+    screenshotController.capture().then((capturedImage) async {
+      sideList[index-1].setImagePreview(capturedImage);
+    //   // sideList.forEach((element) {
+    //   //   element.setImagePreview(capturedImage);
+    //   // });
+    }).catchError((onError) {
+      print(onError);
+    });
+  }
 
-  int numSlide = 0;
   List<NavSlideButton> sideList = [];
 
-  addSlide(NavSlideButton navSlideButton){
-    ++numSlide;
-    sideList.add(navSlideButton);
+  int getLengthSideList() {
+    return sideList.length;
+  }
+  addSlide(){
+    sideList.add(
+        NavSlideButton.buttonID(
+          key: UniqueKey(),
+          buttonId: sideList.length,
+        )
+    );
+    updateCount();
+  }
+
+  void updateCount(){
+    AppData appData = AppData();
+    appData.ref!.watch(counterSlide.notifier).state = sideList.length;
+
+    int countSlide = 1;
+    sideList.forEach((element) {
+      element.setButtonId(countSlide);
+      ++countSlide;
+    });
   }
 
   List<NavSlideButton> getSlide(){
@@ -32,9 +69,23 @@ class SideSlides {
     sideList = list;
   }
   void delItem(Key delItemId){
-    // countSlide.state = countSlide.state - 1;
-    print ("delItemId=> ${delItemId}");
-    final result = sideList.retainWhere((item) => item.key != delItemId);
+    int i = 0;
+    SlideData slideData = SlideData();
+    for (var item in sideList) {
+      if (item.key == delItemId){
+        sideList.removeAt(i);
+        print("slideData.getLengthListSlide() => ${slideData.getLengthListSlide()}");
+        slideData.removeAt(i-1);
+        print("slideData.getLengthListSlide() => ${slideData.getLengthListSlide()}");
+      }
+      if (item.buttonId == appData.ref!.watch(buttonID.notifier).state){
+        // --appData.ref!.watch(buttonID.notifier).state;
+        print("item.buttonId == appData.ref!.watch(buttonID.notifier");
+      }
+      ++i;
+    }
+    print("delItemId=> ${delItemId}");
+    // sideList.retainWhere((item) => item.key != delItemId);
 
   }
 }
@@ -46,10 +97,14 @@ class NavSlideButton extends ConsumerStatefulWidget {
   void setButtonId(int id){
     buttonId = id;
   }
+  void setImagePreview(Uint8List? capturedImage){
+    _imageFile = capturedImage!;
+  }
 
   final Key key;
-
+  Uint8List _imageFile = Uint8List(0);
   int buttonId = -10;
+
   @override
   NavSlideButtonState createState() => NavSlideButtonState();
 }
@@ -72,6 +127,9 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
   }
 
   Widget _hoverMenu = const Text("");
+  ScreenshotController screenshotController = ScreenshotController();
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +147,15 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
 
     StateController<int> counter = ref.watch(buttonID.notifier);
     int selectButtonID = ref.watch(buttonID);
-    width = counter.state == widget.buttonId ? 3 : 0;
+    int counterSlideProvide = ref.watch(counterSlide);
 
+    width = counter.state == widget.buttonId ? 3 : 0;
+    var decorationImage = DecorationImage(
+      // image: widget._imageFile != null ? MemoryImage(widget._imageFile!) : MemoryImage(widget._imageFile!),
+      image: MemoryImage(widget._imageFile),
+      // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+      fit: BoxFit.cover,
+    );
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
@@ -114,10 +179,9 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
                       width: counter.state == widget.buttonId ? width : widthBorder,
                       // selectButtonID == ButtonID ? 3 : 0,
                     ),
-                    color: const Color(0xff7c94b6),
-                    image: const DecorationImage(
-                      image: NetworkImage(
-                          'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                    color: const Color(0xff84b67c),
+                    image: DecorationImage(
+                      image: MemoryImage(widget._imageFile),
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.circular(15),
@@ -135,6 +199,7 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
                     // shape: const RoundedRectangleBorder(),
                     onPressed: () {
                       print("Button ID => ${counter.state}");
+                      sideSlides.updatePreview(widget.buttonId);
                       counter.state = widget.buttonId;
                     },
                     child: Column(
@@ -164,9 +229,7 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
               ],
             ),
           ),
-          const SizedBox(
-            height: 7,
-          ),
+          const SizedBox(height: 7,)
         ],
       ),
     );
@@ -183,15 +246,20 @@ class ListSlide extends ConsumerStatefulWidget {
 }
 
 class SideSlidesState extends ConsumerState<ListSlide> {
-
+  Future<void> waitUntilBuildComplete() async {
+    await Future.delayed(Duration.zero);
+    WidgetsBinding.instance.addPostFrameCallback((_) {});
+    sideSlides.updateCount();
+  }
   @override
   Widget build(BuildContext context) {
 
     StateController<int> countSlide = ref.watch(counterSlide.notifier);
     final delId = ref.watch(delItemId);
-    final delIdd = ref.watch(counterSlide);
+    // final delIdd = ref.watch(counterSlide);
 
     sideSlides.delItem(delId);
+    waitUntilBuildComplete();
 
     return Column(
         children: [
@@ -207,12 +275,9 @@ class SideSlidesState extends ConsumerState<ListSlide> {
           ElevatedButtonFactory(
             onPressed: (){
               setState(() {
-                NavSlideButton navSlideButton = NavSlideButton.buttonID(
-                  key: UniqueKey(),
-                  buttonId: countSlide.state,
-                );
-                sideSlides.addSlide(navSlideButton);
-                ++countSlide.state;
+                sideSlides.addSlide();
+                SlideData slideData = SlideData();
+                slideData.addListSlide(SlideItems());
               });
             },
             child: const Text('Добавить'),

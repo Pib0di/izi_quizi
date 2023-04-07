@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/jsonParse.dart';
+import 'package:screenshot/screenshot.dart';
 
 import '../../FactoryСlasses/SideSlides.dart';
 import '../../main.dart';
@@ -146,7 +147,6 @@ class PresentationEdit extends StatelessWidget {
                 onPressed: () {
                   var jsonSlide = SlideJson().slideJson();
                   print(jsonEncode(jsonSlide.toJson()));
-
                   request.setSlideData(idUser, presentName, jsonEncode(jsonSlide.toJson()));
                 },
                 child: const Icon(
@@ -460,8 +460,13 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
                     : listSlide,
               ),
             ),
-            const Expanded(
-              child: ParentWidget4(),
+            Expanded(
+              child: Screenshot(
+                controller: sideSlides.screenshotController,
+                child: const Expanded(
+                  child: ParentWidget4(),
+                ),
+              ),
             ),
           ],
         ),

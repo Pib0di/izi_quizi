@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../Screen/Edit/PresentationEdit.dart';
+import '../Screen/MultipleView/MultipleView.dart';
 import '../Screen/SingleView/ViewPresentation.dart';
 import '../jsonParse.dart';
 import '../main.dart';
@@ -77,7 +78,14 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    request.createRoom(idUser, presentName);
+                    slideData.setItemsView();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MultipleView()),
+                    );
+                  },
                   child: Row(
                     children: const [
                       Text("Начать сессию"),

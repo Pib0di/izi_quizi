@@ -81,6 +81,7 @@ class ItemsShel extends ConsumerStatefulWidget {
 
 
   final TextEditingController controller = TextEditingController();
+  // final TextEditingController? controller;
   int itemId = 0;
   String text = '';
   String url = '';
@@ -225,6 +226,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
   @override
   void initState() {
     super.initState();
+    widget.controller.text = widget.text;
     // _controller = TextEditingController();
   }
   @override
@@ -241,8 +243,6 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
     final _ItemSelect1 = ref.watch(fileProvider);
 
     // print("imageFile1111 => ${imageFile}");
-
-    widget.controller.text = widget.text;
 
     select = _ItemId.state == itemId ? true : false;
 
@@ -333,7 +333,6 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                                         controller: widget.controller,
                                         clipBehavior: Clip.none,
                                         expands: false,
-                                        // maxLength: 10,
                                         maxLines: double.maxFinite.toInt(),
                                         scrollPadding: const EdgeInsets.all(0.0),
                                         // keyboardType: TextInputType.multiline,
@@ -342,6 +341,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                                         ),
                                         decoration: const InputDecoration(
                                           hintText: "Заголовок",
+                                          border: InputBorder.none,
                                         ),
                                       ),
                                     ),

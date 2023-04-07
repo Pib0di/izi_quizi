@@ -10,33 +10,161 @@ import 'package:mysql_client/mysql_client.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
 // import 'package:shared_preferences/shared_preferences.dart';
-
+// void handleWebSocket(Socket socket) {
+//   WebSocket webSocket;
+//   try {
+//     webSocket = WebSocket.fromUpgradedSocket(socket, serverSide: true);
+//
+//     final roomId = Uri.parse(webSocket.request.uri.toString()).pathSegments.last;
+//     final room = Room.getOrCreateRoom(roomId);
+//     room.addWebSocket(webSocket);
+//   } catch (e) {
+//     print('Error: $e');
+//     if (webSocket != null && webSocket.closeCode == null) {
+//       webSocket.close();
+//     }
+//   }
+// }
 SQL sql = SQL();
-void main() {
-  HttpServer.bind('localhost', 8000).then((HttpServer server) {
-    print('[+]WebSocket listening at -- ws://localhost:8000/');
-    server.listen((HttpRequest request) {
-      WebSocketTransformer.upgrade(request).then((WebSocket ws) {
-        ws.listen(
-              (data) async {
-                // print('request => ${request?.connectionInfo?.remoteAddress}');
-                print(data);
-                // print("Connection from: ${data?.remoteAddress?.address}:${data.remotePort}");
-                // Map<String, dynamic> answer = redirection(data);
-                var answer = await redirection(data);
-                if (ws.readyState == WebSocket.open)
-                {
-                  ws.add(jsonEncode(answer));
-                }
-              },
-          onDone: () => print('[+]Done :)'),
-          onError: (err) => print('[!]Error -- ${err.toString()}'),
-          cancelOnError: true,
-        );
-      }, onError: (err) => print('[!]Error -- ${err.toString()}'));
-    }, onError: (err) => print('[!]Error -- ${err.toString()}'));
-  }, onError: (err) => print('[!]Error -- ${err.toString()}'));
+Future<void> main() async {
+  final server = await HttpServer.bind('localhost', 8000);
+  print('Listening on ${server.address}:${server.port}');
+
+  await for (var request in server) {
+    if (WebSocketTransformer.isUpgradeRequest(request)) {
+      handleWebSocket(request);
+    } else {
+      request.response.statusCode = HttpStatus.badRequest;
+      request.response.reasonPhrase = 'WebSocket connections only';
+      request.response.close();
+    }
+  }
+
+
+
+  // HttpServer.bind('localhost', 8000).then((HttpServer server) {
+  //   print('[+]WebSocket listening at -- ws://localhost:8000/');
+  //   server.listen((HttpRequest request) {
+  //     WebSocketTransformer.upgrade(request).then((WebSocket ws) {
+  //       Map<String, WebSocket> connections = new Map<String, WebSocket>();
+  //       connections.putIfAbsent("connectionName", () => ws);
+  //       // print('roomId =>>>>> ${roomId}');
+  //
+  //       ws.listen(
+  //         (data) async {
+  //           print(data);
+  //           var answer = await redirection(data);
+  //           if (ws.readyState == WebSocket.open) {
+  //             ws.add(jsonEncode(answer));
+  //           }
+  //         },
+  //         onDone: () => print('[+]Done :)'),
+  //         onError: (err) => print('[!]Error -- ${err.toString()}'),
+  //         cancelOnError: true,
+  //       );
+  //     }, onError: (err) => print('[!]Error -- ${err.toString()}'));
+  //   }, onError: (err) => print('[!]Error -- ${err.toString()}'));
+  // }, onError: (err) => print('[!]Error -- ${err.toString()}'));
 }
+
+void handleWebSocket(HttpRequest request) {
+  WebSocketTransformer.upgrade(request).then((webSocket) async {
+    // final roomId = "Uri.parse(request.uri.toString()).pathSegments.last";
+    // print('roomId => $roomId');
+    // final room = Room.getOrCreateRoom(roomId);
+    // final user = User(webSocket);
+    // room.addUser(user);
+
+
+
+    webSocket.listen((message) async {
+
+      var answer = await redirection(message, webSocket);
+      if (webSocket.readyState == WebSocket.open) {
+        webSocket.add(jsonEncode(answer));
+      }
+
+      // final data = jsonDecode(message);
+      // if (data is Map && data.containsKey('type') && data.containsKey('payload')) {
+      //   switch (data['type']) {
+      //     case 'sendMessage':
+      //       room.broadcastMessage(user, data['payload']);
+      //       break;
+      //     default:
+      //       print('Unknown message type: ${data['type']}');
+      //   }
+      // } else {
+      //   print('Invalid message format: $message');
+      // }
+    }, onDone: () {
+      // room.removeUser(user);
+    });
+  });
+}
+
+class Room {
+  final String id;
+  final List<User> users = [];
+
+  Room(this.id);
+
+  Map<dynamic, String> getListUser(){
+    Map<dynamic, String> listMap = <dynamic, String>{};
+
+    for (var user in users) {
+      listMap[user.id] = user.userName;
+    }
+    return listMap;
+  }
+
+  void addUser(User user) {
+    users.add(user);
+    user.send({'obj': 'joinRoom', 'payload': {'roomId': id}});
+    broadcastMessage(user, '${user.id} has joined the room');
+  }
+
+  void removeUser(User user) {
+    users.remove(user);
+    broadcastMessage(user, '${user.id} has left the room');
+  }
+
+  void broadcastMessage(User sender, String message) {
+    for (var user in users) {
+      if (user != sender) {
+        user.send({'type': 'messageReceived', 'payload': {'senderId': sender.id, 'message': message}});
+      }
+    }
+  }
+
+  static final Map<String, Room> _rooms = {};
+
+  static Room getOrCreateRoom(String id) {
+    return _rooms.putIfAbsent(id, () => Room(id));
+  }
+}
+
+class User {
+  final String id;
+  final WebSocket webSocket;
+  final String idUser;
+  String userName = 'undefined user';
+  User.name(this.webSocket, this.userName, this.idUser) : id = webSocket.hashCode.toRadixString(16)
+  {
+    print("User id => $id, idUser => $idUser, userName => $userName");
+  }
+  User(this.webSocket, this.idUser) : id = webSocket.hashCode.toRadixString(16)
+  {
+    print("User created id => $id, idUser => $idUser");
+  }
+
+
+
+  void send(dynamic data) {
+    webSocket.add(jsonEncode(data));
+  }
+}
+
+
 
 class PresentNameMap {
   String presentName;
@@ -50,8 +178,7 @@ class PresentNameMap {
   }
 }
 
-class SQL
-{
+class SQL {
   late String host = 'localhost',
       user = 'root',
       password = '1234',
@@ -101,12 +228,10 @@ class SQL
 
     try {
       var result;
-      if(conn.connected){
+      if (conn.connected) {
         result = await conn.execute(
-          "SELECT present.presentName, present.idPresent FROM iziqizi.present where present.userId = :userId;",
-          {
-            "userId": userId
-          }
+            "SELECT present.presentName, present.idPresent FROM iziqizi.present where present.userId = :userId;",
+            {"userId": userId}
         );
         await result.rowsStream.listen((row) {
           userPresent['${row.colAt(1)}'] = row.colAt(0);
@@ -137,30 +262,26 @@ class SQL
     await conn.connect();
 
     if (conn.connected) {
-      try{
-        var result = await conn.execute("SELECT idUser, password FROM iziqizi.user WHERE email = :email;",
-            {"email": email}
-        );
+      try {
+        var result = await conn.execute(
+            "SELECT idUser, password FROM iziqizi.user WHERE email = :email;",
+            {"email": email});
         conn.close();
         print(!result.isNotEmpty);
-        if (!result.isNotEmpty){
+        if (!result.isNotEmpty) {
           print("password in BD => ${result.rows.first.colAt(1)}");
           print("password in reqy => $pass");
           print("idUser in BD => ${result.rows.first.colAt(0)}");
 
-
           if (pass.toString() == result.rows.first.colAt(1).toString()) {
             return "authorized ${result.rows.first.colAt(0)}";
-          }
-          else {
+          } else {
             return "authErr";
           }
-        }
-        else{
+        } else {
           return "QueryError";
         }
-      }
-      catch(err){
+      } catch (err) {
         print("Возникло исключение $err");
         return err.toString();
       }
@@ -169,7 +290,7 @@ class SQL
     return "ErrConnected";
   }
 
-  Future<int> connection () async {
+  Future<int> connection() async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -194,25 +315,21 @@ class SQL
       print("reult2 ==== $result2");
       conn.close();
       return 0;
-    }
-    else {
+    } else {
       print("Connected 404");
       return 404;
     }
   }
 
   Future<String> Register(String email, String pass) async {
-
     // Obtain shared preferences.
     // final prefs = await SharedPreferences.getInstance(); // *********SharedPreferences
-
 
     final claimSet = JwtClaim(
         issuer: 'Me',
         subject: email + ' ' + pass,
         issuedAt: DateTime.now(),
-        maxAge: const Duration(hours: 12)
-    );
+        maxAge: const Duration(hours: 12));
 
     String secret = pass;
     String token = issueJwtHS256(claimSet, secret);
@@ -241,10 +358,8 @@ class SQL
       print("ERROOR");
     }
 
-
-
-    final bool emailValid =
-    RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
+    final bool emailValid = RegExp(
+            r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$")
         .hasMatch(email);
 
     bool isPasswordValid(String password) {
@@ -255,6 +370,7 @@ class SQL
       if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) return false;
       return true;
     }
+
     final bool passwordValid = isPasswordValid(pass);
 
     String mess;
@@ -268,38 +384,32 @@ class SQL
     );
     await conn.connect();
 
-    if (conn.connected)
-    {
+    if (conn.connected) {
       // final String? JWT = prefs.getString('JWT');   // *********SharedPreferences
       // print("JWT =  $JWT");  // *********SharedPreferences
 
-      if(emailValid && passwordValid)
-      {
+      if (emailValid && passwordValid) {
         print("password ($pass) and email ($email) is valid");
         mess = "Пароль или почта введены не верно";
 
-        var res = await conn.execute("INSERT INTO `iziquiziusers`.`users` (`email`, `password`) "
+        var res = await conn.execute(
+            "INSERT INTO `iziquiziusers`.`users` (`email`, `password`) "
             "VALUES (:email, :password);",
             {
               "email": email,
               "password": pass,
-            }
-        );
+            });
         conn.close();
         return "Register";
-      }
-      else
-      {
+      } else {
         return "RegisterError";
       }
-    }
-    else
-    {
+    } else {
       return "ConnectErr";
     }
   }
-  Future<String> CreatePresent(String? namePresent, String? email) async {
 
+  Future<String> CreatePresent(String? namePresent, String? email) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -312,18 +422,12 @@ class SQL
       print("Connected 0");
 
       try {
-        await conn.execute("INSERT INTO `iziqizi`.`present` (`userId`, `presentName`) VALUES (:idUser, :name);",
-            {
-              "idUser": email,
-              "name": "$namePresent"
-            }
-        );
-        await conn.execute("SELECT idPresent FROM iziqizi.present where userId = (:idUser) ;",
-            {
-              "idUser": email,
-              "name": "$namePresent"
-            }
-        );
+        await conn.execute(
+            "INSERT INTO `iziqizi`.`present` (`userId`, `presentName`) VALUES (:idUser, :name);",
+            {"idUser": email, "name": "$namePresent"});
+        await conn.execute(
+            "SELECT idPresent FROM iziqizi.present where userId = (:idUser) ;",
+            {"idUser": email, "name": "$namePresent"});
         // await conn.execute("INSERT INTO `iziqizi`.`1-m` (`email`, `present`) VALUES (:email, :present);",
         //     {
         //       "email":"$email",
@@ -333,18 +437,17 @@ class SQL
         return 'success';
       } on Exception catch (e) {
         print("Exception => $Exception, e => $e");
-        return("CreateError => $e");
-      }
-      finally{
+        return ("CreateError => $e");
+      } finally {
         conn.close();
       }
-    }
-    else {
-      return("Create present connect error");
+    } else {
+      return ("Create present connect error");
       print("Connected 404");
     }
   }
-  Future<void> deletePresent (String? nameDeletePresent, String? email) async {
+
+  Future<void> deletePresent(String? nameDeletePresent, String? email) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -354,29 +457,22 @@ class SQL
     );
     await conn.connect();
     if (conn.connected) {
-      // print("Delete $nameDeletePresent");
-
       try {
-        // var result = await conn.execute("DELETE FROM `iziquiziusers`.`1-m` WHERE (`email` = :email) and (`present` = :nameDeletePresent);",
-        //     {
-        //       "email": "$email",
-        //       "nameDeletePresent": "$nameDeletePresent"
-        //     }
-        // );
-        await conn.execute("DELETE FROM `iziquiziusers`.`present` WHERE (`present` = :nameDeletePresent);",
-            {"nameDeletePresent": "$nameDeletePresent"}
-        );
+        await conn.execute(
+            "DELETE FROM `iziquiziusers`.`present` WHERE (`present` = :nameDeletePresent);",
+            {"nameDeletePresent": "$nameDeletePresent"});
       } catch (e) {
         print("exception delete => $e");
       }
 
       conn.close();
-    }
-    else {
+    } else {
       print("Connected 404");
     }
   }
-  Future<String> presentRename (String? nameUpdate, String? newName, String? email) async {
+
+  Future<String> presentRename(
+      String? nameUpdate, String? newName, String? email) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -388,27 +484,25 @@ class SQL
     if (conn.connected) {
       try {
         print("Update $nameUpdate = $newName");
-        var result = await conn.execute("UPDATE `iziquiziusers`.`present` SET `present` = :newName WHERE (`present` = :nameUpdate);",
+        var result = await conn.execute(
+            "UPDATE `iziquiziusers`.`present` SET `present` = :newName WHERE (`present` = :nameUpdate);",
             {
               "newName": "$newName",
               "nameUpdate": "$nameUpdate",
-            }
-        );
+            });
         return 'success';
       } catch (e) {
         print("Exception rename => $e");
-        return(e.toString());
-      }
-      finally{
+        return (e.toString());
+      } finally {
         conn.close();
       }
-    }
-    else {
+    } else {
       return 'ConnErr';
     }
   }
 
-  Future<String> getSlideData (int idPresent, String presentName) async {
+  Future<String> getSlideData(int idPresent, String presentName) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -425,8 +519,7 @@ class SQL
             "SELECT present.slides_data FROM iziqizi.present where present.idPresent = :idPresent;",
             {
               "idPresent": idPresent,
-            }
-        );
+            });
         // result.rowsStream.listen((row) {
         //   list.add(row.colAt(0)!);
         // });
@@ -437,22 +530,19 @@ class SQL
         // json = result.rows.first.toString();
       } catch (e) {
         print("exception setSlideData => $e");
-      }
-      finally{
+      } finally {
         conn.close();
       }
       await Future.delayed(const Duration(milliseconds: 500));
       return json;
-    }
-    else {
+    } else {
       return "Connected 404";
       print("Connected 404");
     }
-
   }
 
-
-  Future<void> setSlideData (String idUser, String presentName, String jsonSlide) async {
+  Future<void> setSlideData(
+      String idUser, String presentName, String jsonSlide) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -463,8 +553,8 @@ class SQL
     await conn.connect();
     if (conn.connected) {
       try {
-        // await conn.execute("UPDATE `iziqizi`.`present` SET `slides_data` = :newName WHERE (`present` = :nameUpdate);",
-        await conn.execute("UPDATE `iziqizi`.`present` SET `slides_data` = (:jsonSlide) WHERE (`userId` = :idUser) and (`presentName` = :presentName);",
+        await conn.execute(
+            "UPDATE `iziqizi`.`present` SET `slides_data` = (:jsonSlide) WHERE (`userId` = :idUser) and (`presentName` = :presentName);",
             {
               "idUser": idUser,
               "presentName": presentName,
@@ -472,125 +562,174 @@ class SQL
             });
       } catch (e) {
         print("exception setSlideData => $e");
-      }
-      finally{
+      } finally {
         conn.close();
       }
-    }
-    else {
+    } else {
       print("Connected 404");
     }
   }
 }
 
-Future<Map<String, dynamic>> redirection(data) async
-{
+Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
   var _json = Map<String, dynamic>.from(json.decode(data));
 
-  switch (_json['request_to'])
-  {
+  switch (_json['request_to']) {
     // Database queries
-    case 'bd':{
-      switch (_json['action'])
+    case 'bd':
       {
-        case 'create':{
-          print("namePresent => ${_json['namePresent']}, email => ${_json['email']}");
-          var res = await sql.CreatePresent(_json['namePresent'], _json['email']);
-          print("REUSLT => $res");
-          if ( res.toString() == 'success'){
-            return {
-              'obj': 'create',
-              'success': "true",
-            };
-          }
-          else{
-            return {
-              'obj': 'create',
-              'success': "false",
-            };
-          };
+        switch (_json['action']) {
+          case 'create':
+            {
+              print("namePresent => ${_json['namePresent']}, email => ${_json['email']}");
+              var res = await sql.CreatePresent(_json['namePresent'], _json['email']);
+              print("REUSLT => $res");
+              if (res.toString() == 'success') {
+                return {
+                  'obj': 'create',
+                  'success': "true",
+                };
+              } else {
+                return {
+                  'obj': 'create',
+                  'success': "false",
+                };
+              }
+              ;
+            }
+          case 'rename':
+            {
+              print("nameUpdate => ${_json['nameUpdate']}, email => ${_json['email']}, newName => ${_json['newName']}");
+              sql.presentRename(_json['nameUpdate'], _json['newName'], _json['email']);
+              break;
+            }
+          case 'delete':
+            {
+              print("nameDeletePresent => ${_json['nameDeletePresent']}, email => ${_json['email']}");
+              sql.deletePresent(_json['nameDeletePresent'], _json['email']);
+              break;
+            }
+          case 'presentList':
+            {
+              var list = await sql.listWidget(_json['idUser']);
+              Map<String, dynamic> json() => {
+                    'obj': 'listWidget',
+                    'list': list,
+                  };
+              print("JSON() => ${json()}");
+              return json();
+              break;
+            }
+          case 'setSlideData':
+            {
+              sql.setSlideData(_json['idUser'], _json['presentName'], _json['slideData']);
+              break;
+            }
+          case 'getSlideData':
+            {
+              var list = await sql.getSlideData(_json['idPresent'], _json['presentName']);
+              Map<String, dynamic> json() => {
+                'obj': 'SlideData',
+                'list': list,
+              };
+              print("getSlideData => ${json()}");
+              return json();
+              break;
+            }
+          default:
+            {
+              print('JSON parse error (bd)');
+            }
         }
-        case 'rename':{
-          print("nameUpdate => ${_json['nameUpdate']}, email => ${_json['email']}, newName => ${_json['newName']}");
-          sql.presentRename(_json['nameUpdate'], _json['newName'], _json['email']);
-          break;
-        }
-        case 'delete':{
-          print("nameDeletePresent => ${_json['nameDeletePresent']}, email => ${_json['email']}");
-          sql.deletePresent(_json['nameDeletePresent'], _json['email']);
-          break;
-        }
-        case 'presentList':{
-          var list = await sql.listWidget(_json['idUser']);
-          Map<String, dynamic> json() => {
-            'obj': 'listWidget',
-            'list': list,
-          };
-          print("JSON() => ${json()}");
-          return json();
-          break;
-        }
-        case 'setSlideData':{
-          sql.setSlideData(_json['idUser'], _json['presentName'], _json['slideData']);
-          break;
-        }
-        case 'getSlideData':{
-          var list = await sql.getSlideData(_json['idPresent'], _json['presentName']);
-          Map<String, dynamic> json() => {
-            'obj': 'SlideData',
-            'list': list,
-          };
-          print("JSON() => ${json()}");
-          return json();
-          break;
-        }
-        default:{
-          print('JSON parse error (bd)');
-        }
+        break;
       }
-      break;
-    }
     // User queries
     case 'user':
     {
-      switch (_json['action'])
-      {
-        case 'auth':{
-          print("Auth: email => ${_json['email']}, pass => ${_json['pass']}");
-          String auth = await sql.authentication(_json['email'], _json['pass']);
-          print("auth => $auth");
-          List<String> lst = auth.split(' ');
-          print("auth => $lst");
-          if (lst[0] == "authorized"){
-            Map<String, dynamic> json() => {
-              'obj': 'auth',
-              'valid': "true",
-              'idUser': lst[1],
-            };
-            var jsonRequest = jsonEncode(json());
-            return json();
+      switch (_json['action']) {
+        case 'auth':
+          {
+            print(
+                "Auth: email => ${_json['email']}, pass => ${_json['pass']}");
+            String auth =
+            await sql.authentication(_json['email'], _json['pass']);
+            print("auth => $auth");
+            List<String> lst = auth.split(' ');
+            print("auth => $lst");
+            if (lst[0] == "authorized") {
+              Map<String, dynamic> json() => {
+                'obj': 'auth',
+                'valid': "true",
+                'idUser': lst[1],
+              };
+              var jsonRequest = jsonEncode(json());
+              return json();
+            } else {
+              return {
+                'obj': 'auth',
+                'valid': "false",
+              };
+            }
           }
-          else{
-            return {
-              'obj': 'auth',
-              'valid': "false",
-            };
+        case 'register':
+          {
+            print("nameDeletePresent => ${_json['nameDeletePresent']}, email => ${_json['email']}");
+            sql.deletePresent(_json['nameDeletePresent'], _json['email']);
+            break;
           }
-        }
-        case 'register':{
-          print("nameDeletePresent => ${_json['nameDeletePresent']}, email => ${_json['email']}");
-          sql.deletePresent(_json['nameDeletePresent'], _json['email']);
-          break;
-        }
-        default:{
-          print('JSON parse error (user)');
-        }
+        default:
+          {
+            print('JSON parse error (user)');
+          }
       }
       break;
     }
-    default:{
+    case 'MultipleView':
+      {
+        switch (_json['action']) {
+          case 'createRoom':{
+            final String userId = _json['idUser'];
+            final presentName = _json['presentName'];
+            final String roomId = userId;
 
-    }
+
+            final room = Room.getOrCreateRoom(roomId);
+            final user = User(webSocket, userId);
+            room.addUser(user);
+            print('roomId => $roomId, user.idUser => ${user.idUser}');
+
+
+            Map<String, dynamic> json() => {
+              'obj': 'MultipleView',
+              'roomId': roomId,
+              'presentName': presentName,
+            };
+            break;
+          }
+          case 'joinRoom':{
+            // print("joinRoom");
+            final String userName = _json['userName'];
+            final String roomId = _json['roomId'];
+
+            final room = Room.getOrCreateRoom(roomId);
+            final user = User.name(webSocket, userName, webSocket.hashCode.toRadixString(16));
+            room.addUser(user);
+
+            var list = room.getListUser();
+            Map<String, dynamic> json() => {
+              'obj': 'listUser',
+              'list': list,
+            };
+            return json();
+          }
+          default:
+          {
+            print('JSON parse error (MultipleView)');
+          }
+        }
+        break;
+      }
+    default:{}
   }
   return {
     'obj': 'err',

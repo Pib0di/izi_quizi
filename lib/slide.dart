@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:izi_quizi/jsonParse.dart';
+import 'FactoryСlasses/SideSlides.dart';
 import 'model/ItemsShel.dart';
 import 'FactoryСlasses/SlideData.dart';
 import 'main.dart';
@@ -193,10 +194,10 @@ class PresentationCreationArea extends ConsumerWidget{
 
 
 
-    if ( data.getLengthListSlide() < _counterSlide){
-      data.addListSlide(slide);
-      // listSlide.add(slide);
-    }
+    // if ( data.getLengthListSlide() < _counterSlide){
+    //   data.addListSlide(slide);
+    //   // listSlide.add(slide);
+    // }
 
     if (_numAddItem == 1){
       print ("Add text item =>${_numAddItem}");
@@ -223,7 +224,10 @@ class PresentationCreationArea extends ConsumerWidget{
             builder: (BuildContext context, BoxConstraints constraints) {
               return Consumer(
                 builder: (context, ref, _) {
-                  final count = ref.watch(buttonID);
+                  int count = ref.watch(buttonID);
+                  if (count > 0) {
+                    --count;
+                  }
                   print("count => ${count}");
                   // if (_numAddItem == 1){
                   //   print(" listWidgets.length => ${listWidgets.length}");

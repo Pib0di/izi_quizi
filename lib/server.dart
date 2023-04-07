@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:html';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:izi_quizi/Factory%D0%A1lasses/AppData.dart';
@@ -7,6 +8,7 @@ import 'package:izi_quizi/Factory%D0%A1lasses/AppData.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert' show json;
 import 'dart:convert';
+import 'FactoryСlasses/MultipleViewData.dart';
 import 'jsonParse.dart';
 import 'main.dart';
 import 'FactoryСlasses/SlideData.dart';
@@ -43,6 +45,27 @@ class Request {
   Request(this._connection);
 
   SocketConnection _connection;
+
+  //- - - - - - - - - - - - - - - - - - - - MultipleView - - - - - - - - - - - - - - - - -
+  void createRoom(String idUser, String presentName) {
+    Map<String, dynamic> json() => {
+      'request_to': 'MultipleView',
+      'action': "createRoom",
+      'idUser': idUser,
+      'presentName': presentName,
+    };
+    _connection.sendMessage(jsonEncode(json()));
+  }
+  void joinRoom(String userName, String roomId) {
+    Map<String, dynamic> json() => {
+      'request_to': 'MultipleView',
+      'action': "joinRoom",
+      'userName': userName,
+      'roomId': roomId,
+    };
+    _connection.sendMessage(jsonEncode(json()));
+  }
+
 
   //- - - - - - - - - - - - - - - - - - - - BD - - - - - - - - - - - - - - - - -
   void setSlideData(String idUser, String presentName, String jsonSlide) {
@@ -209,42 +232,35 @@ class ParseMessege {
           }
           break;
         }
-      case 'registration':
-        {
+      case 'registration':{
           switch (data['valid']) {
-            case 'true':
-              {
+            case 'true':{
                 bool verification = true; // ????
                 break;
               }
-            default:
-              {
+            default:{
                 print("Registration failed");
               }
           }
           break;
         }
-      case 'listWidget':
-        {
+      case 'listWidget':{
           if (!data['list']!.isEmpty) {
             appData.setUserPresentName(data["list"]);
             widgetListIsReload = true;
           }
           break;
         }
-      case 'create':
-        {
+      case 'create':{
           if (data['success'] == 'true') {
             print("present create => ${data['success']}");
             bool _presentCreate = true; // ????
           }
           break;
         }
-      case 'SlideData':
-        {
+      case 'SlideData':{
           print("data['list'] => ${data['list']}");
           // JsonParse jsonParse = JsonParse.fromJson(json.decode(data['list']));
-
 
           SlideData slideData = SlideData();
           slideData.setDataSlide(data);
@@ -252,6 +268,12 @@ class ParseMessege {
           // slideData.setItemsView(JsonParse.fromJson(json.decode(data['list'])));
           break;
         }
+      case 'listUser':{
+        if (!data['list']!.isEmpty) {
+          multipleViewData.setUserList(data["list"]);
+        }
+       break;
+      }
       default:
         {
           print('JSON parse error (Не найдено предусмотренное значение)');
