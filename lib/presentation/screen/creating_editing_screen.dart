@@ -1,20 +1,25 @@
-
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/jsonParse.dart';
+import 'package:izi_quizi/common_functionality/jsonParse.dart';
+import 'package:izi_quizi/Widgets/slide.dart';
+import 'package:izi_quizi/domain/creating_editing_presentation/create_editing_impl.dart';
 import 'package:screenshot/screenshot.dart';
 
-import '../../FactoryСlasses/SideSlides.dart';
+import '../../Widgets/widgets_collection.dart';
+import '../../data/repository/local/app_data.dart';
+import '../../data/repository/local/side_slides.dart';
 import '../../main.dart';
+import '../riverpod/creating_editing_presentation/create_editing_state.dart';
+
+CreateEditingImpl createEditingImpl = CreateEditingImpl();
 
 class PresentationEdit extends StatelessWidget {
-  PresentationEdit.create(String name, {super.key}) : nameUp = name;
-  PresentationEdit.edit(String name, {super.key}) : nameUp = name;
-  late final String nameUp;
+  PresentationEdit.create(String name, {super.key}) : currentNamePresent = name;
+  PresentationEdit.edit(String name, {super.key}) : currentNamePresent = name;
+  late final String currentNamePresent;
 
   final myController = TextEditingController();
 
@@ -89,10 +94,8 @@ class PresentationEdit extends StatelessWidget {
                                 textStyle: const TextStyle(fontSize: 20),
                               ),
                               onPressed: () {
-                                print("email => $email,nameUp => $nameUp, newName => ${myController.text.toString()},");
-                                request.renamePresent(email, nameUp, myController.text.toString());
-
-                                nameUp = myController.text;
+                                createEditingImpl.renameQuiz(AppData.email, AppData.presentName, myController.text);
+                                currentNamePresent = myController.text;
                                 Navigator.pop(context, ClipRRect);
                               },
                               child: const Text('Переименовать'),
@@ -106,13 +109,13 @@ class PresentationEdit extends StatelessWidget {
                 ),
               ],
             );
-          }
-      );
+          });
     }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: Text(nameUp),
+        title: Text(currentNamePresent),
         actions: [
           Row(
             children: [
@@ -120,7 +123,9 @@ class PresentationEdit extends StatelessWidget {
                 "Переименовать",
                 style: TextStyle(
                   color: Colors.white60,
-                  fontWeight: FontWeight.bold, fontSize: 18,),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               RawMaterialButton(
                 enableFeedback: false,
@@ -129,16 +134,16 @@ class PresentationEdit extends StatelessWidget {
                 onPressed: () {
                   showSimpleDialog();
                 },
-                child: const Icon(
-                    Icons.refresh, size: 25,
-                    color: Colors.white60
-                ),
+                child:
+                    const Icon(Icons.refresh, size: 25, color: Colors.white60),
               ),
               const Text(
                 "Сохранить",
                 style: TextStyle(
                   color: Colors.white60,
-                  fontWeight: FontWeight.bold, fontSize: 18,),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               RawMaterialButton(
                 enableFeedback: false,
@@ -147,12 +152,9 @@ class PresentationEdit extends StatelessWidget {
                 onPressed: () {
                   var jsonSlide = SlideJson().slideJson();
                   print(jsonEncode(jsonSlide.toJson()));
-                  request.setSlideData(idUser, presentName, jsonEncode(jsonSlide.toJson()));
+                  createEditingImpl.saveQuiz(AppData.idUser, AppData.presentName, jsonEncode(jsonSlide.toJson()));
                 },
-                child: const Icon(
-                    Icons.save, size: 25,
-                    color: Colors.white60
-                ),
+                child: const Icon(Icons.save, size: 25, color: Colors.white60),
               ),
             ],
           )
@@ -163,16 +165,17 @@ class PresentationEdit extends StatelessWidget {
   }
 }
 
-
 class NavRailDemo extends ConsumerStatefulWidget {
   const NavRailDemo({Key? key}) : super(key: key);
 
   @override
-  _NavRailDemoState createState() => _NavRailDemoState();
+  NavRailDemoState createState() => NavRailDemoState();
 }
 
-class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin {
+class NavRailDemoState extends ConsumerState<NavRailDemo>
+    with RestorationMixin {
   final RestorableInt _selectedIndex = RestorableInt(0);
+
 
   @override
   String get restorationId => 'nav_rail_demo';
@@ -188,7 +191,7 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
     super.dispose();
   }
 
-  Future<void> _pickFile(StateController<int> __fileProvidere) async {
+  Future<void> _pickFile(StateController<int> fileProvidere) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       dialogTitle: "Выберите изображение или gif",
       type: FileType.image,
@@ -199,51 +202,43 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
       PlatformFile file = result.files.single;
 
       print(file.path);
-      File file_ = File(file.path!);
-      __fileProvidere.state = -4;
-      print("${__fileProvidere.state}");
+      // File file_ = File(file.path!);
+      fileProvidere.state = -4;
+      print("${fileProvidere.state}");
     } else {
       // User canceled the picker
     }
   }
+
   late ListSlide listSlide;
   @override
   Widget build(BuildContext context) {
+    createEditingImpl.getRef(ref);
+
     // StateController<File> __fileProvidere = ref.watch(fileProvider.notifier);
-    StateController<int> __numAddItem = ref.watch(numAddItem.notifier);
-    final countSlideUpd = ref.watch(counterSlide);
+    // StateController<int> __numAddItem = ref.watch(numAddItem.notifier);
 
+    final slideCounter = ref.watch(numAddItem.notifier);
 
-    // final localization = GalleryLocalizations.of(context)!;
-    // final destinationFirst = localization.demoNavigationRailFirst;
-    // final destinationSecond = localization.demoNavigationRailSecond;
-    // final destinationThird = localization.demoNavigationRailThird;
+    ref.watch(counterSlide);
+
     final textMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 1,
-        onPressed: (){
-        },
-        child: Row(children: const [Text('Заголовок',)], mainAxisAlignment: MainAxisAlignment.center,),
+        onPressed: () => createEditingImpl.addItem("heading"),
+        child: const Text('Заголовок'),
       ),
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 2,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("mainText"),
         child: const Text('Основной текст'),
       ),
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 3,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("list"),
         child: const Text('Список'),
       ),
     ];
     final mediaMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        numAddObj: -4,
-        onPressed: ()=> {
+        onPressed: () => {
           showDialog<String>(
             context: context,
             builder: (BuildContext context) => AlertDialog(
@@ -258,7 +253,8 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
                 ),
                 TextButton(
                   onPressed: () => {
-                    __numAddItem.state = -4,
+                    createEditingImpl.addItem("image"),
+                    slideCounter.set(-4),
                     // FutureBuilder<void>(
                     //   future: _pickFile(__fileProvidere), // a previously-obtained Future<String> or null
                     //   builder: (BuildContext context, AsyncSnapshot<void> snapshot) {
@@ -312,49 +308,31 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
         child: const Text('Изображения'),
       ),
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 5,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("video"),
         child: const Text('Видео'),
       ),
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 6,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("sound"),
         child: const Text('Звук'),
       ),
     ];
     final figureMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 7,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("shape"),
         child: const Text('Фигуры'),
       ),
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 8,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("pointers"),
         child: const Text('Указатели'),
       ),
     ];
     final tableMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 9,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("row"),
         child: const Text('Строки'),
       ),
       ElevatedButtonFactory.numAddItem(
-        numAddObj: 10,
-        onPressed: (){
-
-        },
+        onPressed: () => createEditingImpl.addItem("column"),
         child: const Text('Столбцы'),
       ),
     ];
@@ -364,11 +342,8 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
       figureMenu,
       tableMenu,
     ];
-    double scale = 0.5;
-    Offset _offset = Offset.zero;
 
-    listSlide = ListSlide();
-
+    listSlide = const ListSlide();
 
     return Scaffold(
       body: Container(
@@ -378,10 +353,6 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
             NavigationRail(
               backgroundColor: Colors.green[300],
               indicatorColor: Colors.green[600],
-              // leading: FloatingActionButton(
-              //   onPressed: () {},
-              //   child: const Icon(Icons.add),
-              // ),
               selectedIndex: _selectedIndex.value,
               onDestinationSelected: (index) {
                 setState(() {
@@ -456,7 +427,11 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: _selectedIndex.value != 0
-                    ? Column(children: selectWidget[_selectedIndex.value == 0 ? 0 : --_selectedIndex.value],)
+                    ? Column(
+                        children: selectWidget[_selectedIndex.value == 0
+                            ? 0
+                            : --_selectedIndex.value],
+                      )
                     : listSlide,
               ),
             ),
@@ -464,7 +439,7 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
               child: Screenshot(
                 controller: sideSlides.screenshotController,
                 child: const Expanded(
-                  child: ParentWidget4(),
+                  child: PresentationViewport(),
                 ),
               ),
             ),
@@ -475,3 +450,49 @@ class _NavRailDemoState extends ConsumerState<NavRailDemo> with RestorationMixin
   }
 }
 
+class PresentationViewport extends StatefulWidget {
+  const PresentationViewport({super.key});
+
+  @override
+  State<PresentationViewport> createState() => PresentationViewportState();
+}
+
+class PresentationViewportState extends State<PresentationViewport> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Row(
+        children: [
+          PresentationCreationArea(),
+        ],
+      ),
+    );
+  }
+}
+
+class ElevatedButtonFactory extends StatelessWidget {
+  ElevatedButtonFactory.numAddItem ({
+    Key? key,
+    required this.onPressed,
+    required this.child,
+  }) : super(key: key);
+
+  void Function()? onPressed;
+  Widget child = const Text('null');
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      child: ElevatedButton(
+        style: ButtonStyle(
+          alignment: Alignment.center,
+          padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 5)),
+        ),
+        onPressed: onPressed,
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[child],),
+      ),
+    );
+  }
+}

@@ -1,5 +1,5 @@
 
-import 'FactoryСlasses/SlideData.dart';
+import '../data/repository/local/slide_data.dart';
 
 ///parse slides
 class JsonParse {

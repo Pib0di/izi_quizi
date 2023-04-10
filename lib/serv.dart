@@ -1,7 +1,6 @@
 import 'dart:io' show HttpServer, HttpRequest, WebSocket, WebSocketTransformer;
 import 'dart:convert' show json;
 import 'dart:convert';
-import 'dart:async' show Timer;
 // import 'package:mysql1/mysql1.dart';
 
 import 'dart:async';
@@ -136,10 +135,10 @@ class Room {
     }
   }
 
-  static final Map<String, Room> _rooms = {};
+  static final Map<String, Room> rooms = {};
 
   static Room getOrCreateRoom(String id) {
-    return _rooms.putIfAbsent(id, () => Room(id));
+    return rooms.putIfAbsent(id, () => Room(id));
   }
 }
 
@@ -373,7 +372,6 @@ class SQL {
 
     final bool passwordValid = isPasswordValid(pass);
 
-    String mess;
 
     final conn = await MySQLConnection.createConnection(
       host: host,
@@ -390,7 +388,6 @@ class SQL {
 
       if (emailValid && passwordValid) {
         print("password ($pass) and email ($email) is valid");
-        mess = "Пароль или почта введены не верно";
 
         var res = await conn.execute(
             "INSERT INTO `iziquiziusers`.`users` (`email`, `password`) "
@@ -443,7 +440,6 @@ class SQL {
       }
     } else {
       return ("Create present connect error");
-      print("Connected 404");
     }
   }
 
@@ -511,7 +507,6 @@ class SQL {
       databaseName: db,
     );
     await conn.connect();
-    List<String> list = [];
     String json = '';
     if (conn.connected) {
       try {
@@ -595,7 +590,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                   'success': "false",
                 };
               }
-              ;
             }
           case 'rename':
             {
@@ -618,7 +612,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                   };
               print("JSON() => ${json()}");
               return json();
-              break;
             }
           case 'setSlideData':
             {
@@ -634,7 +627,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
               };
               print("getSlideData => ${json()}");
               return json();
-              break;
             }
           default:
             {
@@ -662,7 +654,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                 'valid': "true",
                 'idUser': lst[1],
               };
-              var jsonRequest = jsonEncode(json());
               return json();
             } else {
               return {
