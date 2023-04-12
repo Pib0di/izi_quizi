@@ -3,10 +3,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
 
-import '../../FactoryСlasses/SideSlides.dart';
 import '../../main.dart';
-import '../SingleView/ViewPresentation.dart';
+import 'single_view_screen.dart';
 
 class MultipleView extends ConsumerStatefulWidget {
   const MultipleView({Key? key}) : super(key: key);
@@ -25,7 +25,7 @@ class _MultipleViewState extends ConsumerState<MultipleView> {
         children: [
           const Expanded(
             flex: 3,
-            child: ViewPresentation(),
+            child: SingleViewPresentation(),
           ),
           Expanded(
               flex: 1,
@@ -40,7 +40,7 @@ class _MultipleViewState extends ConsumerState<MultipleView> {
                           child: Column(
                             children: [
                               SelectableText(
-                                idUser,
+                                AppData.idUser,
                                 style: const TextStyle(fontSize: 18.0),
                                 textAlign: TextAlign.center,
                               ),

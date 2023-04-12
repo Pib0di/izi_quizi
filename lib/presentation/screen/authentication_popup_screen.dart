@@ -1,10 +1,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/serv.dart';
+import '../../data/repository/local/app_data.dart';
+import '../../domain/authentication/authentication_impl.dart';
+import '../../main.dart';
 
-import '../main.dart';
-
+AuthenticationImpl authenticationImpl = AuthenticationImpl();
 
 class PasswordField extends StatefulWidget {
 
@@ -263,9 +264,8 @@ class JoinState extends ConsumerState<Join> {
                       if (_formKey.currentState!.validate())
                       {
                         buttonClick = true;
-                        email = myControllerEmail.text.toString();
-                        request.authentication(email, myControllerPass.text.toString());
-
+                        AppData.email = myControllerEmail.text.toString();
+                        authenticationImpl.authorize(AppData.email, myControllerPass.text);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Авторизация...')),
                         );

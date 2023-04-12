@@ -5,13 +5,13 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/Widgets/WidgetsCollection.dart';
-import 'package:izi_quizi/model/SlideItem.dart';
+import 'package:izi_quizi/Widgets/widgets_collection.dart';
+import 'package:izi_quizi/Widgets/slide_item.dart';
 import 'package:screenshot/screenshot.dart';
 
-import '../main.dart';
-import 'AppData.dart';
-import 'SlideData.dart';
+import '../../../main.dart';
+import 'app_data.dart';
+import 'slide_data.dart';
 
 ///Боковое выбора слайдов при редоактировании
 class SideSlides {
@@ -98,11 +98,11 @@ class NavSlideButton extends ConsumerStatefulWidget {
     buttonId = id;
   }
   void setImagePreview(Uint8List? capturedImage){
-    _imageFile = capturedImage!;
+    imageFile = capturedImage!;
   }
 
   final Key key;
-  Uint8List _imageFile = Uint8List(0);
+  Uint8List imageFile = Uint8List(0);
   int buttonId = -10;
 
   @override
@@ -146,16 +146,16 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
     }
 
     StateController<int> counter = ref.watch(buttonID.notifier);
-    int selectButtonID = ref.watch(buttonID);
-    int counterSlideProvide = ref.watch(counterSlide);
+    ref.watch(buttonID);
+    ref.watch(counterSlide);
 
     width = counter.state == widget.buttonId ? 3 : 0;
-    var decorationImage = DecorationImage(
-      // image: widget._imageFile != null ? MemoryImage(widget._imageFile!) : MemoryImage(widget._imageFile!),
-      image: MemoryImage(widget._imageFile),
-      // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-      fit: BoxFit.cover,
-    );
+    // var decorationImage = DecorationImage(
+    //   // image: widget._imageFile != null ? MemoryImage(widget._imageFile!) : MemoryImage(widget._imageFile!),
+    //   image: MemoryImage(widget.imageFile),
+    //   // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+    //   fit: BoxFit.cover,
+    // );
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
@@ -181,7 +181,7 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
                     ),
                     color: const Color(0xff84b67c),
                     image: DecorationImage(
-                      image: MemoryImage(widget._imageFile),
+                      image: MemoryImage(widget.imageFile),
                       fit: BoxFit.cover,
                     ),
                     borderRadius: BorderRadius.circular(15),
@@ -242,10 +242,10 @@ class ListSlide extends ConsumerStatefulWidget {
   const ListSlide({Key? key}) : super(key: key);
 
   @override
-  SideSlidesState createState() => SideSlidesState();
+  ListSlideState createState() => ListSlideState();
 }
 
-class SideSlidesState extends ConsumerState<ListSlide> {
+class ListSlideState extends ConsumerState<ListSlide> {
   Future<void> waitUntilBuildComplete() async {
     await Future.delayed(Duration.zero);
     WidgetsBinding.instance.addPostFrameCallback((_) {});
@@ -272,16 +272,23 @@ class SideSlidesState extends ConsumerState<ListSlide> {
             ),
           ),
           const SizedBox(height: 7,),
-          ElevatedButtonFactory(
-            onPressed: (){
-              setState(() {
-                sideSlides.addSlide();
-                SlideData slideData = SlideData();
-                slideData.addListSlide(SlideItems());
-              });
-            },
-            child: const Text('Добавить'),
-          ),
+          Container(
+            margin: const EdgeInsets.only(bottom: 6),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                alignment: Alignment.center,
+                padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 5)),
+              ),
+              onPressed: (){
+                setState(() {
+                  sideSlides.addSlide();
+                  SlideData slideData = SlideData();
+                  slideData.addListSlide(SlideItems());
+                });
+              },
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const <Widget>[Text('Добавить')],),
+            ),
+          )
         ]
     );
   }

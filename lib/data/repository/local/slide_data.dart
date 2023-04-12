@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:izi_quizi/main.dart';
 
-import '../Screen/SingleView/ViewPresentation.dart';
-import '../jsonParse.dart';
-import '../model/ItemsShel.dart';
-import '../model/SlideItem.dart';
-import 'AppData.dart';
-import 'SideSlides.dart';
+import '../../../presentation/screen/single_view_screen.dart';
+import '../../../common_functionality/jsonParse.dart';
+import '../../../Widgets/items_shel.dart';
+import '../../../Widgets/slide_item.dart';
+import 'side_slides.dart';
 
 /// Информация слайда (элементы на нем)
 class SlideData {

@@ -2,10 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../Widgets/WidgetsCollection.dart';
+import 'widgets_collection.dart';
 import '../main.dart';
-import '../slide.dart';
-import '../FactoryСlasses/SlideData.dart';
+import '../data/repository/local/slide_data.dart';
+
+/// the number of the selected element in the slidez
+final itemNum = StateProvider((ref) => 0);
 
 class ItemsShel extends ConsumerStatefulWidget {
   ItemsShel({
@@ -13,12 +15,11 @@ class ItemsShel extends ConsumerStatefulWidget {
     required ItemsShelDataText itemsShelDataText,
     required ItemsShelDataImage itemsShelDataImage,
   }) : super(key: key){
-   var l = 0;
   }
 
 
   // TextBox({Key? key}) : super(key: key);
-  ItemsShel.id(Key key, this.itemId) : super(key: key){
+  ItemsShel.id(Key key, this.itemCount) : super(key: key){
     type = "text";
   }
   // TextBox.image(Key key, this.imageFile) : super(key: key);
@@ -82,11 +83,11 @@ class ItemsShel extends ConsumerStatefulWidget {
 
   final TextEditingController controller = TextEditingController();
   // final TextEditingController? controller;
-  int itemId = 0;
+  int itemCount = 0;
   String text = '';
   String url = '';
   double width = 300, height = 100;
-  Offset _offsetPos = Offset.zero;
+  Offset offsetPos = Offset.zero;
   Widget? widgetInit;
   double left = 200, top = 200;
 
@@ -103,20 +104,15 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
 
   // TextEditingController get _controller => widget._controller;
 
-
   // Widget? widgetInit;
   // File imageFile;
   // File file = File("C:/Users/2001a/Pictures/Camera Roll/WIN_20220928_14_19_10_Pro.jpg");
 
-  int slideId = 0;
-  Color _color = Colors.black45;
-  Offset _offset = Offset.zero;
+  Color color = Colors.black45;
+  Offset offset = Offset.zero;
   double angle = 0;
-  int f1 = 0, f2 = 0;
-  bool flag= true;
-  bool flag1= true;
 
-  int get itemId => widget.itemId;
+  int get itemCount => widget.itemCount;
 
 
   Widget rightBottomTriger(){
@@ -127,14 +123,14 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
         onPanUpdate: (details) => setState(() => {
           hover = true,
           border = setBorder,
-          widget._offsetPos = details.delta,
-          if (widget.width+widget._offsetPos.dx >= 20){
-            widget.width += widget._offsetPos.dx,
+          widget.offsetPos = details.delta,
+          if (widget.width+widget.offsetPos.dx >= 20){
+            widget.width += widget.offsetPos.dx,
           } else{
             widget.width = 20
           },
-          if (widget.height+widget._offsetPos.dy >= 20){
-            widget.height += widget._offsetPos.dy,
+          if (widget.height+widget.offsetPos.dy >= 20){
+            widget.height += widget.offsetPos.dy,
           }
           else{
             widget.height =20
@@ -164,18 +160,18 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
         onPanUpdate: (details) => setState(() => {
           hover = true,
           border = setBorder,
-          widget._offsetPos = details.delta,
-          widget.width -= widget._offsetPos.dx,
-          widget.height -= widget._offsetPos.dy,
+          widget.offsetPos = details.delta,
+          widget.width -= widget.offsetPos.dx,
+          widget.height -= widget.offsetPos.dy,
 
-          if (widget.width+widget._offsetPos.dx > 20 && flag){
+          if (widget.width+widget.offsetPos.dx > 20){
             // print("left"),
-            widget.left += widget._offsetPos.dx,
+            widget.left += widget.offsetPos.dx,
           },
 
-          if (widget.height+widget._offsetPos.dy > 20 && flag1){
+          if (widget.height+widget.offsetPos.dy > 20){
             print(""),
-            widget.top += widget._offsetPos.dy,
+            widget.top += widget.offsetPos.dy,
           },
         }),
         child: Container(
@@ -237,33 +233,29 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
 
   @override
   Widget build(BuildContext context) {
-    StateController<int> _buttonID = ref.watch(buttonID.notifier);
-    StateController<int> _ItemId = ref.watch(ItemId.notifier);
-    final _ItemSelect = ref.watch(ItemId);
-    final _ItemSelect1 = ref.watch(fileProvider);
+    final itemId = ref.watch(itemNum.notifier);
+    ref.watch(itemNum);
+    ref.watch(fileProvider);
 
-    // print("imageFile1111 => ${imageFile}");
+    select = itemId.state == itemCount ? true : false;
 
-    select = _ItemId.state == itemId ? true : false;
-
-    // ButtonDelete buttonDelete = ButtonDelete.deleteItemId(_ItemId.state);
     ButtonDelete buttonDelete = ButtonDelete.deleteItemId(context.widget.key!);
     return RepaintBoundary(
       child: GestureDetector(
         onPanUpdate: (details) => setState(() => {
-          _offset += details.delta,
+          offset += details.delta,
           // angle = (_offset.dx) / 2 * 0.01,
-          widget.top = 200+_offset.dy,
-          widget.left = 200+_offset.dx,
+          widget.top = 200+offset.dy,
+          widget.left = 200+offset.dx,
         }),
         onTap: () {
           // select = true;
           // border = setBorder;
-          _ItemId.state = itemId;
+          itemId.state = itemCount;
           setState(() {
-            _color == Colors.yellow
-                ? _color = Colors.white
-                : _color = Colors.yellow;
+            color == Colors.yellow
+                ? color = Colors.white
+                : color = Colors.yellow;
           });
         },
         child: Transform.rotate(
@@ -308,7 +300,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                             //   fit: BoxFit.cover,
                             // ),
                             // borderRadius: BorderRadius.circular(15),
-                            border: _ItemId.state == itemId ? setBorder : border,
+                            border: itemId.state == itemCount ? setBorder : border,
 
                           ),
                           height: widget.height < 20 ? 20 : (widget.height).abs(),
@@ -318,7 +310,6 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                             child: Consumer(
                               builder: (context, ref, _) {
                                 // print("STACK2");
-                                int count = ref.watch(counterProvider);
                                 if (widget.widgetInit != null){
                                   return widget.widgetInit!;
                                 }

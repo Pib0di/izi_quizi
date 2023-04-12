@@ -1,44 +1,23 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:html';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:izi_quizi/jsonParse.dart';
-import 'FactoryСlasses/SideSlides.dart';
-import 'model/ItemsShel.dart';
-import 'FactoryСlasses/SlideData.dart';
-import 'main.dart';
+import '../presentation/riverpod/creating_editing_presentation/create_editing_state.dart';
+import 'items_shel.dart';
+import '../data/repository/local/slide_data.dart';
+import '../main.dart';
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
-import 'dart:ui' as ui;
-import 'dart:math';
-import 'package:screenshot/screenshot.dart';
 
-import 'model/SlideItem.dart';
-
-
-class Item {
-  Item._(this.widget, this._offset) {}
-
-  Item(this.widget) {}
-
-  Offset _offset = Offset.zero;
-  Widget? widget;
-}
-
-
+import 'slide_item.dart';
 
 
 class PresentationCreationArea extends ConsumerWidget{
   PresentationCreationArea({Key? key}) : super(key: key);
   PresentationCreationArea.hi(this.numWidget) {}
 
-  // final canGoToPreviousPageProvider = Provider<StateProvider<int>((ref) {
-  //   return ref.watch(buttonID) != 0;
-  // });
   SlideData data = SlideData();
 
   int numWidget = 0;
@@ -60,7 +39,7 @@ class PresentationCreationArea extends ConsumerWidget{
     // Return a Uint8List containing the pixel data from the ImageData object
     return Uint8List.view(imageData.data.buffer);
   }
-  Future<void> pickFileWeb(int buttonId, StateController<int> _numAddItemState) async {
+  Future<void> pickFileWeb(int buttonId, WidgetRef ref) async {
     Uint8List? imageData;
 
     print("_pickFile=>");
@@ -120,7 +99,7 @@ class PresentationCreationArea extends ConsumerWidget{
     // } else {
     //   // User canceled the picker
     // }
-    _numAddItemState.state = -100;
+    ref.watch(numAddItem.notifier).set(-100);
   }
   void addWidget(int idWidget) {
     // listWidgets.add(_selectWidget[idWidget]);
@@ -145,7 +124,7 @@ class PresentationCreationArea extends ConsumerWidget{
     );
   }
 
-  Widget Area() {
+  Widget area() {
     // listWidgets.add(container2);
     // listWidgets.add(MyStateful());
     return Expanded(
@@ -179,44 +158,31 @@ class PresentationCreationArea extends ConsumerWidget{
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    SlideItems slide = SlideItems();
     StateController<int> _buttonID = ref.watch(buttonID.notifier);
-    final _counterSlide = ref.watch(counterSlide);
+    ref.watch(counterSlide);
 
-    final _numAddItem = ref.watch(numAddItem);
-    StateController<int> _numAddItemState = ref.watch(numAddItem.notifier);
+    final addItem = ref.watch(numAddItem) as int;
+    ref.watch(numAddItem.notifier);
 
-
-    final __fileProvider = ref.watch(fileProvider);
+    ref.watch(fileProvider);
 
     //удаление элементов из слайда
     final _DelItemId = ref.watch(delItemId);
 
-
-
-    // if ( data.getLengthListSlide() < _counterSlide){
-    //   data.addListSlide(slide);
-    //   // listSlide.add(slide);
-    // }
-
-    if (_numAddItem == 1){
-      print ("Add text item =>${_numAddItem}");
+    if (addItem == 1){
+      print ("Add text item =>${addItem}");
       // TextSlide textBox = TextSlide.Id(data.indexOfListSlide(_buttonID.state).lengthArr());
-      ItemsShel itemsShel = ItemsShel.id(UniqueKey(), data.indexOfListSlide(_buttonID.state).lengthArr());
-      data.indexOfListSlide(_buttonID.state).addItemShel(itemsShel);
+      ItemsShel itemsShel = ItemsShel.id(UniqueKey(), data.indexOfListSlide(_buttonID.state-1).lengthArr());
+      data.indexOfListSlide(_buttonID.state-1).addItemShel(itemsShel);
     }
 
-    if (_numAddItem == -4){
-      print ("Add image item =>${_numAddItem}");
-      pickFileWeb(_buttonID.state, _numAddItemState);
+    if (addItem == -4){
+      print ("Add image item =>${addItem}");
+      pickFileWeb(_buttonID.state, ref);
     }
 
+    data.indexOfListSlide(_buttonID.state-1).delItem(_DelItemId);
 
-    // print("_DelItemId=> ${_DelItemId}");
-    // listSlide[_buttonID.state].delItem(_DelItemId);
-    data.indexOfListSlide(_buttonID.state).delItem(_DelItemId);
-
-    // print("buttonID.state12=> ${_buttonID.state}");
     return Expanded(
       child: AspectRatio(
         aspectRatio: 16/9,
@@ -231,7 +197,6 @@ class PresentationCreationArea extends ConsumerWidget{
                   print("count => ${count}");
                   // if (_numAddItem == 1){
                   //   print(" listWidgets.length => ${listWidgets.length}");
-                  //   listSlide[0].addItem(Text("HIEFJ"));
                   //   // listWidgets[_buttonID.state];
                   // }
                   return OverflowBox(
@@ -259,8 +224,6 @@ class PresentationCreationArea extends ConsumerWidget{
                               sizing: StackFit.expand,
                               index: count,
                               children: <Widget>[
-                                // for (Widget name in listWidgets) (name),
-                                // for (Slide name in listSlide) (name.getSlide()),
                                 for (SlideItems name in data.getListSlide()) (name.getSlide()),
                               ],
                             ),
@@ -277,31 +240,4 @@ class PresentationCreationArea extends ConsumerWidget{
     );
   }
 }
-
-class HomeView extends ConsumerStatefulWidget {
-  const HomeView({Key? key}) : super(key: key);
-
-  @override
-  HomeViewState createState() => HomeViewState();
-}
-
-class HomeViewState extends ConsumerState<HomeView> {
-  @override
-  void initState() {
-    super.initState();
-    // "ref" can be used in all life-cycles of a StatefulWidget.
-    ref.read(counterProvider);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // We can also use "ref" to listen to a provider inside the build method
-    final counter = ref.watch(counterProvider);
-    return Text('$counter');
-  }
-}
-
-
-
-
 

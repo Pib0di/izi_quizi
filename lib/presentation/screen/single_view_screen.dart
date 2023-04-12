@@ -1,26 +1,21 @@
 
 
 // ignore_for_file: must_be_immutable
-
-import 'dart:html';
-import 'dart:typed_data';
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../main.dart';
-import '../../model/ItemsShel.dart';
-import '../../FactoryСlasses/SlideData.dart';
-import '../../model/SlideItem.dart';
+import '../../data/repository/local/slide_data.dart';
+import '../../Widgets/slide_item.dart';
+import '../riverpod/single_view/single_view_state.dart';
 
-class ViewPresentation extends ConsumerStatefulWidget {
-  const ViewPresentation({Key? key}) : super(key: key);
+class SingleViewPresentation extends ConsumerStatefulWidget {
+  const SingleViewPresentation({Key? key}) : super(key: key);
 
   @override
   ViewPresentationState createState() => ViewPresentationState();
 }
 
-class ViewPresentationState extends ConsumerState<ViewPresentation> {
+class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
   static const double heightBox = 70;
   static const double heightIcon = heightBox - 30;
   SlideData slideData = SlideData();
@@ -28,15 +23,16 @@ class ViewPresentationState extends ConsumerState<ViewPresentation> {
 
   @override
   Widget build(BuildContext context) {
-    StateController<int> slideCount = ref.watch(slideNumState.notifier);
-    final slideNum = ref.watch(slideNumState);
     final totalSlide = slideData.getLengthListSlide() - 1;
-    print("slidiNum => $slideNum, totalSlide=> $totalSlide, slideCount => ${slideCount.state}");
+
+    //state management
+    final slideCounter = ref.watch(slideNumProvider.notifier);
+
+    //get the current slide number
+    final numSelectSlide = ref.watch(slideNumProvider) as int;
+
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Second Route'),
-      // ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Column(
@@ -58,7 +54,7 @@ class ViewPresentationState extends ConsumerState<ViewPresentation> {
                   const Spacer(),
                   IconButton(
                     onPressed: (){
-                      slideCount.state = 0;
+                      slideCounter.set(0);
                     },
                     icon: const Icon(
                       Icons.fullscreen_sharp,
@@ -74,12 +70,12 @@ class ViewPresentationState extends ConsumerState<ViewPresentation> {
               height: heightBox,
               child: Row(
                 children: [
-                  Text("${slideNum+1}/${totalSlide+1}"),
+                  Text("${numSelectSlide+1}/${totalSlide+1}"),
                   const Spacer(),
                   IconButton(
                     onPressed: (){
-                      if (slideCount.state > 0) {
-                        --slideCount.state;
+                      if (numSelectSlide > 0) {
+                        slideCounter.decrement();
                       }
                     },
                     icon: const Icon(
@@ -91,8 +87,8 @@ class ViewPresentationState extends ConsumerState<ViewPresentation> {
                   const SizedBox(width: 8,),
                   IconButton(
                     onPressed: (){
-                      if (slideCount.state < totalSlide) {
-                        ++slideCount.state;
+                      if (numSelectSlide < totalSlide) {
+                        slideCounter.increment();
                       }
                     },
                     icon: const Icon(
@@ -185,15 +181,15 @@ class ItemsViewPresentationState extends ConsumerState<ItemsViewPresentation> {
                   children:[
                     Container(
                       margin: const EdgeInsets.all(5),
-                      decoration: const BoxDecoration(
-                        // image: DecorationImage(
-                        //   // image: Image.file(File('dfg')),
-                        //   image: Image.file(imageFile).image,
-                        //   // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                        //   fit: BoxFit.cover,
-                        // ),
-                        // borderRadius: BorderRadius.circular(15),
-                      ),
+                      // decoration: const BoxDecoration(
+                      //   image: DecorationImage(
+                      //     // image: Image.file(File('dfg')),
+                      //     image: Image.file(imageFile).image,
+                      //     // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                      //     fit: BoxFit.cover,
+                      //   ),
+                      //   borderRadius: BorderRadius.circular(15),
+                      // ),
                       height: widget.height,
                       width: widget.width,
                       child: Padding(
@@ -239,7 +235,7 @@ class PresentationViewport extends ConsumerWidget{
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final slideNum = ref.watch(slideNumState);
+    final slideNum = ref.watch(slideNumProvider) as int;
     return Center(
       child: AspectRatio(
         aspectRatio: 16/9,
