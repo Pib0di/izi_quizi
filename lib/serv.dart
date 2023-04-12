@@ -26,7 +26,8 @@ import 'package:jaguar_jwt/jaguar_jwt.dart';
 // }
 SQL sql = SQL();
 Future<void> main() async {
-  final server = await HttpServer.bind('localhost', 8000);
+  // final server = await HttpServer.bind('localhost', 8000);
+  final server = await HttpServer.bind('185.251.89.216', 85);
   print('Listening on ${server.address}:${server.port}');
 
   await for (var request in server) {
