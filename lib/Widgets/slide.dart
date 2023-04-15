@@ -13,8 +13,7 @@ import 'dart:html' as html;
 
 import 'slide_item.dart';
 
-
-class PresentationCreationArea extends ConsumerWidget{
+class PresentationCreationArea extends ConsumerWidget {
   PresentationCreationArea({Key? key}) : super(key: key);
   PresentationCreationArea.hi(this.numWidget) {}
 
@@ -27,18 +26,21 @@ class PresentationCreationArea extends ConsumerWidget{
   List<SlideItems> listSlide = [];
   Future<Uint8List> imageElementToUint8List(ImageElement imageElement) async {
     // Create a Canvas element and set its dimensions to match the image element
-    final canvas = CanvasElement(width: imageElement.width, height: imageElement.height);
+    final canvas =
+        CanvasElement(width: imageElement.width, height: imageElement.height);
 
     // Draw the image element onto the canvas
     final context = canvas.context2D;
     context.drawImage(imageElement, 0, 0);
 
     // Get the ImageData object from the canvas
-    final imageData = context.getImageData(0, 0, imageElement.width!.toInt(), imageElement.height!.toInt());
+    final imageData = context.getImageData(
+        0, 0, imageElement.width!.toInt(), imageElement.height!.toInt());
 
     // Return a Uint8List containing the pixel data from the ImageData object
     return Uint8List.view(imageData.data.buffer);
   }
+
   Future<void> pickFileWeb(int buttonId, WidgetRef ref) async {
     Uint8List? imageData;
 
@@ -61,7 +63,7 @@ class PresentationCreationArea extends ConsumerWidget{
           ),
         );
         ItemsShel imageBox = ItemsShel.imageWidget(UniqueKey(), imageWidget);
-        print ("img => 3333");
+        print("img => 3333");
 
         data.indexOfListSlide(buttonId).addItemShel(imageBox);
         // listSlide[buttonId].addItem(imageBox);
@@ -101,6 +103,7 @@ class PresentationCreationArea extends ConsumerWidget{
     // }
     ref.watch(numAddItem.notifier).set(-100);
   }
+
   void addWidget(int idWidget) {
     // listWidgets.add(_selectWidget[idWidget]);
   }
@@ -129,29 +132,36 @@ class PresentationCreationArea extends ConsumerWidget{
     // listWidgets.add(MyStateful());
     return Expanded(
       child: AspectRatio(
-        aspectRatio: 16/9,
+        aspectRatio: 16 / 9,
         child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            // print('constraints.maxWidth => ${constraints.maxWidth}');
-            return OverflowBox(
-              maxWidth: double.infinity,
-              maxHeight: double.infinity,
-              child: Transform.scale(
-                scale: constraints.maxWidth < 1920 ? constraints.maxWidth/1920 : 1920/constraints.maxWidth,
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  color: Colors.grey[350],
-                  width: constraints.maxWidth*(constraints.maxWidth < 1920 ? 1920/constraints.maxWidth : constraints.maxWidth/1920),
-                  height: constraints.maxHeight*(constraints.maxWidth < 1920 ? 1920/constraints.maxWidth : constraints.maxWidth/1920),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [listWidgets[0]],
-                  ),
+            builder: (BuildContext context, BoxConstraints constraints) {
+          // print('constraints.maxWidth => ${constraints.maxWidth}');
+          return OverflowBox(
+            maxWidth: double.infinity,
+            maxHeight: double.infinity,
+            child: Transform.scale(
+              scale: constraints.maxWidth < 1920
+                  ? constraints.maxWidth / 1920
+                  : 1920 / constraints.maxWidth,
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                color: Colors.grey[350],
+                width: constraints.maxWidth *
+                    (constraints.maxWidth < 1920
+                        ? 1920 / constraints.maxWidth
+                        : constraints.maxWidth / 1920),
+                height: constraints.maxHeight *
+                    (constraints.maxWidth < 1920
+                        ? 1920 / constraints.maxWidth
+                        : constraints.maxWidth / 1920),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [listWidgets[0]],
                 ),
               ),
-            );
-          }
-        ),
+            ),
+          );
+        }),
       ),
     );
   }
@@ -169,27 +179,31 @@ class PresentationCreationArea extends ConsumerWidget{
     //удаление элементов из слайда
     final _DelItemId = ref.watch(delItemId);
 
-    if (addItem == 1){
-      print ("Add text item =>${addItem}");
+    if (addItem == 1) {
+      print("Add text item =>${addItem}");
       // TextSlide textBox = TextSlide.Id(data.indexOfListSlide(_buttonID.state).lengthArr());
-      ItemsShel itemsShel = ItemsShel.id(UniqueKey(), data.indexOfListSlide(_buttonID.state-1).lengthArr());
-      data.indexOfListSlide(_buttonID.state-1).addItemShel(itemsShel);
+      ItemsShel itemsShel = ItemsShel.id(
+          UniqueKey(), data.indexOfListSlide(_buttonID.state - 1).lengthArr());
+      data.indexOfListSlide(_buttonID.state - 1).addItemShel(itemsShel);
     }
 
-    if (addItem == -4){
-      print ("Add image item =>${addItem}");
+    if (addItem == -4) {
+      print("Add image item =>${addItem}");
       pickFileWeb(_buttonID.state, ref);
     }
 
-    data.indexOfListSlide(_buttonID.state-1).delItem(_DelItemId);
+    data.indexOfListSlide(_buttonID.state - 1).delItem(_DelItemId);
 
     return Expanded(
-      child: AspectRatio(
-        aspectRatio: 16/9,
-        child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return Consumer(
-                builder: (context, ref, _) {
+      child: Flexible(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: LayoutBuilder(
+                  builder: (BuildContext context, BoxConstraints constraints) {
+                return Consumer(builder: (context, ref, _) {
                   int count = ref.watch(buttonID);
                   if (count > 0) {
                     --count;
@@ -203,19 +217,20 @@ class PresentationCreationArea extends ConsumerWidget{
                     maxWidth: double.infinity,
                     maxHeight: double.infinity,
                     child: Transform.scale(
-                      scale: constraints.maxWidth < 1920 ? constraints
-                          .maxWidth / 1920 : 1920 / constraints.maxWidth,
+                      scale: constraints.maxWidth < 1920
+                          ? constraints.maxWidth / 1920
+                          : 1920 / constraints.maxWidth,
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 20),
                         color: Colors.grey[350],
                         width: constraints.maxWidth *
-                            (constraints.maxWidth < 1920 ? 1920 /
-                                constraints.maxWidth : constraints.maxWidth /
-                                1920),
+                            (constraints.maxWidth < 1920
+                                ? 1920 / constraints.maxWidth
+                                : constraints.maxWidth / 1920),
                         height: constraints.maxHeight *
-                            (constraints.maxWidth < 1920 ? 1920 /
-                                constraints.maxWidth : constraints.maxWidth /
-                                1920),
+                            (constraints.maxWidth < 1920
+                                ? 1920 / constraints.maxWidth
+                                : constraints.maxWidth / 1920),
                         child: Stack(
                           fit: StackFit.expand,
                           children: [
@@ -224,7 +239,8 @@ class PresentationCreationArea extends ConsumerWidget{
                               sizing: StackFit.expand,
                               index: count,
                               children: <Widget>[
-                                for (SlideItems name in data.getListSlide()) (name.getSlide()),
+                                for (SlideItems name in data.getListSlide())
+                                  (name.getSlide()),
                               ],
                             ),
                           ],
@@ -232,12 +248,12 @@ class PresentationCreationArea extends ConsumerWidget{
                       ),
                     ),
                   );
-                }
-            );
-          }
+                });
+              }),
+            ),
+          ),
         ),
       ),
     );
   }
 }
-

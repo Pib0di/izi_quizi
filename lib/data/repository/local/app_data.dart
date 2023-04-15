@@ -1,5 +1,6 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../presentation/riverpod/home_page/home_page_state.dart';
 
@@ -8,10 +9,21 @@ class AppData{
   factory AppData() { return _instance; }
   AppData._internal();
 
-  static String idUser = '';
+  static String idUser = '1';
   static String email = '';
   static String presentName = '';
+  static String typeBrowser = 'Browser';
 
+  Future<void> checkMobileBrowser() async {
+    final response = await http.get(Uri.parse('https://httpbin.org/user-agent'));
+    final userAgent = response.body;
+
+    if (userAgent.contains('Mobile')) {
+      typeBrowser = 'Mobile';
+    } else if (userAgent.contains('Browser')) {
+      typeBrowser = 'Browser';
+    }
+  }
 
   // set of user presentations
   Map<String, dynamic> userPresentName = {};

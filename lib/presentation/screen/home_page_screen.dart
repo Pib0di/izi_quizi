@@ -279,13 +279,23 @@ Widget popapMenu(BuildContext context) {
   return PopupMenuButton<String>(
     padding: EdgeInsets.zero,
     onSelected: (String item) => {
-      if (item == "auth") {},
-      showDialog(
-          context: context,
-          builder: (BuildContext context) => const AlertDialog(
-                backgroundColor: Colors.transparent,
-                content: Join(),
-              )),
+      if (item == "auth") {
+        showDialog(
+            context: context,
+            barrierColor: AppData.typeBrowser == 'Mobile'
+                ? Colors.white
+                : Colors.black45,
+            barrierDismissible: AppData.typeBrowser == 'Mobile'
+                ? false
+                : true,
+            builder: (BuildContext context) => const AlertDialog(
+              // contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+              contentPadding: EdgeInsets.zero,
+              // backgroundColor: Colors.transparent,
+              content: Join(),
+            )),
+      },
+
     },
     itemBuilder: (context) => const <PopupMenuEntry<String>>[
       PopupMenuDivider(),

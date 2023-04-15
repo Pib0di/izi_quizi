@@ -1,52 +1,53 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:web_socket_channel/status.dart';
 import '../../data/repository/local/app_data.dart';
 import '../../domain/authentication/authentication_impl.dart';
 import '../../main.dart';
+import '../riverpod/authentication/authentication_state.dart';
 
 AuthenticationImpl authenticationImpl = AuthenticationImpl();
 
 class PasswordField extends StatefulWidget {
+  PasswordField({
+    Key? key,
+    this.formKey,
+    this.restorationId,
+    this.fieldKey,
+    this.hintText,
+    this.labelText,
+    this.helperText,
+    this.onChanged,
+    this.validator,
+    this.onFieldSubmitted,
+    this.textInputAction,
+    this.myControllerPass,
+    this.helperTexts,
+  }) : super(key: key);
 
-  PasswordField(
-      {
-        Key? key,
-        this.restorationId,
-        this.fieldKey,
-        this.hintText,
-        this.labelText,
-        this.helperText,
-        this.onSaved,
-        this.validator,
-        this.onFieldSubmitted,
-        this.focusNode,
-        this.textInputAction,
-        this.myControllerPass,
-      }) : super(key: key);
-
+  GlobalKey<FormState>? formKey;
   final String? restorationId;
   final Key? fieldKey;
   String? hintText;
   String? labelText;
   final String? helperText;
-  final FormFieldSetter<String>? onSaved;
+  final String? helperTexts;
+  final FormFieldSetter<String>? onChanged;
   final FormFieldValidator<String>? validator;
   final ValueChanged<String>? onFieldSubmitted;
-  final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final TextEditingController? myControllerPass;
 
   @override
   State<PasswordField> createState() => _PasswordFieldState();
 }
+
 class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
   final RestorableBool _obscureText = RestorableBool(true);
 
   @override
   String? get restorationId => widget.restorationId;
   String? get hintText => widget.hintText;
-
 
   @override
   void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
@@ -56,12 +57,15 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onChanged: (value){
+        // _formKey.currentState!.validate()
+        widget.formKey!.currentState!.validate();
+      },
       controller: widget.myControllerPass,
       key: widget.fieldKey,
       restorationId: 'password_text_field',
       obscureText: _obscureText.value,
       maxLength: 18,
-      onSaved: widget.onSaved,
       validator: widget.validator,
       onFieldSubmitted: widget.onFieldSubmitted,
       decoration: InputDecoration(
@@ -72,8 +76,6 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
         suffixIcon: IconButton(
           onPressed: () {
             setState(() {
-              print("hintText setState() => $hintText");
-
               _obscureText.value = !_obscureText.value;
             });
           },
@@ -87,7 +89,6 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
   }
 }
 
-
 class Join extends ConsumerStatefulWidget {
   const Join({Key? key}) : super(key: key);
 
@@ -97,27 +98,29 @@ class Join extends ConsumerStatefulWidget {
 
 class JoinState extends ConsumerState<Join> {
   final myControllerEmail = TextEditingController();
-  final myControllerPass = TextEditingController();
+  final controllerPass = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool buttonClick = false;
+  bool buttonPressed = false;
 
   late bool isAuth = false;
   Widget errorWidget = Row(
-      children: const [
-        Icon(
-          Icons.warning_rounded,
-          color: Colors.redAccent,
-          size: 30,
-        ),
-        Text("Ошибка авторизации"),
-      ],
-    );
+    children: const [
+      Icon(
+        Icons.warning_rounded,
+        color: Colors.redAccent,
+        size: 30,
+      ),
+      Text("Ошибка авторизации"),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
     isAuth = ref.watch(appData.authStateProvider());
     isAuth = appData.authStateController().state;
-    if (appData.authStateController().state == true){
+    ref.watch(authUpdate);
+
+    if (appData.authStateController().state == true) {
       Navigator.of(context).pop();
     }
     // Widget progress(){
@@ -159,126 +162,137 @@ class JoinState extends ConsumerState<Join> {
     //   return const Text("");
     // }
     final PasswordField passwordField = PasswordField(
-      myControllerPass: myControllerPass,
+      formKey: _formKey,
+      myControllerPass: controllerPass,
       restorationId: 'password_field',
       textInputAction: TextInputAction.next,
-      validator: (value){
-        bool isPasswordValid(String? password) {
-          if (password == null) return false;
-          if (password.length < 8) return false;
-          if (!password.contains(RegExp(r"[a-z]"))) return false;
-          if (!password.contains(RegExp(r"[A-Z]"))) return false;
-          if (!password.contains(RegExp(r"[0-9]"))) return false;
-          // if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) return false;
-          return true;
-        }
-        final bool passwordValid = isPasswordValid(value);
-        if (  value == null
-            || value.isEmpty
-            || !passwordValid
-        ) {
-          return "Пароль должен содержать a-z, A-Z, 0-9 и содержать от 8 символов";
-        }
-        return null;
-      },
-      onFieldSubmitted: (value) {
+      validator: (value) {
+        return authenticationImpl.checkPassword(value);
       },
     );
+
+    List<Widget> buttonsAdapt = [
+      buttonPressed
+          ? isAuth
+              ? const Text("")
+              : errorWidget
+          : const Text(""),
+      const Spacer(),
+      TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          textStyle: const TextStyle(fontSize: 20),
+        ),
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Processing Data')),
+            );
+          }
+        },
+        child: const Text('Зарегистрироваться'),
+      ),
+      const SizedBox(
+        width: 10,
+        height: 10,
+      ),
+      TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.all(16.0),
+          textStyle: const TextStyle(fontSize: 20),
+        ),
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            buttonPressed = true;
+            AppData.email = myControllerEmail.text;
+            authenticationImpl.authorize(AppData.email, controllerPass.text);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Авторизация...')),
+            );
+          }
+        },
+        child: const Text('Войти'),
+      ),
+    ];
+
+    print("UPDATE PAS");
     return IntrinsicHeight(
       child: Container(
-        width: 600,
-        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Column(
-          children: [
-            Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: myControllerEmail,
-                    textInputAction: TextInputAction.next,
-                    validator: (value){
-                      if (  value == null
-                            || value.isEmpty
-                            || !RegExp(r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$").hasMatch(value)
-                      ) {
-                        return 'Неверный формат почты';
-                      }
-                      return null;
-                    },
-                    // focusNode: _lifeStory,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: "andrey@example.com",
-                      // helperText: "название вашего iziQuizi",
-                      labelText: "Email",
+          width: 600,
+          padding: AppData.typeBrowser == 'Mobile'
+              ? const EdgeInsets.all(0)
+              : const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+          decoration: BoxDecoration(
+            // color: Colors.grey[200],
+            color: Colors.white,
+            borderRadius: AppData.typeBrowser == 'Mobile'
+                ? BorderRadius.zero
+                : BorderRadius.circular(32),
+          ),
+          child: Column(
+            children: [
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: myControllerEmail,
+                      textInputAction: TextInputAction.next,
+                      validator: (value) {
+                        return authenticationImpl.checkEmail(value);
+                      },
+                      onChanged: (value) {
+                        authenticationImpl.checkEmail(value);
+                        if (value.isNotEmpty) {
+                          _formKey.currentState!.validate();
+                        }
+                      },
+                      // focusNode: _lifeStory,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: "andrey@example.com",
+                        // helperText: "название вашего iziQuizi",
+                        labelText: "Email",
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
-                  ),
-                  const SizedBox(height: 20,),
-                  passwordField
-                ],
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    passwordField
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20,),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  buttonClick ? isAuth ? const Text("")
-                      : errorWidget
-                      : const Text(""),
-
-                  const Spacer(),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(16.0),
-                      textStyle: const TextStyle(fontSize: 20),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate())
-                      {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Processing Data')),
-                        );
-                      }
-                    },
-                    child: const Text('Зарегистрироваться'),
-                  ),
-                  const SizedBox(width: 10,),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.all(16.0),
-                      textStyle: const TextStyle(fontSize: 20),
-                    ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate())
-                      {
-                        buttonClick = true;
-                        AppData.email = myControllerEmail.text.toString();
-                        authenticationImpl.authorize(AppData.email, myControllerPass.text);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Авторизация...')),
-                        );
-                      }
-                    },
-                    child: const Text('Войти'),
-                  ),
-                ],
+              const SizedBox(
+                height: 10,
               ),
-            ),
-          ],
-        )
-        ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Builder(
+                  builder: (BuildContext context) {
+                    if (AppData.typeBrowser == "Mobile") {
+                      return SizedBox(
+                        height: 110,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: buttonsAdapt,
+                        ),
+                      );
+                    } else {
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: buttonsAdapt,
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

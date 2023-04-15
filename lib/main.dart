@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'domain/multipe_view/multiple_view_data.dart';
 import 'presentation/screen/home_page_screen.dart';
 import 'data/repository/local/app_data.dart';
-import 'data/repository/server/impl/server_data_impl.dart';
+import 'data/repository/server/server_data_impl.dart';
 import 'dart:io';
 
 RequestImpl request = RequestImpl();
@@ -34,6 +34,8 @@ final fileProvider = StateProvider<File>(
 // final container = ProviderContainer();
 
 void main() {
+  appData.checkMobileBrowser();
+
   ParseMessageImpl parseMessageImpl = ParseMessageImpl();
   SocketConnection.getConnection().stream.listen((event) {
     print("event => $event");

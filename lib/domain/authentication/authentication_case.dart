@@ -4,4 +4,8 @@ abstract class AuthenticationCase{
 
   void register(String email, String password);
 
+  String? checkPassword(String? pass);
+  String? checkEmail(String? email);
+
+  void update();
 }

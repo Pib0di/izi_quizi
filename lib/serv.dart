@@ -1,5 +1,3 @@
-import 'dart:io' show HttpServer, HttpRequest, WebSocket, WebSocketTransformer;
-import 'dart:convert' show json;
 import 'dart:convert';
 // import 'package:mysql1/mysql1.dart';
 
@@ -8,26 +6,10 @@ import 'dart:io';
 import 'package:mysql_client/mysql_client.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
-// import 'package:shared_preferences/shared_preferences.dart';
-// void handleWebSocket(Socket socket) {
-//   WebSocket webSocket;
-//   try {
-//     webSocket = WebSocket.fromUpgradedSocket(socket, serverSide: true);
-//
-//     final roomId = Uri.parse(webSocket.request.uri.toString()).pathSegments.last;
-//     final room = Room.getOrCreateRoom(roomId);
-//     room.addWebSocket(webSocket);
-//   } catch (e) {
-//     print('Error: $e');
-//     if (webSocket != null && webSocket.closeCode == null) {
-//       webSocket.close();
-//     }
-//   }
-// }
 SQL sql = SQL();
 Future<void> main() async {
-  // final server = await HttpServer.bind('localhost', 8000);
-  final server = await HttpServer.bind('185.251.89.216', 85);
+  final server = await HttpServer.bind('localhost', 3000);
+  // final server = await HttpServer.bind('185.251.89.216', 85);
   print('Listening on ${server.address}:${server.port}');
 
   await for (var request in server) {
@@ -39,32 +21,6 @@ Future<void> main() async {
       request.response.close();
     }
   }
-
-
-
-  // HttpServer.bind('localhost', 8000).then((HttpServer server) {
-  //   print('[+]WebSocket listening at -- ws://localhost:8000/');
-  //   server.listen((HttpRequest request) {
-  //     WebSocketTransformer.upgrade(request).then((WebSocket ws) {
-  //       Map<String, WebSocket> connections = new Map<String, WebSocket>();
-  //       connections.putIfAbsent("connectionName", () => ws);
-  //       // print('roomId =>>>>> ${roomId}');
-  //
-  //       ws.listen(
-  //         (data) async {
-  //           print(data);
-  //           var answer = await redirection(data);
-  //           if (ws.readyState == WebSocket.open) {
-  //             ws.add(jsonEncode(answer));
-  //           }
-  //         },
-  //         onDone: () => print('[+]Done :)'),
-  //         onError: (err) => print('[!]Error -- ${err.toString()}'),
-  //         cancelOnError: true,
-  //       );
-  //     }, onError: (err) => print('[!]Error -- ${err.toString()}'));
-  //   }, onError: (err) => print('[!]Error -- ${err.toString()}'));
-  // }, onError: (err) => print('[!]Error -- ${err.toString()}'));
 }
 
 void handleWebSocket(HttpRequest request) {
@@ -78,9 +34,11 @@ void handleWebSocket(HttpRequest request) {
 
 
     webSocket.listen((message) async {
+      print('message => $message');
 
       var answer = await redirection(message, webSocket);
       if (webSocket.readyState == WebSocket.open) {
+        print('message => $message');
         webSocket.add(jsonEncode(answer));
       }
 
@@ -179,41 +137,17 @@ class PresentNameMap {
 }
 
 class SQL {
-  late String host = 'localhost',
+  // late String host = 'localhost',
+  //     user = 'root',
+  //     password = '1234',
+  //     db = 'iziqizi';
+  // int port = 3306;
+
+  late String host = '185.251.89.216',
       user = 'root',
       password = '1234',
       db = 'iziqizi';
-  int port = 3306;
-  // Future<Map<String, String>> ListWidgetMySQL1(String userId) async {
-  //   final conn = await MySqlConnection.connect(ConnectionSettings(
-  //       host: host,
-  //       port: port,
-  //       user: user,
-  //       db: db,
-  //       password: password));
-  //
-  //   Map<String, String> userPresent = <String, String>{};
-  //
-  //   try {
-  //     var result = await conn.query(
-  //         'SELECT presentName, idPresent FROM present where userId = 1');
-  //     print(result.length);
-  //
-  //     for (var row in result) {
-  //       print("sldfk");
-  //       userPresent['${row[0]}'] = row[1];
-  //       print(userPresent);
-  //     }
-  //
-  //   } on Exception catch (e) {
-  //     print(e);
-  //     print(Exception);
-  //     // return "e.toString()";
-  //   }
-  //   await conn.close();
-  //   print("sdfk");
-  //   return userPresent;
-  // }
+  int port = 85;
 
   Future<Map<dynamic, String>> listWidget(String userId) async {
     final conn = await MySQLConnection.createConnection(
@@ -246,7 +180,7 @@ class SQL {
     conn.close();
     // userPresent.forEach((k, v) => list.add(PresentNameMap(k, v)));
     // list = userPresent.values.toList();
-    print("list => $userPresent");
+    print("userId=> $userId, list => $userPresent");
 
     return userPresent;
   }

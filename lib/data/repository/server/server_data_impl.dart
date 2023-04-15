@@ -1,16 +1,16 @@
 import 'dart:async';
+import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/main.dart';
 
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
-import '../../local/app_data.dart';
-import '../../local/slide_data.dart';
-import '../interface/server_data.dart';
+import '../local/app_data.dart';
+import '../local/slide_data.dart';
 
 class SocketConnection {
 
   static final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://localhost:8000'),
+    Uri.parse('ws://localhost:5000'),
   );
 
   static void sendMessage(data) {
