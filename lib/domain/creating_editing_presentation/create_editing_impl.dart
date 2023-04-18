@@ -1,9 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/domain/creating_editing_presentation/create_editing_case.dart';
 import 'package:izi_quizi/main.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 
-class CreateEditingImpl extends CreateEditingCase {
+class CreateEditingImpl {
   static final CreateEditingImpl _instance = CreateEditingImpl._internal();
 
   factory CreateEditingImpl() {
@@ -23,17 +22,14 @@ class CreateEditingImpl extends CreateEditingCase {
     ref!.watch(numAddItem.notifier).set(itemNum);
   }
 
-  @override
   void renameQuiz(String email, String currentNamePresent, String newName) {
     request.renamePresent(email, currentNamePresent, newName);
   }
 
-  @override
   void saveQuiz(String idUser, String presentName, String jsonSlide) {
     request.setPresentation(idUser, presentName, jsonSlide);
   }
 
-  @override
   void addItem(String nameItem) {
     switch (nameItem) {
       case 'heading':

@@ -1,19 +1,15 @@
-import 'package:izi_quizi/domain/authentication/authentication_case.dart';
 import 'package:izi_quizi/main.dart';
 import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
 
-class AuthenticationImpl extends AuthenticationCase {
-  @override
+class AuthenticationImpl {
   void authorize(String email, String password) {
     request.authentication(email, password);
   }
 
-  @override
   void register(String email, String password) {
     request.register(email, password);
   }
 
-  @override
   String? checkPassword(String? pass) {
     bool isPasswordValid(String? password) {
       if (password == null) {
@@ -42,7 +38,6 @@ class AuthenticationImpl extends AuthenticationCase {
     return null;
   }
 
-  @override
   String? checkEmail(String? email) {
     if (email == null ||
         email.isEmpty ||
@@ -53,7 +48,6 @@ class AuthenticationImpl extends AuthenticationCase {
     return null;
   }
 
-  @override
   void update() {
     appData.ref?.watch(authUpdate.notifier).increment();
   }
