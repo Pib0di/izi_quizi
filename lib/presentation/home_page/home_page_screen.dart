@@ -4,9 +4,9 @@ import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/domain/home_page/home_page_impl.dart';
 import 'package:izi_quizi/main.dart';
-import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
 import 'package:izi_quizi/presentation/authentication/authentication_popup_screen.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
+import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
 import 'package:izi_quizi/presentation/multipe_view/multiple_view_screen.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
