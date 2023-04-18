@@ -2,25 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
-import '../../../presentation/screen/single_view_screen.dart';
-import '../../../common_functionality/jsonParse.dart';
-import '../../../Widgets/items_shel.dart';
-import '../../../Widgets/slide_item.dart';
-import 'side_slides.dart';
+import 'package:izi_quizi/common_functionality/jsonParse.dart';
+import 'package:izi_quizi/data/repository/local/side_slides.dart';
+import 'package:izi_quizi/data/repository/local/widgets/items_shel.dart';
+import 'package:izi_quizi/data/repository/local/widgets/slide_item.dart';
+import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
 /// Информация слайда (элементы на нем)
 class SlideData {
   static final SlideData _instance = SlideData._internal();
+
   factory SlideData() {
     return _instance;
   }
+
   SlideData._internal();
 
   List<SlideItems> listSlide = [];
 
-
   Map<String, dynamic> dataSlide = {};
+
   void setDataSlide(Map<String, dynamic> data) {
     dataSlide = data;
   }
@@ -33,7 +34,6 @@ class SlideData {
     listSlide.add(item);
   }
 
-
   int getLengthListSlide() {
     return listSlide.length;
   }
@@ -41,7 +41,8 @@ class SlideData {
   SlideItems indexOfListSlide(int index) {
     return listSlide[index];
   }
-  void removeAt(int index){
+
+  void removeAt(int index) {
     listSlide.removeAt(index);
   }
 
@@ -54,12 +55,11 @@ class SlideData {
   }
 
   void setItemsEdit() {
-
-    SideSlides sideSlides = SideSlides();
-    JsonParse jsonParse = dataSlideParse(dataSlide);
+    final sideSlides = SideSlides();
+    final jsonParse = dataSlideParse(dataSlide);
     listSlide.clear();
     jsonParse.slidesData?.forEach((element) {
-      SlideItems slide = SlideItems();
+      final slide = SlideItems();
 
       // AppData appData = AppData();
       // final numSlide = appData.ref!.watch(counterSlide.notifier);
@@ -67,9 +67,8 @@ class SlideData {
 
       sideSlides.addSlide();
 
-
       element.textItems?.forEach((element) {
-        ItemsShel itemsShelText = ItemsShel.textWidgetJson(
+        final itemsShelText = ItemsShel.textWidgetJson(
           key: UniqueKey(),
           text: element.text!,
           width: element.width!,
@@ -80,7 +79,7 @@ class SlideData {
         slide.addItemShel(itemsShelText);
       });
       element.imageItems?.forEach((element) {
-        ItemsShel itemsShelImage = ItemsShel.imageWidgetJson(
+        final itemsShelImage = ItemsShel.imageWidgetJson(
           key: UniqueKey(),
           url: element.url!,
           width: element.width!,
@@ -96,13 +95,12 @@ class SlideData {
   }
 
   void setItemsView() {
-    JsonParse jsonParse = dataSlideParse(dataSlide);
+    final jsonParse = dataSlideParse(dataSlide);
     listSlide.clear();
     jsonParse.slidesData?.forEach((element) {
-      SlideItems slide = SlideItems();
+      final slide = SlideItems();
       element.textItems?.forEach((element) {
-        ItemsViewPresentation itemsViewText =
-            ItemsViewPresentation.textWidgetJson(
+        final itemsViewText = ItemsViewPresentation.textWidgetJson(
           key: UniqueKey(),
           text: element.text!,
           width: element.width!,
@@ -113,8 +111,7 @@ class SlideData {
         slide.addItemsView(itemsViewText);
       });
       element.imageItems?.forEach((element) {
-        ItemsViewPresentation itemsViewImage =
-            ItemsViewPresentation.imageWidgetJson(
+        final itemsViewImage = ItemsViewPresentation.imageWidgetJson(
           key: UniqueKey(),
           url: element.url!,
           width: element.width!,
@@ -130,7 +127,7 @@ class SlideData {
 }
 
 class ItemsShelDataText {
-  String type = "standard";
+  String type = 'standard';
   String text = '';
   double offsetX = 0;
   double offsetY = 0;
@@ -140,7 +137,7 @@ class ItemsShelDataText {
 }
 
 class ItemsShelDataImage {
-  String type = "standard";
+  String type = 'standard';
   String? url;
   double offsetX = 0;
   double offsetY = 0;

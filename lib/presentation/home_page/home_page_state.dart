@@ -1,4 +1,3 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// id of the element to be added to the slide
@@ -7,7 +6,7 @@ final isAuthorized = StateNotifierProvider((ref) {
 });
 
 class IsAuth extends StateNotifier<int> {
-  IsAuth(): super(0);
+  IsAuth() : super(0);
 
   bool isAuth = false;
 

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/domain/home_page/home_page_impl.dart';
-import 'package:izi_quizi/presentation/screen/single_view_screen.dart';
-
-import '../../data/repository/local/app_data.dart';
-import '../../data/repository/local/slide_data.dart';
-import '../../main.dart';
-import '../riverpod/home_page/home_page_state.dart';
-import 'authentication_popup_screen.dart';
-import 'creating_editing_screen.dart';
-import 'multiple_view_screen.dart';
+import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
+import 'package:izi_quizi/presentation/authentication/authentication_popup_screen.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
+import 'package:izi_quizi/presentation/multipe_view/multiple_view_screen.dart';
+import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
 HomePageCaseImpl homePageCase = HomePageCaseImpl();
-
 
 class MyStatefulWidget extends ConsumerStatefulWidget {
   const MyStatefulWidget({super.key});
@@ -40,13 +38,12 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     appData.widgetRef(ref);
 
     // bool isAuth = ref.watch(appData.authStateProvider());
-    bool validAuth = ref.watch(isAuthorized.notifier).isAuth;
+    final validAuth = ref.watch(isAuthorized.notifier).isAuth;
 
     return Scaffold(
       appBar: AppBar(
@@ -80,7 +77,7 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                     children: const [
                       Icon(Icons.home),
                       SizedBox(width: 5),
-                      Text("Дом"),
+                      Text('Дом'),
                     ],
                   ),
                 ),
@@ -91,7 +88,7 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                       children: const [
                         Icon(Icons.av_timer),
                         SizedBox(width: 5),
-                        Text("Мероприятия"),
+                        Text('Мероприятия'),
                       ],
                     ),
                   )),
@@ -102,7 +99,7 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                       children: const [
                         Icon(Icons.people),
                         SizedBox(width: 5),
-                        Text("Комнаты"),
+                        Text('Комнаты'),
                       ],
                     ),
                   ))
@@ -128,7 +125,7 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                 color: Colors.white,
               ),
               label: const Text(
-                "Создать",
+                'Создать',
                 style: TextStyle(
                   color: Colors.white,
                 ),
@@ -145,30 +142,38 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
       body: TabBarView(
         controller: _tabController,
         children: <Widget>[
-          FutureBuilder<List<String>>(builder:
-              (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
-            List<Widget> presentCardList = <Widget>[];
-            for (int i = 0; i < appData.getUserPresentName().length; ++i) {
-              presentCardList.add(PresentCard(
-                idPresent: int.parse(appData.getUserPresentName().keys.elementAt(i)).toInt(),
-                presentName: appData.getUserPresentName().values.elementAt(i),
-              ));
-            }
-            return ListView(
-              padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
-              children: [
-                JoinThePresentation(),
-                const SizedBox(
-                  height: 90,
-                ),
-                Wrap(
+          FutureBuilder<List<String>>(
+            builder:
+                (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
+              final presentCardList = <Widget>[];
+              for (var i = 0; i < appData.getUserPresentName().length; ++i) {
+                presentCardList.add(
+                  PresentCard(
+                    idPresent: int.parse(
+                      appData.getUserPresentName().keys.elementAt(i),
+                    ).toInt(),
+                    presentName:
+                        appData.getUserPresentName().values.elementAt(i),
+                  ),
+                );
+              }
+              return ListView(
+                padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
+                children: [
+                  JoinThePresentation(),
+                  const SizedBox(
+                    height: 90,
+                  ),
+                  Wrap(
                     runSpacing: 10.0,
                     spacing: 10,
                     alignment: WrapAlignment.start,
-                    children: presentCardList),
-              ],
-            );
-          }),
+                    children: presentCardList,
+                  ),
+                ],
+              );
+            },
+          ),
           FutureBuilder<String>(
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
               if (validAuth) {
@@ -194,7 +199,7 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                       child: Text("It's sunny here"),
                     ),
                     const AlertDialog(
-                      content: Text("Hi"),
+                      content: Text('Hi'),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
@@ -212,7 +217,7 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                       child: Text("It's sunny here"),
                     ),
                     const AlertDialog(
-                      content: Text("Hi"),
+                      content: Text('Hi'),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 16),
@@ -251,26 +256,26 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
 }
 
 Widget popapMenu(BuildContext context) {
-  bool isAuth = appData.authStateController().state;
+  final isAuth = appData.authStateController().state;
 
   if (isAuth) {
     return PopupMenuButton<String>(
       padding: EdgeInsets.zero,
       onSelected: (String item) {
-        if (item == "exit") {
+        if (item == 'exit') {
           appData.authStateController().state = false;
         }
       },
       itemBuilder: (context) => const <PopupMenuEntry<String>>[
         PopupMenuDivider(),
         PopupMenuItem<String>(
-          value: "pref",
-          child: Text("Настройки"),
+          value: 'pref',
+          child: Text('Настройки'),
         ),
         PopupMenuItem<String>(
-          value: "exit",
+          value: 'exit',
           child: Text(
-            "Выход",
+            'Выход',
           ),
         ),
       ],
@@ -279,34 +284,32 @@ Widget popapMenu(BuildContext context) {
   return PopupMenuButton<String>(
     padding: EdgeInsets.zero,
     onSelected: (String item) => {
-      if (item == "auth") {
-        showDialog(
+      if (item == 'auth')
+        {
+          showDialog(
             context: context,
-            barrierColor: AppData.typeBrowser == 'Mobile'
-                ? Colors.white
-                : Colors.black45,
-            barrierDismissible: AppData.typeBrowser == 'Mobile'
-                ? false
-                : true,
+            barrierColor:
+                AppData.typeBrowser == 'Mobile' ? Colors.white : Colors.black45,
+            barrierDismissible: AppData.typeBrowser == 'Mobile' ? false : true,
             builder: (BuildContext context) => const AlertDialog(
               // contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
               contentPadding: EdgeInsets.zero,
               // backgroundColor: Colors.transparent,
               content: Join(),
-            )),
-      },
-
+            ),
+          ),
+        },
     },
     itemBuilder: (context) => const <PopupMenuEntry<String>>[
       PopupMenuDivider(),
       PopupMenuItem<String>(
-        value: "settings",
-        child: Text("Настройки"),
+        value: 'settings',
+        child: Text('Настройки'),
       ),
       PopupMenuItem<String>(
-        value: "auth",
+        value: 'auth',
         child: Text(
-          "Авторизоваться",
+          'Авторизоваться',
         ),
       ),
     ],
@@ -314,7 +317,7 @@ Widget popapMenu(BuildContext context) {
 }
 
 class TabBarEvents extends StatefulWidget {
-  const TabBarEvents({Key? key}) : super(key: key);
+  const TabBarEvents({super.key});
 
   @override
   State<TabBarEvents> createState() => TabBarEventsState();
@@ -323,6 +326,7 @@ class TabBarEvents extends StatefulWidget {
 class TabBarEventsState extends State<TabBarEvents>
     with TickerProviderStateMixin {
   late TabController tabController;
+
   @override
   void initState() {
     super.initState();
@@ -354,11 +358,14 @@ class TabBarEventsState extends State<TabBarEvents>
           height: MediaQuery.of(context).size.height - 104,
           // height: 400,
           width: double.maxFinite,
-          child: TabBarView(controller: tabController, children: [
-            current(context),
-            currentList(context),
-            created(context),
-          ]),
+          child: TabBarView(
+            controller: tabController,
+            children: [
+              current(context),
+              currentList(context),
+              created(context),
+            ],
+          ),
         ),
       ],
     );
@@ -370,7 +377,8 @@ ListView currentList(BuildContext context) {
     children: [
       Container(
         margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.1),
+          horizontal: MediaQuery.of(context).size.width * 0.1,
+        ),
         height: 1000,
         color: Colors.teal,
       ),
@@ -381,7 +389,8 @@ ListView currentList(BuildContext context) {
 Container current(BuildContext context) {
   return Container(
     margin: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * 0.1),
+      horizontal: MediaQuery.of(context).size.width * 0.1,
+    ),
     height: 1000,
     color: Colors.teal,
     child: ListView(
@@ -393,9 +402,12 @@ Container current(BuildContext context) {
     ),
   );
 }
+
 Container created(BuildContext context) {
   return Container(
-    margin: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*0.1),
+    margin: EdgeInsets.symmetric(
+      horizontal: MediaQuery.of(context).size.width * 0.1,
+    ),
     // height: 1000,
     // color: Colors.teal,
     child: ListView(
@@ -409,7 +421,9 @@ Container created(BuildContext context) {
               decoration: BoxDecoration(
                 color: const Color(0xff7c94b6),
                 image: const DecorationImage(
-                  image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                  image: NetworkImage(
+                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
+                  ),
                   fit: BoxFit.cover,
                 ),
                 // border: Border.all(
@@ -430,7 +444,9 @@ Container created(BuildContext context) {
               decoration: BoxDecoration(
                 color: const Color(0xff7c94b6),
                 image: const DecorationImage(
-                  image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                  image: NetworkImage(
+                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
+                  ),
                   fit: BoxFit.cover,
                 ),
                 // border: Border.all(
@@ -446,7 +462,9 @@ Container created(BuildContext context) {
               decoration: BoxDecoration(
                 color: const Color(0xff7c94b6),
                 image: const DecorationImage(
-                  image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                  image: NetworkImage(
+                    'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
+                  ),
                   fit: BoxFit.cover,
                 ),
                 // border: Border.all(
@@ -481,7 +499,7 @@ Container created(BuildContext context) {
 }
 
 class JoinThePresentation extends StatelessWidget {
-  JoinThePresentation({Key? key}) : super(key: key);
+  JoinThePresentation({super.key});
 
   static final TextEditingController controller = TextEditingController();
   final List<Widget> _list = <Widget>[
@@ -529,8 +547,7 @@ class JoinThePresentation extends StatelessWidget {
         ),
       ),
       onPressed: () {
-        print("roomId => ${controller.text}");
-        homePageCase.joinRoom("userName", controller.text);
+        homePageCase.joinRoom('userName', controller.text);
       },
     ),
   ];
@@ -553,30 +570,31 @@ class JoinThePresentation extends StatelessWidget {
         ],
       ),
       child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            if (constraints.maxWidth < 470) {
-              return SizedBox(
-                height: 120,
-                child: Column(
-                  children: _list,
-                ),
-              );
-            } else {
-              return Row(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          if (constraints.maxWidth < 470) {
+            return SizedBox(
+              height: 120,
+              child: Column(
                 children: _list,
-              );
-            }
-          }),
+              ),
+            );
+          } else {
+            return Row(
+              children: _list,
+            );
+          }
+        },
+      ),
     );
   }
 }
 
 class PresentCard extends StatefulWidget {
   const PresentCard({
-    Key? key,
     required this.idPresent,
     required this.presentName,
-  }) : super(key: key);
+    super.key,
+  });
 
   final int idPresent;
   final String presentName;
@@ -597,7 +615,9 @@ class _PresentCardState extends State<PresentCard> {
             decoration: BoxDecoration(
               color: const Color(0xff7c94b6),
               image: const DecorationImage(
-                image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
+                image: NetworkImage(
+                  'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
+                ),
                 fit: BoxFit.cover,
               ),
               borderRadius: BorderRadius.circular(15),
@@ -605,13 +625,14 @@ class _PresentCardState extends State<PresentCard> {
             child: RawMaterialButton(
               padding: const EdgeInsets.only(bottom: 10),
               shape: const RoundedRectangleBorder(),
-              onPressed: (){
-                print("getSlideData");
+              onPressed: () {
                 request.getPresentation(widget.idPresent, widget.presentName);
-                Navigator.of(context).push(PresentationDialog<void>(
-                  idPresent: widget.idPresent,
-                  presentName: widget.presentName,
-                ));
+                Navigator.of(context).push(
+                  PresentationDialog<void>(
+                    idPresent: widget.idPresent,
+                    presentName: widget.presentName,
+                  ),
+                );
               },
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -637,8 +658,6 @@ class _PresentCardState extends State<PresentCard> {
             ),
           ),
         ),
-
-
         Positioned(
           right: 0,
           child: Container(
@@ -650,10 +669,15 @@ class _PresentCardState extends State<PresentCard> {
               shape: const CircleBorder(),
               elevation: 0.0,
               onPressed: () {
-                print("email => ${AppData.email}, txt => ${widget.idPresent.toString()}");
-                request.deletePresent(AppData.email, widget.idPresent.toString());
+                request.deletePresent(
+                  AppData.email,
+                  widget.idPresent.toString(),
+                );
               },
-              child: const Icon(Icons.delete, size: 20,),
+              child: const Icon(
+                Icons.delete,
+                size: 20,
+              ),
             ),
           ),
         ),
@@ -664,9 +688,9 @@ class _PresentCardState extends State<PresentCard> {
 
 class PresentationDialog<T> extends PopupRoute<T> {
   PresentationDialog({
-    Key? key,
     required this.idPresent,
     required this.presentName,
+    Key? key,
   });
 
   final int idPresent;
@@ -688,8 +712,11 @@ class PresentationDialog<T> extends PopupRoute<T> {
   SlideData slideData = SlideData();
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
     return Center(
       child: DefaultTextStyle(
         style: Theme.of(context).textTheme.bodyMedium!,
@@ -712,17 +739,18 @@ class PresentationDialog<T> extends PopupRoute<T> {
                     slideData.setItemsView();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SingleViewPresentation()),
+                      MaterialPageRoute(
+                        builder: (context) => const SingleViewPresentation(),
+                      ),
                     );
                   },
                   child: Row(
                     children: const [
-                      Text("Просмотреть"),
-                      SizedBox(width: 5,),
-                      Icon(
-                          Icons.person,
-                          color: Colors.green
+                      Text('Просмотреть'),
+                      SizedBox(
+                        width: 5,
                       ),
+                      Icon(Icons.person, color: Colors.green),
                     ],
                   ),
                 ),
@@ -733,17 +761,18 @@ class PresentationDialog<T> extends PopupRoute<T> {
                     slideData.setItemsView();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MultipleView()),
+                      MaterialPageRoute(
+                        builder: (context) => const MultipleView(),
+                      ),
                     );
                   },
                   child: Row(
                     children: const [
-                      Text("Начать сессию"),
-                      SizedBox(width: 5,),
-                      Icon(
-                          Icons.group,
-                          color: Colors.green
+                      Text('Начать сессию'),
+                      SizedBox(
+                        width: 5,
                       ),
+                      Icon(Icons.group, color: Colors.green),
                     ],
                   ),
                 ),
@@ -753,17 +782,19 @@ class PresentationDialog<T> extends PopupRoute<T> {
                     slideData.setItemsEdit();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => PresentationEdit.edit(presentName)),
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            PresentationEdit.edit(presentName),
+                      ),
                     );
                   },
                   child: Row(
                     children: const [
-                      Text("Редактировать"),
-                      SizedBox(width: 5,),
-                      Icon(
-                          Icons.edit,
-                          color: Colors.green
+                      Text('Редактировать'),
+                      SizedBox(
+                        width: 5,
                       ),
+                      Icon(Icons.edit, color: Colors.green),
                     ],
                   ),
                 ),

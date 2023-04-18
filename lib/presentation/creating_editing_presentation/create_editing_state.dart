@@ -6,7 +6,7 @@ final numAddItem = StateNotifierProvider((ref) {
 });
 
 class ItemId extends StateNotifier<int> {
-  ItemId(): super(0);
+  ItemId() : super(0);
 
   void set(int value) => state = value;
 }

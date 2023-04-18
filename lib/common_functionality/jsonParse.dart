@@ -1,5 +1,4 @@
-
-import '../data/repository/local/slide_data.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
 
 ///parse slides
 class JsonParse {
@@ -19,7 +18,7 @@ class JsonParse {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     data['num_slide'] = numSlide;
     if (slidesData != null) {
       data['slides_data'] = slidesData!.map((v) => v.toJson()).toList();
@@ -50,7 +49,7 @@ class SlidesData {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     if (textItems != null) {
       data['text_items'] = textItems!.map((v) => v.toJson()).toList();
     }
@@ -69,13 +68,14 @@ class TextItems {
   double? height;
   String? property;
 
-  TextItems(
-      {this.text,
-        this.offsetX,
-        this.offsetY,
-        this.width,
-        this.height,
-        this.property});
+  TextItems({
+    this.text,
+    this.offsetX,
+    this.offsetY,
+    this.width,
+    this.height,
+    this.property,
+  });
 
   TextItems.fromJson(Map<String, dynamic> json) {
     text = json['text'];
@@ -87,7 +87,7 @@ class TextItems {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     data['text'] = text;
     data['offsetX'] = offsetX;
     data['offsetY'] = offsetY;
@@ -106,13 +106,14 @@ class ImageItems {
   double? height;
   String? property;
 
-  ImageItems(
-      {this.url,
-        this.offsetX,
-        this.offsetY,
-        this.width,
-        this.height,
-        this.property});
+  ImageItems({
+    this.url,
+    this.offsetX,
+    this.offsetY,
+    this.width,
+    this.height,
+    this.property,
+  });
 
   ImageItems.fromJson(Map<String, dynamic> json) {
     url = json['url'];
@@ -124,7 +125,7 @@ class ImageItems {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final data = <String, dynamic>{};
     data['url'] = url;
     data['offsetX'] = offsetX;
     data['offsetY'] = offsetY;
@@ -137,45 +138,49 @@ class ImageItems {
 
 class SlideJson {
   static final SlideJson _instance = SlideJson._internal();
-  factory SlideJson() { return _instance;}
+
+  factory SlideJson() {
+    return _instance;
+  }
+
   SlideJson._internal();
 
-  JsonParse slideJson(){
+  JsonParse slideJson() {
     // static final JsonParse _instance = JsonParse._internal();
     // factory JsonParse() { return _instance; }
     // JsonParse._internal();
 
-    SlideData data = SlideData();
+    final data = SlideData();
 
     SlidesData slidesData;
-    List<SlidesData> slidesDataList = [];
+    final slidesDataList = <SlidesData>[];
 
     data.getListSlide().forEach((v) {
-      List<ImageItems> imageItemsList = [];
-      List<TextItems> textItemsList = [];
+      final imageItemsList = <ImageItems>[];
+      final textItemsList = <TextItems>[];
       v.getListItems().forEach((a) {
-        var dataText = a.getItemsShelDataText();
-        if (dataText != null && dataText.type == "text"){
-          TextItems textItems = TextItems(
+        final dataText = a.getItemsShelDataText();
+        if (dataText != null && dataText.type == 'text') {
+          final textItems = TextItems(
             text: dataText.text,
             offsetX: dataText.offsetX,
             offsetY: dataText.offsetY,
             width: dataText.width,
             height: dataText.height,
-            property: "txt",
+            property: 'txt',
           );
           textItemsList.add(textItems);
         }
 
-        var dataImage = a.getItemsShelDataImage();
-        if (dataImage != null && dataImage.type == "image"){
-          ImageItems imageItems = ImageItems(
+        final dataImage = a.getItemsShelDataImage();
+        if (dataImage != null && dataImage.type == 'image') {
+          final imageItems = ImageItems(
             url: dataImage.url,
             offsetX: dataImage.offsetX,
             offsetY: dataImage.offsetY,
             width: dataImage.width,
             height: dataImage.height,
-            property: "txt",
+            property: 'txt',
           );
           imageItemsList.add(imageItems);
         }
@@ -191,5 +196,3 @@ class SlideJson {
     return JsonParse(numSlide: 20, slidesData: slidesDataList);
   }
 }
-
-

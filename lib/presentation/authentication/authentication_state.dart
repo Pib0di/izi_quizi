@@ -5,10 +5,9 @@ final authUpdate = StateNotifierProvider((ref) {
 });
 
 class AuthUpdate extends StateNotifier<int> {
-  AuthUpdate(): super(0);
+  AuthUpdate() : super(0);
 
   void increment() {
     ++state;
-    print("increment");
   }
 }

@@ -1,10 +1,11 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart';
-import 'domain/multipe_view/multiple_view_data.dart';
-import 'presentation/screen/home_page_screen.dart';
-import 'data/repository/local/app_data.dart';
-import 'data/repository/server/server_data_impl.dart';
 import 'dart:io';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
+import 'package:izi_quizi/data/repository/server/server_data_impl.dart';
+import 'package:izi_quizi/domain/multipe_view/multiple_view_data.dart';
+import 'package:izi_quizi/presentation/home_page/home_page_screen.dart';
 
 RequestImpl request = RequestImpl();
 bool widgetListIsReload = false;
@@ -20,27 +21,23 @@ final buttonID = StateProvider((ref) => 0);
 final counterSlide = StateProvider((ref) => 0);
 
 /// номер элемента в слайде для удаления
-const Key key = Key("");
+const Key key = Key('');
 final delItemId = StateProvider<Key>(
   (ref) => key,
 );
 
 /// локальный путь до фотографии
-final File file = File("");
+final File file = File('');
 final fileProvider = StateProvider<File>(
   (ref) => file,
 );
 
 // final container = ProviderContainer();
 
-void main() {
-  appData.checkMobileBrowser();
+void main() async {
+  await appData.checkMobileBrowser();
 
-  ParseMessageImpl parseMessageImpl = ParseMessageImpl();
-  SocketConnection.getConnection().stream.listen((event) {
-    print("event => $event");
-    parseMessageImpl.parse(event);
-  });
+  SocketConnection.getConnection().stream.listen(ParseMessageImpl().parse);
 
   runApp(
     const ProviderScope(child: MyApp()),
@@ -49,6 +46,7 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

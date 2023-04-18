@@ -1,8 +1,7 @@
 import 'package:flutter/widgets.dart' show BuildContext, Key, Stack, Widget;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../presentation/screen/single_view_screen.dart';
-import 'items_shel.dart';
+import 'package:izi_quizi/data/repository/local/widgets/items_shel.dart';
+import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
 ///
 class SlideItems extends ConsumerWidget {
@@ -11,32 +10,33 @@ class SlideItems extends ConsumerWidget {
   final List<ItemsShel> listItems = [];
   final List<ItemsViewPresentation> listItemsView = [];
 
-  int lengthArr(){
+  int lengthArr() {
     return listItems.length;
   }
 
-  List<ItemsShel> getListItems(){
+  List<ItemsShel> getListItems() {
     return listItems;
   }
 
-  void addItemShel(ItemsShel itemShel){
+  void addItemShel(ItemsShel itemShel) {
     listItems.add(itemShel);
   }
 
-  void addItemsView(ItemsViewPresentation itemsView){
+  void addItemsView(ItemsViewPresentation itemsView) {
     listItemsView.add(itemsView);
   }
 
-  void delItem(Key delItemId){
+  void delItem(Key delItemId) {
     listItems.retainWhere((item) => item.key != delItemId);
   }
 
-  Stack getSlide(){
+  Stack getSlide() {
     return Stack(
       children: listItems,
     );
   }
-  Stack getSlideView(){
+
+  Stack getSlideView() {
     return Stack(
       children: listItemsView,
     );

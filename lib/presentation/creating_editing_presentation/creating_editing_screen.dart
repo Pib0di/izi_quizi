@@ -1,23 +1,22 @@
 import 'dart:convert';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/common_functionality/jsonParse.dart';
-import 'package:izi_quizi/Widgets/slide.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
+import 'package:izi_quizi/data/repository/local/side_slides.dart';
+import 'package:izi_quizi/data/repository/local/widgets/slide.dart';
+import 'package:izi_quizi/data/repository/local/widgets/widgets_collection.dart';
 import 'package:izi_quizi/domain/creating_editing_presentation/create_editing_impl.dart';
+import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:screenshot/screenshot.dart';
-
-import '../../Widgets/widgets_collection.dart';
-import '../../data/repository/local/app_data.dart';
-import '../../data/repository/local/side_slides.dart';
-import '../../main.dart';
-import '../riverpod/creating_editing_presentation/create_editing_state.dart';
 
 CreateEditingImpl createEditingImpl = CreateEditingImpl();
 
 class PresentationEdit extends StatelessWidget {
   PresentationEdit.create(String name, {super.key}) : currentNamePresent = name;
+
   PresentationEdit.edit(String name, {super.key}) : currentNamePresent = name;
   late final String currentNamePresent;
 
@@ -27,89 +26,94 @@ class PresentationEdit extends StatelessWidget {
   Widget build(BuildContext context) {
     void showSimpleDialog() {
       showDialog(
-          context: context,
-          builder: (context) {
-            return SimpleDialog(
-              title: const Text('Переименовать викторину'),
-              children: <Widget>[
-                ProgectName(myController),
-                SizedBox(
-                  height: 60.0,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: Stack(
-                          children: <Widget>[
-                            Positioned.fill(
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: <Color>[
-                                      Color(0xFF89EC6A),
-                                      Color(0xFF96e853),
-                                      Color(0xFF32CD32),
-                                    ],
-                                  ),
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            title: const Text('Переименовать викторину'),
+            children: <Widget>[
+              ProjectName(myController),
+              SizedBox(
+                height: 60.0,
+                child: Row(
+                  children: [
+                    const SizedBox(width: 10),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Stack(
+                        children: <Widget>[
+                          Positioned.fill(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: <Color>[
+                                    Color(0xFF89EC6A),
+                                    Color(0xFF96e853),
+                                    Color(0xFF32CD32),
+                                  ],
                                 ),
                               ),
                             ),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.all(16.0),
-                                textStyle: const TextStyle(fontSize: 20),
-                              ),
-                              onPressed: () {
-                                Navigator.pop(context, ClipRRect);
-                              },
-                              child: const Text('Отмена'),
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.all(16.0),
+                              textStyle: const TextStyle(fontSize: 20),
                             ),
-                          ],
-                        ),
+                            onPressed: () {
+                              Navigator.pop(context, ClipRRect);
+                            },
+                            child: const Text('Отмена'),
+                          ),
+                        ],
                       ),
-                      const Spacer(),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: Stack(
-                          children: <Widget>[
-                            Positioned.fill(
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: <Color>[
-                                      Color(0xFF0D47A1),
-                                      Color(0xFF1976D2),
-                                      Color(0xFF42A5F5),
-                                    ],
-                                  ),
+                    ),
+                    const Spacer(),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Stack(
+                        children: <Widget>[
+                          Positioned.fill(
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: <Color>[
+                                    Color(0xFF0D47A1),
+                                    Color(0xFF1976D2),
+                                    Color(0xFF42A5F5),
+                                  ],
                                 ),
                               ),
                             ),
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.all(16.0),
-                                textStyle: const TextStyle(fontSize: 20),
-                              ),
-                              onPressed: () {
-                                createEditingImpl.renameQuiz(AppData.email, AppData.presentName, myController.text);
-                                currentNamePresent = myController.text;
-                                Navigator.pop(context, ClipRRect);
-                              },
-                              child: const Text('Переименовать'),
+                          ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.all(16.0),
+                              textStyle: const TextStyle(fontSize: 20),
                             ),
-                          ],
-                        ),
+                            onPressed: () {
+                              createEditingImpl.renameQuiz(
+                                AppData.email,
+                                AppData.presentName,
+                                myController.text,
+                              );
+                              currentNamePresent = myController.text;
+                              Navigator.pop(context, ClipRRect);
+                            },
+                            child: const Text('Переименовать'),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 10),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
                 ),
-              ],
-            );
-          });
+              ),
+            ],
+          );
+        },
+      );
     }
 
     return Scaffold(
@@ -120,7 +124,7 @@ class PresentationEdit extends StatelessWidget {
           Row(
             children: [
               const Text(
-                "Переименовать",
+                'Переименовать',
                 style: TextStyle(
                   color: Colors.white60,
                   fontWeight: FontWeight.bold,
@@ -131,14 +135,12 @@ class PresentationEdit extends StatelessWidget {
                 enableFeedback: false,
                 fillColor: Colors.lightGreen,
                 shape: const CircleBorder(),
-                onPressed: () {
-                  showSimpleDialog();
-                },
+                onPressed: showSimpleDialog,
                 child:
                     const Icon(Icons.refresh, size: 25, color: Colors.white60),
               ),
               const Text(
-                "Сохранить",
+                'Сохранить',
                 style: TextStyle(
                   color: Colors.white60,
                   fontWeight: FontWeight.bold,
@@ -150,9 +152,12 @@ class PresentationEdit extends StatelessWidget {
                 fillColor: Colors.lightGreen,
                 shape: const CircleBorder(),
                 onPressed: () {
-                  var jsonSlide = SlideJson().slideJson();
-                  print(jsonEncode(jsonSlide.toJson()));
-                  createEditingImpl.saveQuiz(AppData.idUser, AppData.presentName, jsonEncode(jsonSlide.toJson()));
+                  final jsonSlide = SlideJson().slideJson();
+                  createEditingImpl.saveQuiz(
+                    AppData.idUser,
+                    AppData.presentName,
+                    jsonEncode(jsonSlide.toJson()),
+                  );
                 },
                 child: const Icon(Icons.save, size: 25, color: Colors.white60),
               ),
@@ -166,7 +171,7 @@ class PresentationEdit extends StatelessWidget {
 }
 
 class NavRailDemo extends ConsumerStatefulWidget {
-  const NavRailDemo({Key? key}) : super(key: key);
+  const NavRailDemo({super.key});
 
   @override
   NavRailDemoState createState() => NavRailDemoState();
@@ -175,7 +180,6 @@ class NavRailDemo extends ConsumerStatefulWidget {
 class NavRailDemoState extends ConsumerState<NavRailDemo>
     with RestorationMixin {
   final RestorableInt _selectedIndex = RestorableInt(0);
-
 
   @override
   String get restorationId => 'nav_rail_demo';
@@ -191,26 +195,26 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
     super.dispose();
   }
 
-  Future<void> _pickFile(StateController<int> fileProvidere) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      dialogTitle: "Выберите изображение или gif",
-      type: FileType.image,
-      // allowedExtensions: ['jpg','gif','jpeg'],
-    );
-
-    if (result != null) {
-      PlatformFile file = result.files.single;
-
-      print(file.path);
-      // File file_ = File(file.path!);
-      fileProvidere.state = -4;
-      print("${fileProvidere.state}");
-    } else {
-      // User canceled the picker
-    }
-  }
+  // todo implement image selection on pc
+  // Future<void> _pickFile(StateController<int> fileProvidere) async {
+  //   final result = await FilePicker.platform.pickFiles(
+  //     dialogTitle: 'Выберите изображение или gif',
+  //     type: FileType.image,
+  //     // allowedExtensions: ['jpg','gif','jpeg'],
+  //   );
+  //
+  //   if (result != null) {
+  //     final file = result.files.single;
+  //
+  //     // File file_ = File(file.path!);
+  //     fileProvidere.state = -4;
+  //   } else {
+  //     // User canceled the picker
+  //   }
+  // }
 
   late ListSlide listSlide;
+
   @override
   Widget build(BuildContext context) {
     createEditingImpl.getRef(ref);
@@ -224,15 +228,15 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
 
     final textMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("heading"),
+        onPressed: () => createEditingImpl.addItem('heading'),
         child: const Text('Заголовок'),
       ),
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("mainText"),
+        onPressed: () => createEditingImpl.addItem('mainText'),
         child: const Text('Основной текст'),
       ),
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("list"),
+        onPressed: () => createEditingImpl.addItem('list'),
         child: const Text('Список'),
       ),
     ];
@@ -253,7 +257,7 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                 ),
                 TextButton(
                   onPressed: () => {
-                    createEditingImpl.addItem("image"),
+                    createEditingImpl.addItem('image'),
                     slideCounter.set(-4),
                     // FutureBuilder<void>(
                     //   future: _pickFile(__fileProvidere), // a previously-obtained Future<String> or null
@@ -308,31 +312,31 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
         child: const Text('Изображения'),
       ),
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("video"),
+        onPressed: () => createEditingImpl.addItem('video'),
         child: const Text('Видео'),
       ),
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("sound"),
+        onPressed: () => createEditingImpl.addItem('sound'),
         child: const Text('Звук'),
       ),
     ];
     final figureMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("shape"),
+        onPressed: () => createEditingImpl.addItem('shape'),
         child: const Text('Фигуры'),
       ),
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("pointers"),
+        onPressed: () => createEditingImpl.addItem('pointers'),
         child: const Text('Указатели'),
       ),
     ];
     final tableMenu = <Widget>[
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("row"),
+        onPressed: () => createEditingImpl.addItem('row'),
         child: const Text('Строки'),
       ),
       ElevatedButtonFactory.numAddItem(
-        onPressed: () => createEditingImpl.addItem("column"),
+        onPressed: () => createEditingImpl.addItem('column'),
         child: const Text('Столбцы'),
       ),
     ];
@@ -358,7 +362,6 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                 setState(() {
                   _selectedIndex.value = index;
                 });
-                print("INDEX = $index");
               },
               labelType: NavigationRailLabelType.all,
               destinations: const [
@@ -370,7 +373,7 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                     Icons.favorite,
                   ),
                   label: Text(
-                    "Слайды",
+                    'Слайды',
                   ),
                 ),
                 NavigationRailDestination(
@@ -381,7 +384,7 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                     Icons.favorite,
                   ),
                   label: Text(
-                    "Текст",
+                    'Текст',
                   ),
                 ),
                 NavigationRailDestination(
@@ -392,7 +395,7 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                     Icons.book,
                   ),
                   label: Text(
-                    "Медиа",
+                    'Медиа',
                   ),
                 ),
                 NavigationRailDestination(
@@ -403,7 +406,7 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                     Icons.star,
                   ),
                   label: Text(
-                    "Фигуры",
+                    'Фигуры',
                   ),
                 ),
                 NavigationRailDestination(
@@ -414,7 +417,7 @@ class NavRailDemoState extends ConsumerState<NavRailDemo>
                     Icons.favorite,
                   ),
                   label: Text(
-                    "Таблицы",
+                    'Таблицы',
                   ),
                 ),
               ],
@@ -458,7 +461,6 @@ class PresentationViewport extends StatefulWidget {
 }
 
 class PresentationViewportState extends State<PresentationViewport> {
-
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -472,14 +474,14 @@ class PresentationViewportState extends State<PresentationViewport> {
 }
 
 class ElevatedButtonFactory extends StatelessWidget {
-  ElevatedButtonFactory.numAddItem ({
-    Key? key,
+  const ElevatedButtonFactory.numAddItem({
     required this.onPressed,
     required this.child,
-  }) : super(key: key);
+    super.key,
+  });
 
-  void Function()? onPressed;
-  Widget child = const Text('null');
+  final void Function()? onPressed;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -488,10 +490,15 @@ class ElevatedButtonFactory extends StatelessWidget {
       child: ElevatedButton(
         style: ButtonStyle(
           alignment: Alignment.center,
-          padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 5)),
+          padding: MaterialStateProperty.all(
+            const EdgeInsets.symmetric(vertical: 5),
+          ),
         ),
         onPressed: onPressed,
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[child],),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[child],
+        ),
       ),
     );
   }

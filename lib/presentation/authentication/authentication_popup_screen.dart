@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:web_socket_channel/status.dart';
-import '../../data/repository/local/app_data.dart';
-import '../../domain/authentication/authentication_impl.dart';
-import '../../main.dart';
-import '../riverpod/authentication/authentication_state.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
+import 'package:izi_quizi/domain/authentication/authentication_impl.dart';
+import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
 
 AuthenticationImpl authenticationImpl = AuthenticationImpl();
 
 class PasswordField extends StatefulWidget {
   PasswordField({
-    Key? key,
+    super.key,
     this.formKey,
     this.restorationId,
     this.fieldKey,
@@ -23,7 +22,7 @@ class PasswordField extends StatefulWidget {
     this.textInputAction,
     this.myControllerPass,
     this.helperTexts,
-  }) : super(key: key);
+  });
 
   GlobalKey<FormState>? formKey;
   final String? restorationId;
@@ -47,6 +46,7 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
 
   @override
   String? get restorationId => widget.restorationId;
+
   String? get hintText => widget.hintText;
 
   @override
@@ -57,7 +57,7 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      onChanged: (value){
+      onChanged: (value) {
         // _formKey.currentState!.validate()
         widget.formKey!.currentState!.validate();
       },
@@ -70,7 +70,7 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
       onFieldSubmitted: widget.onFieldSubmitted,
       decoration: InputDecoration(
         filled: true,
-        hintText: "password",
+        hintText: 'password',
         labelText: widget.labelText,
         helperText: widget.helperText,
         suffixIcon: IconButton(
@@ -90,7 +90,7 @@ class _PasswordFieldState extends State<PasswordField> with RestorationMixin {
 }
 
 class Join extends ConsumerStatefulWidget {
-  const Join({Key? key}) : super(key: key);
+  const Join({super.key});
 
   @override
   JoinState createState() => JoinState();
@@ -110,7 +110,7 @@ class JoinState extends ConsumerState<Join> {
         color: Colors.redAccent,
         size: 30,
       ),
-      Text("Ошибка авторизации"),
+      Text('Ошибка авторизации'),
     ],
   );
 
@@ -161,7 +161,7 @@ class JoinState extends ConsumerState<Join> {
     //   }
     //   return const Text("");
     // }
-    final PasswordField passwordField = PasswordField(
+    final passwordField = PasswordField(
       formKey: _formKey,
       myControllerPass: controllerPass,
       restorationId: 'password_field',
@@ -171,12 +171,12 @@ class JoinState extends ConsumerState<Join> {
       },
     );
 
-    List<Widget> buttonsAdapt = [
+    final buttonsAdapt = <Widget>[
       buttonPressed
           ? isAuth
-              ? const Text("")
+              ? const Text('')
               : errorWidget
-          : const Text(""),
+          : const Text(''),
       const Spacer(),
       TextButton(
         style: TextButton.styleFrom(
@@ -219,80 +219,80 @@ class JoinState extends ConsumerState<Join> {
       ),
     ];
 
-    print("UPDATE PAS");
     return IntrinsicHeight(
       child: Container(
-          width: 600,
-          padding: AppData.typeBrowser == 'Mobile'
-              ? const EdgeInsets.all(0)
-              : const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
-          decoration: BoxDecoration(
-            // color: Colors.grey[200],
-            color: Colors.white,
-            borderRadius: AppData.typeBrowser == 'Mobile'
-                ? BorderRadius.zero
-                : BorderRadius.circular(32),
-          ),
-          child: Column(
-            children: [
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: myControllerEmail,
-                      textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        return authenticationImpl.checkEmail(value);
-                      },
-                      onChanged: (value) {
-                        authenticationImpl.checkEmail(value);
-                        if (value.isNotEmpty) {
-                          _formKey.currentState!.validate();
-                        }
-                      },
-                      // focusNode: _lifeStory,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "andrey@example.com",
-                        // helperText: "название вашего iziQuizi",
-                        labelText: "Email",
-                      ),
-                      maxLines: 1,
+        width: 600,
+        padding: AppData.typeBrowser == 'Mobile'
+            ? const EdgeInsets.all(0)
+            : const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
+        decoration: BoxDecoration(
+          // color: Colors.grey[200],
+          color: Colors.white,
+          borderRadius: AppData.typeBrowser == 'Mobile'
+              ? BorderRadius.zero
+              : BorderRadius.circular(32),
+        ),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: myControllerEmail,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      return authenticationImpl.checkEmail(value);
+                    },
+                    onChanged: (value) {
+                      authenticationImpl.checkEmail(value);
+                      if (value.isNotEmpty) {
+                        _formKey.currentState!.validate();
+                      }
+                    },
+                    // focusNode: _lifeStory,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'andrey@example.com',
+                      // helperText: "название вашего iziQuizi",
+                      labelText: 'Email',
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    passwordField
-                  ],
-                ),
+                    maxLines: 1,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  passwordField
+                ],
               ),
-              const SizedBox(
-                height: 10,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Builder(
-                  builder: (BuildContext context) {
-                    if (AppData.typeBrowser == "Mobile") {
-                      return SizedBox(
-                        height: 110,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: buttonsAdapt,
-                        ),
-                      );
-                    } else {
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: Builder(
+                builder: (BuildContext context) {
+                  if (AppData.typeBrowser == 'Mobile') {
+                    return SizedBox(
+                      height: 110,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: buttonsAdapt,
-                      );
-                    }
-                  },
-                ),
+                      ),
+                    );
+                  } else {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: buttonsAdapt,
+                    );
+                  }
+                },
               ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

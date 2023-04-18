@@ -1,16 +1,14 @@
 import 'dart:async';
-import 'package:izi_quizi/data/repository/server/server_data.dart';
-import 'package:izi_quizi/main.dart';
-
-import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
-import '../local/app_data.dart';
-import '../local/slide_data.dart';
+
+import 'package:izi_quizi/data/repository/local/app_data.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
+import 'package:izi_quizi/main.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class SocketConnection {
-
   static final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://localhost:5000'),
+    Uri.parse('ws://localhost:3000'),
   );
 
   static void sendMessage(data) {
@@ -22,38 +20,35 @@ class SocketConnection {
   }
 }
 
-class RequestImpl extends Request {
+class RequestImpl {
   RequestImpl();
 
   //- - - - - - - - - - - - - - - - - - - - MultipleView - - - - - - - - - - - - - - - - -
-  @override
   void createRoom(String idUser, String presentName) {
     Map<String, dynamic> json() => {
-      'request_to': 'MultipleView',
-      'action': "createRoom",
-      'idUser': idUser,
-      'presentName': presentName,
-    };
+          'request_to': 'MultipleView',
+          'action': 'createRoom',
+          'idUser': idUser,
+          'presentName': presentName,
+        };
     SocketConnection.sendMessage(jsonEncode(json()));
   }
-  @override
+
   void joinRoom(String userName, String roomId) {
     Map<String, dynamic> json() => {
-      'request_to': 'MultipleView',
-      'action': "joinRoom",
-      'userName': userName,
-      'roomId': roomId,
-    };
+          'request_to': 'MultipleView',
+          'action': 'joinRoom',
+          'userName': userName,
+          'roomId': roomId,
+        };
     SocketConnection.sendMessage(jsonEncode(json()));
   }
 
-
   //- - - - - - - - - - - - - - - - - - - - BD - - - - - - - - - - - - - - - - -
-  @override
   void setPresentation(String idUser, String presentName, String jsonSlide) {
     Map<String, dynamic> json() => {
           'request_to': 'bd',
-          'action': "setSlideData",
+          'action': 'setSlideData',
           'idUser': idUser,
           'presentName': presentName,
           'slideData': jsonSlide,
@@ -61,22 +56,20 @@ class RequestImpl extends Request {
     SocketConnection.sendMessage(jsonEncode(json()));
   }
 
-  @override
   void getPresentation(int idPresent, String presentName) {
     Map<String, dynamic> json() => {
           'request_to': 'bd',
-          'action': "getSlideData",
+          'action': 'getSlideData',
           'idPresent': idPresent,
           'presentName': presentName,
         };
     SocketConnection.sendMessage(jsonEncode(json()));
   }
 
-  @override
   void deletePresent(String email, String deletedPresent) {
     Map<String, dynamic> json() => {
           'request_to': 'bd',
-          'action': "delete",
+          'action': 'delete',
           'email': email,
           'nameDeletePresent': deletedPresent,
         };
@@ -85,11 +78,10 @@ class RequestImpl extends Request {
     // Map<String, dynamic> users = jsonDecode(json);
   }
 
-  @override
   void createPresent(String idUser, String namePresent) {
     Map<String, dynamic> json() => {
           'request_to': 'bd',
-          'action': "create",
+          'action': 'create',
           'email': idUser,
           'namePresent': namePresent,
         };
@@ -97,11 +89,10 @@ class RequestImpl extends Request {
     SocketConnection.sendMessage(jsonEncode(json()));
   }
 
-  @override
   void renamePresent(String email, String nameUpdate, String newName) {
     Map<String, dynamic> json() => {
           'request_to': 'bd',
-          'action': "rename",
+          'action': 'rename',
           'email': email,
           'nameUpdate': nameUpdate,
           'newName': newName,
@@ -109,21 +100,19 @@ class RequestImpl extends Request {
     SocketConnection.sendMessage(jsonEncode(json()));
   }
 
-  @override
   Future<void> listWidget(String idUser) async {
     Map<String, dynamic> json() => {
           'request_to': 'bd',
-          'action': "presentList",
+          'action': 'presentList',
           'idUser': idUser,
         };
     SocketConnection.sendMessage(jsonEncode(json()));
   }
 
-  @override
   Future<String> authentication(String email, String pass) async {
     Map<String, dynamic> json() => {
           'request_to': 'user',
-          'action': "auth",
+          'action': 'auth',
           'email': email,
           'pass': pass,
         };
@@ -131,11 +120,10 @@ class RequestImpl extends Request {
     return 'authentication';
   }
 
-  @override
   Future<String> register(String email, String password) async {
     Map<String, dynamic> json() => {
           'request_to': 'user',
-          'action': "register",
+          'action': 'register',
           'email': email,
           'pass': password,
         };
@@ -144,7 +132,7 @@ class RequestImpl extends Request {
   }
 }
 
-class ParseMessageImpl extends ParseMessage {
+class ParseMessageImpl {
   // Future<String> getStreamValue(Stream<dynamic> stream, String expectedValue) async {
   //   Completer<String> completer = Completer<String>();
   //   StreamSubscription<dynamic>? subscription;
@@ -183,10 +171,8 @@ class ParseMessageImpl extends ParseMessage {
   //   return completer.future;
   // }
 
-  @override
-  parse(dynamic jsonData) async {
-    var data = Map<String, dynamic>.from(json.decode(jsonData));
-    print("data => $data");
+  Future<void> parse(jsonData) async {
+    final data = Map<String, dynamic>.from(json.decode(jsonData));
     switch (data['obj']) {
       case 'auth':
         {
@@ -195,64 +181,59 @@ class ParseMessageImpl extends ParseMessage {
               {
                 appData.authentication(true);
                 AppData.idUser = data['idUser'];
-                print("idUser => ${AppData.idUser}");
                 break;
               }
             default:
               {
-                appData.authentication(true);
-                appData.authentication(false);
-                print("Authorization failed");
+                appData
+                  ..authentication(true)
+                  ..authentication(false);
               }
           }
           break;
         }
-      case 'registration':{
+      case 'registration':
+        {
           switch (data['valid']) {
-            case 'true':{
+            case 'true':
+              {
                 // bool verification = true; // ????
                 break;
               }
-            default:{
-                print("Registration failed");
-              }
+            default:
+              {}
           }
           break;
         }
-      case 'listWidget':{
+      case 'listWidget':
+        {
           if (!data['list']!.isEmpty) {
-            appData.setUserPresentName(data["list"]);
+            appData.setUserPresentName(data['list']);
             widgetListIsReload = true;
           }
           break;
         }
-      case 'create':{
+      case 'create':
+        {
           if (data['success'] == 'true') {
-            print("present create => ${data['success']}");
             // bool _presentCreate = true; // ????
           }
           break;
         }
-      case 'SlideData':{
-          print("data['list'] => ${data['list']}");
-          // JsonParse jsonParse = JsonParse.fromJson(json.decode(data['list']));
-
-          SlideData slideData = SlideData();
-          slideData.setDataSlide(data);
-          // slideData.set(JsonParse.fromJson(json.decode(data['list'])));
-          // slideData.setItemsView(JsonParse.fromJson(json.decode(data['list'])));
+      case 'SlideData':
+        {
+          SlideData().setDataSlide(data);
           break;
         }
-      case 'listUser':{
-        if (!data['list']!.isEmpty) {
-          multipleViewData.setUserList(data["list"]);
-        }
-       break;
-      }
-      default:
+      case 'listUser':
         {
-          print('JSON parse error (Не найдено предусмотренное значение)');
+          if (!data['list']!.isEmpty) {
+            multipleViewData.setUserList(data['list']);
+          }
+          break;
         }
+      default:
+        {}
     }
   }
 }

@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/data/repository/local/side_slides.dart';
-
-import '../data/repository/local/slide_data.dart';
-import '../main.dart';
-import '../presentation/riverpod/creating_editing_presentation/create_editing_state.dart';
+import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 
 class ButtonDelete extends ConsumerWidget {
-  ButtonDelete.deleteItemId(this.deleteItemKey, {super.key});
-  Key deleteItemKey;
+  const ButtonDelete.deleteItemId(this.deleteItemKey, {super.key});
+
+  final Key deleteItemKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final numAddItemState = ref.watch(numAddItem.notifier);
 
-    StateController<Key> deleteItemKeyState = ref.watch(delItemId.notifier);
+    final deleteItemKeyState = ref.watch(delItemId.notifier);
 
     return Positioned(
       right: 0,
@@ -27,24 +25,26 @@ class ButtonDelete extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
-            // sideSlides.updateCount();
-            print("deleteItemKey => $deleteItemKey");
-            SlideData slideData = SlideData();
-            print("sideSlides.length => ${sideSlides.getLengthSideList()}, slideData.length => ${slideData.getLengthListSlide()}");
             deleteItemKeyState.state = deleteItemKey;
-            numAddItemState.set(-101);
-            numAddItemState.set(-10);
+            numAddItemState
+              ..set(-101)
+              ..set(-10);
           },
-          child: const Icon(Icons.delete, size: 20,),
+          child: const Icon(
+            Icons.delete,
+            size: 20,
+          ),
         ),
       ),
     );
   }
 }
 
-class ProgectName extends StatelessWidget {
-  ProgectName(TextEditingController? controll) : myController = controll;
-  TextEditingController? myController;
+class ProjectName extends StatelessWidget {
+  const ProjectName(TextEditingController? control, {super.key})
+      : myController = control;
+  final TextEditingController? myController;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -56,9 +56,9 @@ class ProgectName extends StatelessWidget {
         // focusNode: _lifeStory,
         decoration: const InputDecoration(
           border: OutlineInputBorder(),
-          hintText: "Проективная геометрия 2-3 неделя",
+          hintText: 'Проективная геометрия 2-3 неделя',
           // helperText: "название вашего iziQuizi",
-          labelText: "Имя проекта",
+          labelText: 'Имя проекта',
         ),
         maxLines: 1,
       ),
