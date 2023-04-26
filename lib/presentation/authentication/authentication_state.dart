@@ -1,11 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final authUpdate = StateNotifierProvider((ref) {
-  return AuthUpdate();
+final authenticationPopupProvider = StateNotifierProvider((ref) {
+  return AuthenticationState();
 });
 
-class AuthUpdate extends StateNotifier<int> {
-  AuthUpdate() : super(0);
+class AuthenticationState extends StateNotifier<int> {
+  AuthenticationState() : super(0);
+
+  bool buttonPressed = false;
+
+  final controllerEmail = TextEditingController();
+  final controllerPass = TextEditingController();
+
+  final formKey = GlobalKey<FormState>();
+
+  final isAuth = false;
 
   void increment() {
     ++state;

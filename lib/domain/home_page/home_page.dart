@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/data/repository/local/widgets/widgets_collection.dart';
 import 'package:izi_quizi/main.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
+import 'package:izi_quizi/widgets/widgets_collection.dart';
 
-class HomePageCaseImpl {
+class HomePageCase {
   void joinRoom(String userName, String roomId) {
     request.joinRoom(userName, roomId);
   }
@@ -55,7 +55,7 @@ class HomePageCaseImpl {
                       ),
                     ),
                     onPressed: () {
-                      createQuiz(AppData.idUser, myController.text);
+                      createQuiz(AppDataState.idUser, myController.text);
                       Navigator.push(
                         context,
                         MaterialPageRoute(

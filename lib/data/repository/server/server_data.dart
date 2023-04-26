@@ -20,9 +20,7 @@ class SocketConnection {
   }
 }
 
-class RequestImpl {
-  RequestImpl();
-
+class Request {
   //- - - - - - - - - - - - - - - - - - - - MultipleView - - - - - - - - - - - - - - - - -
   void createRoom(String idUser, String presentName) {
     Map<String, dynamic> json() => {
@@ -133,44 +131,6 @@ class RequestImpl {
 }
 
 class ParseMessageImpl {
-  // Future<String> getStreamValue(Stream<dynamic> stream, String expectedValue) async {
-  //   Completer<String> completer = Completer<String>();
-  //   StreamSubscription<dynamic>? subscription;
-  //
-  //   // Listen to the stream and check for the expected value
-  //   subscription = stream.listen((json) {
-  //     var data = Map<String, dynamic>.from(json.decode(json));
-  //     switch (data['obj']) {
-  //       case 'auth':
-  //         {
-  //           switch (data['valid']) {
-  //             case 'true':
-  //               {
-  //                 isAuth = true;
-  //                 idUser = data['idUser'];
-  //                 print("idUser => $idUser");
-  //                 break;
-  //               }
-  //             default:
-  //               {
-  //                 print("Authorization failed");
-  //               }
-  //           }
-  //           break;
-  //         }
-  //     }
-  //     if (data['valid'] == 'true'){
-  //
-  //     }
-  //     if (data == expectedValue) {
-  //       completer.complete(data.toString());
-  //       subscription!.cancel();
-  //     }
-  //   });
-  //
-  //   return completer.future;
-  // }
-
   Future<void> parse(jsonData) async {
     final data = Map<String, dynamic>.from(json.decode(jsonData));
     switch (data['obj']) {
@@ -179,13 +139,13 @@ class ParseMessageImpl {
           switch (data['valid']) {
             case 'true':
               {
-                appData.authentication(true);
-                AppData.idUser = data['idUser'];
+                AppDataState().authentication(true);
+                AppDataState.idUser = data['idUser'];
                 break;
               }
             default:
               {
-                appData
+                AppDataState()
                   ..authentication(true)
                   ..authentication(false);
               }
@@ -208,8 +168,7 @@ class ParseMessageImpl {
       case 'listWidget':
         {
           if (!data['list']!.isEmpty) {
-            appData.setUserPresentName(data['list']);
-            widgetListIsReload = true;
+            AppDataState().setUserPresentName(data['list']);
           }
           break;
         }

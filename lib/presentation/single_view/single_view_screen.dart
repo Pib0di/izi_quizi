@@ -1,9 +1,8 @@
-// ignore_for_file: must_be_immutable
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/data/repository/local/widgets/slide_item.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_state.dart';
+import 'package:izi_quizi/widgets/slide_item.dart';
 
 class SingleViewPresentation extends ConsumerStatefulWidget {
   const SingleViewPresentation({super.key});
@@ -13,20 +12,15 @@ class SingleViewPresentation extends ConsumerStatefulWidget {
 }
 
 class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
-  static const double heightBox = 70;
-  static const double heightIcon = heightBox - 30;
-  SlideData slideData = SlideData();
-  late int slideNum;
 
   @override
   Widget build(BuildContext context) {
-    final totalSlide = slideData.getLengthListSlide() - 1;
+    final stateController = ref.watch(singleView.notifier);
 
-    //state management
-    final slideCounter = ref.watch(slideNumProvider.notifier);
+    final totalSlide = stateController.getTotalSlide();
 
     //get the current slide number
-    final numSelectSlide = ref.watch(slideNumProvider) as int;
+    final numSelectSlide = ref.watch(singleView) as int;
 
     return Scaffold(
       body: Container(
@@ -34,7 +28,7 @@ class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
         child: Column(
           children: [
             SizedBox(
-              height: heightBox,
+              height: 60,
               child: Row(
                 children: [
                   IconButton(
@@ -43,40 +37,34 @@ class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
                     },
                     icon: const Icon(
                       Icons.exit_to_app,
-                      size: heightIcon,
+                      size: 40,
                       color: Colors.grey,
                     ),
                   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () {
-                      slideCounter.set(0);
-                    },
+                    onPressed: () {},
                     icon: const Icon(
                       Icons.fullscreen_sharp,
-                      size: heightIcon,
+                      size: 40,
                       color: Colors.grey,
                     ),
                   ),
                 ],
               ),
             ),
-            Expanded(child: PresentationViewport()),
+            const Expanded(child: PresentationViewport()),
             SizedBox(
-              height: heightBox,
+              height: 60,
               child: Row(
                 children: [
                   Text('${numSelectSlide + 1}/${totalSlide + 1}'),
                   const Spacer(),
                   IconButton(
-                    onPressed: () {
-                      if (numSelectSlide > 0) {
-                        slideCounter.decrement();
-                      }
-                    },
+                    onPressed: stateController.decrement,
                     icon: const Icon(
                       Icons.arrow_back_ios_new,
-                      size: heightIcon,
+                      size: 40,
                       color: Colors.grey,
                     ),
                   ),
@@ -84,14 +72,10 @@ class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
                     width: 8,
                   ),
                   IconButton(
-                    onPressed: () {
-                      if (numSelectSlide < totalSlide) {
-                        slideCounter.increment();
-                      }
-                    },
+                    onPressed: stateController.increment,
                     icon: const Icon(
                       Icons.arrow_forward_ios_rounded,
-                      size: heightIcon,
+                      size: 40,
                       color: Colors.grey,
                     ),
                   ),
@@ -109,73 +93,46 @@ class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
 }
 
 class ItemsViewPresentation extends ConsumerStatefulWidget {
-  ItemsViewPresentation({
+  const ItemsViewPresentation.imageWidgetJson({
+    required this.width,
+    required this.height,
+    required this.left,
+    required this.top,
+    this.url,
+    this.text,
     super.key,
   });
 
-  ItemsViewPresentation.id(Key key, this.itemId) : super(key: key) {
-    type = 'text';
-  }
-
-  // ItemsViewPresentation.imageWidget(Key key, this.widgetInit) : super(key: key){
-  //   type = "image";
-  // }
-  ItemsViewPresentation.imageWidgetJson({
+  const ItemsViewPresentation.textWidgetJson({
+    required this.width,
+    required this.height,
+    required this.left,
+    required this.top,
+    this.url,
+    this.text,
     super.key,
-    this.url = '',
-    this.width = 300,
-    this.height = 100,
-    this.left = 200,
-    this.top = 200,
-  }) {
-    type = 'image';
-  }
+  });
 
-  ItemsViewPresentation.textWidgetJson({
-    super.key,
-    this.text = '',
-    this.width = 300,
-    this.height = 100,
-    this.left = 200,
-    this.top = 200,
-  }) {
-    type = 'text';
-  }
-
-  String type = 'standard';
-
-  final TextEditingController controller = TextEditingController();
-  int itemId = 0;
-  String text = '';
-  String url = '';
-  double width = 300, height = 100;
-
-  // Widget? widgetInit;
-  double left = 200, top = 200;
+  final String? text;
+  final String? url;
+  final double width, height;
+  final double left, top;
 
   @override
   ItemsViewPresentationState createState() => ItemsViewPresentationState();
 }
 
 class ItemsViewPresentationState extends ConsumerState<ItemsViewPresentation> {
-  double angle = 0;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
+  final TextEditingController controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    widget.controller.text = widget.text;
+    controller.text = widget.text ?? '';
+
     return RepaintBoundary(
       child: Transform.rotate(
-        angle: angle,
+        angle: 0,
         alignment: Alignment.topLeft,
         child: Stack(
           children: [
@@ -187,15 +144,6 @@ class ItemsViewPresentationState extends ConsumerState<ItemsViewPresentation> {
                 children: [
                   Container(
                     margin: const EdgeInsets.all(5),
-                    // decoration: const BoxDecoration(
-                    //   image: DecorationImage(
-                    //     // image: Image.file(File('dfg')),
-                    //     image: Image.file(imageFile).image,
-                    //     // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                    //     fit: BoxFit.cover,
-                    //   ),
-                    //   borderRadius: BorderRadius.circular(15),
-                    // ),
                     height: widget.height,
                     width: widget.width,
                     child: Padding(
@@ -208,7 +156,7 @@ class ItemsViewPresentationState extends ConsumerState<ItemsViewPresentation> {
                             enabled: false,
                             scrollPhysics: const NeverScrollableScrollPhysics(),
                             textDirection: TextDirection.ltr,
-                            controller: widget.controller,
+                            controller: controller,
                             clipBehavior: Clip.none,
                             expands: false,
                             maxLines: double.maxFinite.toInt(),
@@ -239,13 +187,12 @@ class ItemsViewPresentationState extends ConsumerState<ItemsViewPresentation> {
 }
 
 class PresentationViewport extends ConsumerWidget {
-  PresentationViewport({super.key});
-
-  SlideData data = SlideData();
+  const PresentationViewport({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final slideNum = ref.watch(slideNumProvider) as int;
+    final slideNum = ref.watch(singleView) as int;
+
     return Center(
       child: AspectRatio(
         aspectRatio: 16 / 9,
@@ -276,7 +223,7 @@ class PresentationViewport extends ConsumerWidget {
                         sizing: StackFit.expand,
                         index: slideNum,
                         children: <Widget>[
-                          for (SlideItems name in data.getListSlide())
+                          for (SlideItems name in SlideData().getListSlide())
                             (name.getSlideView()),
                         ],
                       ),

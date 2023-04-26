@@ -1,8 +1,10 @@
+// ignore_for_file: directives_ordering
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/data/repository/local/widgets/widgets_collection.dart';
 import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/widgets/widgets_collection.dart';
 
 /// the number of the selected element in the slidez
 final itemNum = StateProvider((ref) => 0);
@@ -104,7 +106,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
 
   int get itemCount => widget.itemCount;
 
-  Widget rightBottomTriger() {
+  Widget rightBottomTrigger() {
     return Positioned(
       top: (widget.height + 0) < 20 ? 20 : widget.height + 0,
       left: (widget.width + 0) < 20 ? 20 : widget.width + 0,
@@ -116,22 +118,18 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
             widget.offsetPos = details.delta,
             if (widget.width + widget.offsetPos.dx >= 20)
               {
-                widget.width += widget.offsetPos.dx,
-              }
-            else
-              {widget.width = 20},
-            if (widget.height + widget.offsetPos.dy >= 20)
-              {
-                widget.height += widget.offsetPos.dy,
-              }
-            else
-              {widget.height = 20},
-            // width +=  _offsetPos.dx,
-            // height += _offsetPos.dy,
-            // top += _offsetPos.dy,
-            // left += _offsetPos.dx,
-          },
-        ),
+                    widget.width += widget.offsetPos.dx,
+                  }
+                else
+                  {widget.width = 20},
+                if (widget.height + widget.offsetPos.dy >= 20)
+                  {
+                    widget.height += widget.offsetPos.dy,
+                  }
+                else
+                  {widget.height = 20},
+              },
+            ),
         child: Container(
           height: 10,
           width: 10,
@@ -145,7 +143,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
     );
   }
 
-  Widget leftTopTriger() {
+  Widget leftTopTrigger() {
     return Positioned(
       top: 0,
       left: 0,
@@ -157,17 +155,17 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
             widget.offsetPos = details.delta,
             widget.width -= widget.offsetPos.dx,
             widget.height -= widget.offsetPos.dy,
-            if (widget.width + widget.offsetPos.dx > 20)
-              {
-                // print("left"),
-                widget.left += widget.offsetPos.dx,
+                if (widget.width + widget.offsetPos.dx > 20)
+                  {
+                    // print("left"),
+                    widget.left += widget.offsetPos.dx,
+                  },
+                if (widget.height + widget.offsetPos.dy > 20)
+                  {
+                    widget.top += widget.offsetPos.dy,
+                  },
               },
-            if (widget.height + widget.offsetPos.dy > 20)
-              {
-                widget.top += widget.offsetPos.dy,
-              },
-          },
-        ),
+            ),
         child: Container(
           height: 10,
           width: 10,
@@ -181,23 +179,18 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
     );
   }
 
-  Widget rotateTriger() {
+  Widget rotateTrigger() {
     return Positioned(
       top: 25,
       left: widget.width / 2,
       child: GestureDetector(
         onPanUpdate: (details) => setState(
           () => {
-            // print("rotateTriger"),
             angle += details.delta.dx * 0.01,
           },
         ),
         child: Container(
-          // height: 10,
-          // width: 10,
           decoration: BoxDecoration(
-            // color: const Color(0xFF66D286),
-            // color: const Color(0xE5DFFFD6),
             borderRadius: BorderRadius.circular(3),
           ),
           child: const Icon(Icons.rotate_right, color: Color(0xFF66D286)),
@@ -231,9 +224,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
   @override
   Widget build(BuildContext context) {
     final itemId = ref.watch(itemNum.notifier);
-    ref
-      ..watch(itemNum)
-      ..watch(fileProvider);
+    ref..watch(itemNum)..watch(fileProvider);
 
     select = itemId.state == itemCount ? true : false;
 
@@ -241,7 +232,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
     return RepaintBoundary(
       child: GestureDetector(
         onPanUpdate: (details) => setState(
-          () => {
+              () => {
             offset += details.delta,
             // angle = (_offset.dx) / 2 * 0.01,
             widget.top = 200 + offset.dy,
@@ -266,14 +257,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
               Positioned(
                 top: widget.top,
                 left: widget.left,
-                child:
-                    // Transform(
-                    //   transform:Matrix4.identity()
-                    //     ..setTranslationRaw(_offset.dx, _offset.dy, 0),
-                    //   // ..scale(0.8),
-                    //   // ..rotateZ(0.01 * _offset.dx),
-                    //   alignment: FractionalOffset.center,
-                    MouseRegion(
+                child: MouseRegion(
                   onExit: (e) {
                     setState(
                       () => {
@@ -285,7 +269,7 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                   },
                   onEnter: (e) {
                     setState(
-                      () => {
+                          () => {
                         border = setBorder,
                         hover = true,
                       },
@@ -349,9 +333,9 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                           ),
                         ),
                       ),
-                      if (hover || select) (leftTopTriger()),
-                      if (hover || select) (rightBottomTriger()),
-                      if (hover || select) (rotateTriger()),
+                      if (hover || select) (leftTopTrigger()),
+                      if (hover || select) (rightBottomTrigger()),
+                      if (hover || select) (rotateTrigger()),
                       if (select) (buttonDelete),
                       const SizedBox(
                         height: 50,

@@ -5,26 +5,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/data/repository/local/widgets/slide_item.dart';
-import 'package:izi_quizi/data/repository/local/widgets/widgets_collection.dart';
-import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/widgets/slide_item.dart';
+import 'package:izi_quizi/widgets/widgets_collection.dart';
 import 'package:screenshot/screenshot.dart';
 
-///Боковое выбора слайдов при редоактировании
-class SideSlides {
-  static final SideSlides _instance = SideSlides._internal();
+///Боковое превью слайдов
+class SideSlidesPreview {
+  static final SideSlidesPreview _instance = SideSlidesPreview._internal();
 
-  factory SideSlides() {
+  factory SideSlidesPreview() {
     return _instance;
   }
 
-  SideSlides._internal();
+  SideSlidesPreview._internal();
 
   ScreenshotController screenshotController = ScreenshotController();
 
   Future updatePreview(int index) async {
     await screenshotController.capture().then((capturedImage) async {
-      sideList[index - 1].setImagePreview(capturedImage);
+      sideList[index].setImagePreview(capturedImage);
       //   // sideList.forEach((element) {
       //   //   element.setImagePreview(capturedImage);
       //   // });
@@ -48,8 +47,8 @@ class SideSlides {
   }
 
   void updateCount() {
-    final appData = AppData();
-    appData.ref!.watch(counterSlide.notifier).state = sideList.length;
+    final appData = AppDataState();
+    AppDataState().ref!.watch(counterSlide.notifier).state = sideList.length;
 
     var countSlide = 1;
     for (var element in sideList) {
@@ -75,7 +74,7 @@ class SideSlides {
         sideList.removeAt(i);
         slideData.removeAt(i - 1);
       }
-      if (item.buttonId == appData.ref!.watch(buttonID.notifier).state) {
+      if (item.buttonId == AppDataState().ref!.watch(buttonID.notifier).state) {
         // --appData.ref!.watch(buttonID.notifier).state;
       }
       ++i;
@@ -85,7 +84,6 @@ class SideSlides {
 }
 
 class NavSlideButton extends ConsumerStatefulWidget {
-  // NavSlideButton({Key? key}) : super(key: key);
   NavSlideButton.buttonID({required this.buttonId, required this.keyDelete})
       : super(key: key);
 
@@ -142,12 +140,7 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
       ..watch(counterSlide);
 
     width = counter.state == widget.buttonId ? 3 : 0;
-    // var decorationImage = DecorationImage(
-    //   // image: widget._imageFile != null ? MemoryImage(widget._imageFile!) : MemoryImage(widget._imageFile!),
-    //   image: MemoryImage(widget.imageFile),
-    //   // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-    //   fit: BoxFit.cover,
-    // );
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
@@ -229,7 +222,7 @@ class NavSlideButtonState extends ConsumerState<NavSlideButton> {
   }
 }
 
-SideSlides sideSlides = SideSlides();
+SideSlidesPreview sideSlides = SideSlidesPreview();
 
 class ListSlide extends ConsumerStatefulWidget {
   const ListSlide({super.key});

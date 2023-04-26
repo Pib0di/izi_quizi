@@ -2,11 +2,24 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/common_functionality/jsonParse.dart';
-import 'package:izi_quizi/data/repository/local/side_slides.dart';
-import 'package:izi_quizi/data/repository/local/widgets/items_shel.dart';
-import 'package:izi_quizi/data/repository/local/widgets/slide_item.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/common/side_slides.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
+import 'package:izi_quizi/widgets/items_shel.dart';
+import 'package:izi_quizi/widgets/slide_item.dart';
+
+/// номер текущего слайда
+final buttonID = StateProvider((ref) => 0);
+
+/// количество созданных слайдов
+final counterSlide = StateProvider((ref) => 0);
+
+/// номер элемента в слайде для удаления
+const Key key = Key('');
+final delItemId = StateProvider<Key>(
+  (ref) => key,
+);
 
 /// Информация слайда (элементы на нем)
 class SlideData {
@@ -39,6 +52,12 @@ class SlideData {
   }
 
   SlideItems indexOfListSlide(int index) {
+    if (index < 0) {
+      index = 0;
+    }
+    if (listSlide.isEmpty) {
+      listSlide.add(SlideItems());
+    }
     return listSlide[index];
   }
 
@@ -55,7 +74,7 @@ class SlideData {
   }
 
   void setItemsEdit() {
-    final sideSlides = SideSlides();
+    final sideSlides = SideSlidesPreview();
     final jsonParse = dataSlideParse(dataSlide);
     listSlide.clear();
     jsonParse.slidesData?.forEach((element) {

@@ -1,12 +1,21 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// id of the element to be added to the slide
-final numAddItem = StateNotifierProvider((ref) {
-  return ItemId();
+final createEditing = StateNotifierProvider((ref) {
+  return CreateEditingState();
 });
 
-class ItemId extends StateNotifier<int> {
-  ItemId() : super(0);
+class CreateEditingState extends StateNotifier<int> {
+  CreateEditingState() : super(0);
 
-  void set(int value) => state = value;
+  late BuildContext context;
+
+  int get() {
+    return state;
+  }
+
+  void set(int value) {
+    state = value;
+  }
 }

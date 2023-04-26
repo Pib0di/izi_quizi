@@ -1,7 +1,8 @@
+import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/main.dart';
 import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
 
-class AuthenticationImpl {
+class AuthenticationCase {
   void authorize(String email, String password) {
     request.authentication(email, password);
   }
@@ -49,6 +50,6 @@ class AuthenticationImpl {
   }
 
   void update() {
-    appData.ref?.watch(authUpdate.notifier).increment();
+    AppDataState().ref?.watch(authenticationPopupProvider.notifier).increment();
   }
 }

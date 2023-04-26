@@ -2,14 +2,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/main.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 
-class CreateEditingImpl {
-  static final CreateEditingImpl _instance = CreateEditingImpl._internal();
+class CreateEditingCase {
+  static final CreateEditingCase _instance = CreateEditingCase._internal();
 
-  factory CreateEditingImpl() {
+  factory CreateEditingCase() {
     return _instance;
   }
 
-  CreateEditingImpl._internal();
+  CreateEditingCase._internal();
 
   WidgetRef? ref;
 
@@ -18,8 +18,8 @@ class CreateEditingImpl {
   }
 
   void itemNum(int itemNum) {
-    ref!.watch(numAddItem.notifier).set(-1);
-    ref!.watch(numAddItem.notifier).set(itemNum);
+    ref!.watch(createEditing.notifier).set(-1);
+    ref!.watch(createEditing.notifier).set(itemNum);
   }
 
   void renameQuiz(String email, String currentNamePresent, String newName) {

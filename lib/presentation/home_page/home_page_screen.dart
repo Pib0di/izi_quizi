@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/domain/home_page/home_page_impl.dart';
+import 'package:izi_quizi/domain/home_page/home_page.dart';
 import 'package:izi_quizi/main.dart';
 import 'package:izi_quizi/presentation/authentication/authentication_popup_screen.dart';
-import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
+import 'package:izi_quizi/presentation/home_page/common/join_presentation.dart';
+import 'package:izi_quizi/presentation/home_page/common/popup_menu.dart';
+import 'package:izi_quizi/presentation/home_page/common/present_card.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
-import 'package:izi_quizi/presentation/multipe_view/multiple_view_screen.dart';
-import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
-HomePageCaseImpl homePageCase = HomePageCaseImpl();
-
-class MyStatefulWidget extends ConsumerStatefulWidget {
-  const MyStatefulWidget({super.key});
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({super.key});
 
   @override
-  MyStatefulWidgetState createState() => MyStatefulWidgetState();
+  HomePageState createState() => HomePageState();
 }
 
-class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
+class HomePageState extends ConsumerState<HomePage>
     with TickerProviderStateMixin {
   late TabController _tabController;
 
@@ -27,23 +24,18 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    request.listWidget(AppDataState.idUser);
   }
 
   void setStates() {
-    setState(() {
-      request.listWidget(AppData.idUser);
-      if (widgetListIsReload) {
-        widgetListIsReload = false;
-      } else {}
-    });
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    appData.widgetRef(ref);
+    AppDataState().widgetRef(ref);
 
-    // bool isAuth = ref.watch(appData.authStateProvider());
-    final validAuth = ref.watch(isAuthorized.notifier).isAuth;
+    final validAuth = ref.watch(homePage.notifier).isAuth;
 
     return Scaffold(
       appBar: AppBar(
@@ -60,8 +52,6 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
             ),
           ),
         ),
-
-        // title: const Text('TabBar Widget'),
         actions: [
           Container(
             margin: const EdgeInsets.only(left: 150),
@@ -131,12 +121,12 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
                 ),
               ),
               onPressed: () {
-                homePageCase.createQuizDialog(context);
+                HomePageCase().createQuizDialog(context);
                 setStates();
               },
             ),
           ),
-          popapMenu(context),
+          const PopupMenu(),
         ],
       ),
       body: TabBarView(
@@ -146,21 +136,23 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
             builder:
                 (BuildContext context, AsyncSnapshot<List<String>> snapshot) {
               final presentCardList = <Widget>[];
-              for (var i = 0; i < appData.getUserPresentName().length; ++i) {
+              for (var i = 0;
+                  i < AppDataState().getUserPresentName().length;
+                  ++i) {
                 presentCardList.add(
                   PresentCard(
                     idPresent: int.parse(
-                      appData.getUserPresentName().keys.elementAt(i),
+                      AppDataState().getUserPresentName().keys.elementAt(i),
                     ).toInt(),
                     presentName:
-                        appData.getUserPresentName().values.elementAt(i),
+                        AppDataState().getUserPresentName().values.elementAt(i),
                   ),
                 );
               }
               return ListView(
                 padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
                 children: [
-                  JoinThePresentation(),
+                  const JoinThePresentation(),
                   const SizedBox(
                     height: 90,
                   ),
@@ -253,67 +245,6 @@ class MyStatefulWidgetState extends ConsumerState<MyStatefulWidget>
       ),
     );
   }
-}
-
-Widget popapMenu(BuildContext context) {
-  final isAuth = appData.authStateController().state;
-
-  if (isAuth) {
-    return PopupMenuButton<String>(
-      padding: EdgeInsets.zero,
-      onSelected: (String item) {
-        if (item == 'exit') {
-          appData.authStateController().state = false;
-        }
-      },
-      itemBuilder: (context) => const <PopupMenuEntry<String>>[
-        PopupMenuDivider(),
-        PopupMenuItem<String>(
-          value: 'pref',
-          child: Text('Настройки'),
-        ),
-        PopupMenuItem<String>(
-          value: 'exit',
-          child: Text(
-            'Выход',
-          ),
-        ),
-      ],
-    );
-  }
-  return PopupMenuButton<String>(
-    padding: EdgeInsets.zero,
-    onSelected: (String item) => {
-      if (item == 'auth')
-        {
-          showDialog(
-            context: context,
-            barrierColor:
-                AppData.typeBrowser == 'Mobile' ? Colors.white : Colors.black45,
-            barrierDismissible: AppData.typeBrowser == 'Mobile' ? false : true,
-            builder: (BuildContext context) => const AlertDialog(
-              // contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-              contentPadding: EdgeInsets.zero,
-              // backgroundColor: Colors.transparent,
-              content: Join(),
-            ),
-          ),
-        },
-    },
-    itemBuilder: (context) => const <PopupMenuEntry<String>>[
-      PopupMenuDivider(),
-      PopupMenuItem<String>(
-        value: 'settings',
-        child: Text('Настройки'),
-      ),
-      PopupMenuItem<String>(
-        value: 'auth',
-        child: Text(
-          'Авторизоваться',
-        ),
-      ),
-    ],
-  );
 }
 
 class TabBarEvents extends StatefulWidget {
@@ -496,313 +427,4 @@ Container created(BuildContext context) {
       ],
     ),
   );
-}
-
-class JoinThePresentation extends StatelessWidget {
-  JoinThePresentation({super.key});
-
-  static final TextEditingController controller = TextEditingController();
-  final List<Widget> _list = <Widget>[
-    Expanded(
-      child: TextFormField(
-        controller: controller,
-        decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          labelText: 'Введите код присоединения',
-        ),
-      ),
-    ),
-    const SizedBox(
-      width: 15,
-      height: 15,
-    ),
-    OutlinedButton.icon(
-      style: ButtonStyle(
-        padding: MaterialStateProperty.all(
-          const EdgeInsets.symmetric(vertical: 23.0, horizontal: 10),
-        ),
-        backgroundColor: MaterialStateProperty.all(
-          Colors.green.shade300,
-        ),
-        side: MaterialStateProperty.all(
-          const BorderSide(
-            color: Colors.transparent,
-          ),
-        ),
-        shape: MaterialStateProperty.all(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-      icon: const Icon(
-        Icons.add,
-        size: 18,
-        color: Colors.white,
-      ),
-      label: const Text(
-        'Присоедениться',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-      ),
-      onPressed: () {
-        homePageCase.joinRoom('userName', controller.text);
-      },
-    ),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      // color: Colors.black,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 3,
-            offset: const Offset(0, 2), // changes position of shadow
-          ),
-        ],
-      ),
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          if (constraints.maxWidth < 470) {
-            return SizedBox(
-              height: 120,
-              child: Column(
-                children: _list,
-              ),
-            );
-          } else {
-            return Row(
-              children: _list,
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class PresentCard extends StatefulWidget {
-  const PresentCard({
-    required this.idPresent,
-    required this.presentName,
-    super.key,
-  });
-
-  final int idPresent;
-  final String presentName;
-
-  @override
-  State<PresentCard> createState() => _PresentCardState();
-}
-
-class _PresentCardState extends State<PresentCard> {
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          child: Container(
-            width: 190,
-            height: 150,
-            decoration: BoxDecoration(
-              color: const Color(0xff7c94b6),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
-                ),
-                fit: BoxFit.cover,
-              ),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: RawMaterialButton(
-              padding: const EdgeInsets.only(bottom: 10),
-              shape: const RoundedRectangleBorder(),
-              onPressed: () {
-                request.getPresentation(widget.idPresent, widget.presentName);
-                Navigator.of(context).push(
-                  PresentationDialog<void>(
-                    idPresent: widget.idPresent,
-                    presentName: widget.presentName,
-                  ),
-                );
-              },
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xE5DFFFD6),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Text(
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black54,
-                      ),
-                      widget.presentName,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          right: 0,
-          child: Container(
-            margin: const EdgeInsets.all(5),
-            width: 30,
-            height: 30,
-            child: RawMaterialButton(
-              fillColor: Colors.redAccent,
-              shape: const CircleBorder(),
-              elevation: 0.0,
-              onPressed: () {
-                request.deletePresent(
-                  AppData.email,
-                  widget.idPresent.toString(),
-                );
-              },
-              child: const Icon(
-                Icons.delete,
-                size: 20,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class PresentationDialog<T> extends PopupRoute<T> {
-  PresentationDialog({
-    required this.idPresent,
-    required this.presentName,
-    Key? key,
-  });
-
-  final int idPresent;
-  final String presentName;
-
-  @override
-  Color? get barrierColor => Colors.black.withAlpha(0x50);
-
-  // This allows the popup to be dismissed by tapping the scrim or by pressing
-  // the escape key on the keyboard.
-  @override
-  bool get barrierDismissible => true;
-
-  @override
-  String? get barrierLabel => 'Presentation Dialog';
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
-  SlideData slideData = SlideData();
-
-  @override
-  Widget buildPage(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-  ) {
-    return Center(
-      child: DefaultTextStyle(
-        style: Theme.of(context).textTheme.bodyMedium!,
-        // UnconstrainedBox is used to make the dialog size itself
-        // to fit to the size of the content.
-        child: UnconstrainedBox(
-          child: Container(
-            padding: const EdgeInsets.all(20.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.white,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                // Text('Presentation Dialog', style: Theme.of(context).textTheme.headlineSmall),
-                ElevatedButton(
-                  onPressed: () {
-                    // request.getSlideData(idPresent, presentName); //Т.К ДАННЫЕ УЖЕ ЗАПРОШЕНЫ ПРИ НАЖАТИИ
-                    slideData.setItemsView();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SingleViewPresentation(),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    children: const [
-                      Text('Просмотреть'),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Icon(Icons.person, color: Colors.green),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    request.createRoom(AppData.idUser, presentName);
-                    slideData.setItemsView();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const MultipleView(),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    children: const [
-                      Text('Начать сессию'),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Icon(Icons.group, color: Colors.green),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    slideData.setItemsEdit();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            PresentationEdit.edit(presentName),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    children: const [
-                      Text('Редактировать'),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Icon(Icons.edit, color: Colors.green),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }

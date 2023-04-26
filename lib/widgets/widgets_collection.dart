@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 
 class ButtonDelete extends ConsumerWidget {
@@ -10,7 +10,7 @@ class ButtonDelete extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final numAddItemState = ref.watch(numAddItem.notifier);
+    final numAddItemState = ref.watch(createEditing.notifier);
 
     final deleteItemKeyState = ref.watch(delItemId.notifier);
 
