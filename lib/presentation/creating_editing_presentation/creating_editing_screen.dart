@@ -1,25 +1,32 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/common_functionality/jsonParse.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/domain/creating_editing_presentation/create_editing.dart';
+import 'package:izi_quizi/domain/create_editing_case.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/common/creating_editing_area.dart';
-import 'package:izi_quizi/widgets/widgets_collection.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
+import 'package:izi_quizi/widgets/enter_presentation_name.dart';
 
-class PresentationEdit extends StatelessWidget {
-  PresentationEdit.create(String name, {super.key}) : currentNamePresent = name;
+class PresentationEdit extends ConsumerWidget {
+  const PresentationEdit.create({super.key});
 
-  PresentationEdit.edit(String name, {super.key}) : currentNamePresent = name;
-  late final String currentNamePresent;
-  final myController = TextEditingController();
+  const PresentationEdit.edit({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slideJsonController = ref.read(slideJsonProvider.notifier);
+    final createEditingController = ref.read(createEditing.notifier);
+    final appDataController = ref.read(appDataProvider.notifier);
+
+    final presentationNameController = createEditingController.textController;
+    final currentNamePresent = appDataController.currentPresentName;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: Text(currentNamePresent),
+        title: Text(currentNamePresent.text),
         actions: [
           Row(
             children: [
@@ -42,7 +49,7 @@ class PresentationEdit extends StatelessWidget {
                       return SimpleDialog(
                         title: const Text('Переименовать викторину'),
                         children: <Widget>[
-                          ProjectName(myController),
+                          EnterProjectName(presentationNameController),
                           SizedBox(
                             height: 60.0,
                             child: Row(
@@ -65,12 +72,13 @@ class PresentationEdit extends StatelessWidget {
                                     textStyle: const TextStyle(fontSize: 20),
                                   ),
                                   onPressed: () {
-                                    CreateEditingCase().renameQuiz(
-                                      AppDataState.email,
-                                      AppDataState.presentName,
-                                      myController.text,
+                                    renameQuiz(
+                                      appDataController.email,
+                                      appDataController.presentName,
+                                      presentationNameController.text,
                                     );
-                                    currentNamePresent = myController.text;
+                                    currentNamePresent.text =
+                                        presentationNameController.text;
                                     Navigator.pop(context, ClipRRect);
                                   },
                                   child: const Text('Переименовать'),
@@ -100,10 +108,10 @@ class PresentationEdit extends StatelessWidget {
                 fillColor: Colors.lightGreen,
                 shape: const CircleBorder(),
                 onPressed: () {
-                  final jsonSlide = SlideJson().slideJson();
-                  CreateEditingCase().saveQuiz(
-                    AppDataState.idUser,
-                    AppDataState.presentName,
+                  final jsonSlide = slideJsonController.slideJson();
+                  saveQuiz(
+                    appDataController.idUser,
+                    appDataController.presentName,
                     jsonEncode(jsonSlide.toJson()),
                   );
                 },
@@ -117,5 +125,3 @@ class PresentationEdit extends StatelessWidget {
     );
   }
 }
-
-

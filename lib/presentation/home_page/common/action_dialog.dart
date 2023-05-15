@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
-import 'package:izi_quizi/presentation/multipe_view/multiple_view_screen.dart';
+import 'package:izi_quizi/presentation/multiple_view/multiple_view_screen.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
+///A presentation dialog box that allows you to select an action (single viewing, multiple viewing, editing)
 class PresentationDialog<T> extends PopupRoute<T> {
   PresentationDialog({
     required this.idPresent,
     required this.presentName,
+    required this.ref,
     Key? key,
   });
 
+  final Ref ref;
   final int idPresent;
   final String presentName;
 
@@ -29,7 +33,6 @@ class PresentationDialog<T> extends PopupRoute<T> {
 
   @override
   Duration get transitionDuration => const Duration(milliseconds: 300);
-  SlideData slideData = SlideData();
 
   @override
   Widget buildPage(
@@ -37,11 +40,12 @@ class PresentationDialog<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
+    final slideDataController = ref.read(slideDataProvider.notifier);
+    final appDataController = ref.read(appDataProvider.notifier);
+
     return Center(
       child: DefaultTextStyle(
         style: Theme.of(context).textTheme.bodyMedium!,
-        // UnconstrainedBox is used to make the dialog size itself
-        // to fit to the size of the content.
         child: UnconstrainedBox(
           child: Container(
             padding: const EdgeInsets.all(20.0),
@@ -56,7 +60,7 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ElevatedButton(
                   onPressed: () {
                     // request.getSlideData(idPresent, presentName); //Т.К ДАННЫЕ УЖЕ ЗАПРОШЕНЫ ПРИ НАЖАТИИ
-                    slideData.setItemsView();
+                    slideDataController.setItemsView();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -77,8 +81,8 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    request.createRoom(AppDataState.idUser, presentName);
-                    slideData.setItemsView();
+                    createRoom(appDataController.idUser, presentName);
+                    slideDataController.setItemsView();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -99,12 +103,11 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    slideData.setItemsEdit();
+                    slideDataController.setItemsEdit();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            PresentationEdit.edit(presentName),
+                        builder: (context) => const PresentationEdit.edit(),
                       ),
                     );
                   },

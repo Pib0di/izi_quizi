@@ -2,19 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// id of the element to be added to the slide
-final homePage = StateNotifierProvider((ref) {
-  return HomePageState();
+final homePageProvider = StateNotifierProvider((ref) {
+  return HomePageController();
 });
 
-class HomePageState extends StateNotifier<int> {
-  HomePageState() : super(0);
+class HomePageController extends StateNotifier<int> {
+  HomePageController() : super(0);
 
-  final controller = TextEditingController();
+  final joinPresentTextController = TextEditingController();
+  late TabController tabController;
 
-  bool isAuth = false;
-
-  void set(bool value) {
-    isAuth = value;
+  void updateUi() {
     ++state;
+  }
+
+  Map<String, dynamic> userPresentations = {};
+
+  void setUserPresentName(Map<String, dynamic> userPresentName) {
+    userPresentations = userPresentName;
+  }
+
+  Map<String, dynamic> getUserPresentName() {
+    return userPresentations;
   }
 }

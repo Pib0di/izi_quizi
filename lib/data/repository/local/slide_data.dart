@@ -4,35 +4,30 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/common_functionality/jsonParse.dart';
-import 'package:izi_quizi/presentation/creating_editing_presentation/common/side_slides.dart';
+import 'package:izi_quizi/data/repository/local/slide_items.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
-import 'package:izi_quizi/widgets/items_shel.dart';
-import 'package:izi_quizi/widgets/slide_item.dart';
+import 'package:izi_quizi/widgets/item_shel/items_shel.dart';
 
 /// номер текущего слайда
-final buttonID = StateProvider((ref) => 0);
+final currentSlideNumber = StateProvider((ref) => 0);
 
-/// количество созданных слайдов
-final counterSlide = StateProvider((ref) => 0);
-
-/// номер элемента в слайде для удаления
+/// ключ элемента в слайде для удаления
 const Key key = Key('');
-final delItemId = StateProvider<Key>(
+final delItemKey = StateProvider<Key>(
   (ref) => key,
 );
 
+final slideDataProvider = StateNotifierProvider<SlideData, int>((ref) {
+  return SlideData(ref);
+});
+
 /// Информация слайда (элементы на нем)
-class SlideData {
-  static final SlideData _instance = SlideData._internal();
+class SlideData extends StateNotifier<int> {
+  SlideData(this.ref) : super(0);
 
-  factory SlideData() {
-    return _instance;
-  }
-
-  SlideData._internal();
-
+  Ref ref;
   List<SlideItems> listSlide = [];
-
   Map<String, dynamic> dataSlide = {};
 
   void setDataSlide(Map<String, dynamic> data) {
@@ -74,17 +69,12 @@ class SlideData {
   }
 
   void setItemsEdit() {
-    final sideSlides = SideSlidesPreview();
     final jsonParse = dataSlideParse(dataSlide);
     listSlide.clear();
     jsonParse.slidesData?.forEach((element) {
       final slide = SlideItems();
 
-      // AppData appData = AppData();
-      // final numSlide = appData.ref!.watch(counterSlide.notifier);
-      // ++numSlide.state;
-
-      sideSlides.addSlide();
+      ref.read(slidesPreviewProvider.notifier).addItem();
 
       element.textItems?.forEach((element) {
         final itemsShelText = ItemsShel.textWidgetJson(

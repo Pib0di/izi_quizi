@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/domain/creating_editing_presentation/create_editing.dart';
-import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
+import 'package:izi_quizi/domain/create_editing_case.dart';
 
 class ElevatedButtonFactory extends StatelessWidget {
   const ElevatedButtonFactory.numAddItem({
@@ -35,14 +34,6 @@ class ElevatedButtonFactory extends StatelessWidget {
 }
 
 class ConsumerTextButton extends ConsumerWidget {
-  const ConsumerTextButton({
-    this.addedItem,
-    this.id,
-    this.child,
-    this.closeAfterClicking,
-    super.key,
-  });
-
   const ConsumerTextButton.showDialog({
     this.addedItem,
     this.id,
@@ -58,56 +49,24 @@ class ConsumerTextButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final createEditingController =
+        ref.read(createEditingCaseProvider.notifier);
+
     return TextButton(
       onPressed: () => {
-        if (id != null)
-          {
-            ref.read(createEditing.notifier).set(id!),
-          },
+        // if (id != null) {
+        //   ref.read(createEditing.notifier).set(id!),
+        // },
 
         if (addedItem != null)
           {
-            CreateEditingCase().addItem(addedItem!),
+            createEditingController.addItem(addedItem!),
           },
 
         //if the button be to a dialog box then close it
-        if (closeAfterClicking ?? false) {Navigator.pop(context, 'OK')},
+        if (closeAfterClicking ?? false) {Navigator.pop(context, 'close')},
       },
       child: child ?? const Text(''),
     );
   }
-}
-
-Future<T?> showDialogFactory<T>({
-  required BuildContext context,
-  required WidgetBuilder builder,
-  bool barrierDismissible = true,
-  Color? barrierColor = Colors.black54,
-  String? barrierLabel,
-  bool useSafeArea = true,
-  bool useRootNavigator = true,
-  RouteSettings? routeSettings,
-  Offset? anchorPoint,
-}) {
-  final themes = InheritedTheme.capture(
-    from: context,
-    to: Navigator.of(
-      context,
-      rootNavigator: useRootNavigator,
-    ).context,
-  );
-
-  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
-    DialogRoute<T>(
-      context: context,
-      builder: builder,
-      barrierColor: barrierColor,
-      barrierDismissible: barrierDismissible,
-      barrierLabel: barrierLabel,
-      useSafeArea: useSafeArea,
-      settings: routeSettings,
-      themes: themes,
-      anchorPoint: anchorPoint,
-    ),
-  );
 }

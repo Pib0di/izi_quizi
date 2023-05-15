@@ -1,3 +1,4 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
 
 ///parse slides
@@ -79,10 +80,10 @@ class TextItems {
 
   TextItems.fromJson(Map<String, dynamic> json) {
     text = json['text'];
-    offsetX = json['offsetX'];
-    offsetY = json['offsetY'];
-    width = json['width'];
-    height = json['height'];
+    offsetX = json['offsetX'].toDouble();
+    offsetY = json['offsetY'].toDouble();
+    width = json['width'].toDouble();
+    height = json['height'].toDouble();
     property = json['property'];
   }
 
@@ -136,21 +137,17 @@ class ImageItems {
   }
 }
 
-class SlideJson {
-  static final SlideJson _instance = SlideJson._internal();
+final slideJsonProvider = StateNotifierProvider<SlideJson, int>((ref) {
+  return SlideJson(ref);
+});
 
-  factory SlideJson() {
-    return _instance;
-  }
+class SlideJson extends StateNotifier<int> {
+  SlideJson(this.ref) : super(0);
 
-  SlideJson._internal();
+  Ref ref;
 
   JsonParse slideJson() {
-    // static final JsonParse _instance = JsonParse._internal();
-    // factory JsonParse() { return _instance; }
-    // JsonParse._internal();
-
-    final data = SlideData();
+    final data = ref.read(slideDataProvider.notifier);
 
     SlidesData slidesData;
     final slidesDataList = <SlidesData>[];

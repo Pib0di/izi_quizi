@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/main.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
+import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/presentation/home_page/common/action_dialog.dart';
 
-class PresentCard extends StatefulWidget {
+class PresentCard extends ConsumerStatefulWidget {
   const PresentCard({
     required this.idPresent,
     required this.presentName,
@@ -14,12 +16,15 @@ class PresentCard extends StatefulWidget {
   final String presentName;
 
   @override
-  State<PresentCard> createState() => _PresentCardState();
+  PresentCardState createState() => PresentCardState();
 }
 
-class _PresentCardState extends State<PresentCard> {
+class PresentCardState extends ConsumerState<PresentCard> {
   @override
   Widget build(BuildContext context) {
+    final myValueRef = ref.read(slideDataProvider.notifier).ref;
+    final appDataController = ref.read(appDataProvider.notifier);
+
     return Stack(
       children: [
         Positioned(
@@ -40,11 +45,12 @@ class _PresentCardState extends State<PresentCard> {
               padding: const EdgeInsets.only(bottom: 10),
               shape: const RoundedRectangleBorder(),
               onPressed: () {
-                request.getPresentation(widget.idPresent, widget.presentName);
+                getPresentation(widget.idPresent, widget.presentName);
                 Navigator.of(context).push(
                   PresentationDialog<void>(
                     idPresent: widget.idPresent,
                     presentName: widget.presentName,
+                    ref: myValueRef,
                   ),
                 );
               },
@@ -83,8 +89,8 @@ class _PresentCardState extends State<PresentCard> {
               shape: const CircleBorder(),
               elevation: 0.0,
               onPressed: () {
-                request.deletePresent(
-                  AppDataState.email,
+                deletePresent(
+                  appDataController.email,
                   widget.idPresent.toString(),
                 );
               },

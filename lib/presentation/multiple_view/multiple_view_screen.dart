@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/presentation/multipe_view/multiple_view_state.dart';
+import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
 class MultipleView extends ConsumerStatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/domain/authentication/authentication.dart';
+import 'package:izi_quizi/domain/authentication_case.dart';
 import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
 
 class Join extends ConsumerStatefulWidget {
@@ -14,22 +14,27 @@ class Join extends ConsumerStatefulWidget {
 class JoinState extends ConsumerState<Join> {
   @override
   Widget build(BuildContext context) {
-    final stateController = ref.watch(authenticationPopupProvider.notifier);
-    final formKey = stateController.formKey;
+    ref.watch(authenticationProvider);
 
-    if (stateController.isAuth == true) {
+    final authenticationController = ref.watch(authenticationProvider.notifier);
+    final appDataController = ref.read(appDataProvider.notifier);
+
+    final formKey = authenticationController.formKey;
+
+    //todo question
+    if (authenticationController.isAuth == true) {
       Navigator.of(context).pop();
     }
 
     return IntrinsicHeight(
       child: Container(
         width: 600,
-        padding: AppDataState.typeBrowser == 'Mobile'
+        padding: appDataController.isMobile
             ? const EdgeInsets.all(0)
             : const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: AppDataState.typeBrowser == 'Mobile'
+          borderRadius: appDataController.isMobile
               ? BorderRadius.zero
               : BorderRadius.circular(32),
         ),
@@ -40,13 +45,11 @@ class JoinState extends ConsumerState<Join> {
               child: Column(
                 children: [
                   TextFormField(
-                    controller: stateController.controllerEmail,
+                    controller: authenticationController.controllerEmail,
                     textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      return AuthenticationCase().checkEmail(value);
-                    },
+                    validator: checkEmail,
                     onChanged: (value) {
-                      AuthenticationCase().checkEmail(value);
+                      checkEmail(value);
                       if (value.isNotEmpty) {
                         formKey.currentState!.validate();
                       }
@@ -64,13 +67,11 @@ class JoinState extends ConsumerState<Join> {
                   PasswordField(
                     formKey: formKey,
                     myControllerPass: ref
-                        .watch(authenticationPopupProvider.notifier)
+                        .watch(authenticationProvider.notifier)
                         .controllerPass,
                     restorationId: 'password_field',
                     textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      return AuthenticationCase().checkPassword(value);
-                    },
+                    validator: checkPassword,
                   )
                 ],
               ),
@@ -78,12 +79,8 @@ class JoinState extends ConsumerState<Join> {
             const SizedBox(
               height: 10,
             ),
-            SizedBox(
-              height: 110,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [Buttons(formKey: formKey)],
-              ),
+            Expanded(
+              child: Buttons(formKey: formKey),
             ),
           ],
         ),
@@ -100,70 +97,100 @@ class Buttons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(authenticationPopupProvider);
+    ref.watch(authenticationProvider);
 
-    final stateController = ref.watch(authenticationPopupProvider.notifier);
-    final buttonPressed = stateController.buttonPressed;
-    final isAuth = stateController.isAuth;
+    final appDataController = ref.read(appDataProvider.notifier);
+    final authenticationController = ref.read(authenticationProvider.notifier);
+    var buttonPressed = authenticationController.buttonPressed;
+    final authorizeError = authenticationController.authorizeError;
 
-    return Expanded(
-      child: ListView(
-        children: <Widget>[
-          buttonPressed
-              ? isAuth
-                  ? const Text('')
-                  : errorWidget
-              : const Text(''),
-          const Spacer(),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(16.0),
-              textStyle: const TextStyle(fontSize: 20),
+    if (authorizeError) {
+      buttonPressed = false;
+    }
+
+    return Column(
+      children: <Widget>[
+        if (buttonPressed) circularProgress,
+        if (authorizeError) errorWidget,
+        const SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(16.0),
+                  textStyle: const TextStyle(fontSize: 20),
+                ),
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Processing Data')),
+                    );
+                  }
+                },
+                child: const Text('Зарегистрироваться'),
+              ),
             ),
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Processing Data')),
-                );
-              }
-            },
-            child: const Text('Зарегистрироваться'),
-          ),
-          const SizedBox(
-            width: 10,
-            height: 10,
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: Colors.teal,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.all(16.0),
-              textStyle: const TextStyle(fontSize: 20),
+          ],
+        ),
+        const SizedBox(
+          width: 10,
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.all(16.0),
+                  textStyle: const TextStyle(fontSize: 20),
+                ),
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    appDataController.email =
+                        authenticationController.controllerEmail.text;
+                    authorize(
+                      appDataController.email,
+                      authenticationController.controllerPass.text,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Авторизация...')),
+                    );
+                    authenticationController
+                      ..buttonPressed = true
+                      ..authorizeError = false
+                      ..update();
+                  }
+                },
+                child: const Text('Войти'),
+              ),
             ),
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                stateController
-                  ..buttonPressed = true
-                  ..increment();
-                AppDataState.email = stateController.controllerEmail.text;
-                AuthenticationCase().authorize(
-                  AppDataState.email,
-                  stateController.controllerPass.text,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Авторизация...')),
-                );
-              }
-            },
-            child: const Text('Войти'),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
   }
 }
+
+Widget circularProgress = Row(
+  children: [
+    Container(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: const SizedBox(
+          width: 28, height: 28, child: CircularProgressIndicator()),
+    ),
+    const SizedBox(
+      width: 10,
+    ),
+    const Text('Подтверждение'),
+  ],
+);
 
 Widget errorWidget = Row(
   children: const [

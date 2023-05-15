@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
+import 'package:izi_quizi/data/repository/local/slide_items.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_state.dart';
-import 'package:izi_quizi/widgets/slide_item.dart';
 
 class SingleViewPresentation extends ConsumerStatefulWidget {
   const SingleViewPresentation({super.key});
 
   @override
-  ViewPresentationState createState() => ViewPresentationState();
+  SingleViewPresentationState createState() => SingleViewPresentationState();
 }
 
-class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
-
+class SingleViewPresentationState
+    extends ConsumerState<SingleViewPresentation> {
   @override
   Widget build(BuildContext context) {
-    final stateController = ref.watch(singleView.notifier);
+    ref.watch(singleViewProvider);
+    final singleViewController = ref.read(singleViewProvider.notifier);
 
-    final totalSlide = stateController.getTotalSlide();
+    final totalSlide = singleViewController.getTotalSlide();
 
     //get the current slide number
-    final numSelectSlide = ref.watch(singleView) as int;
+    final numSelectSlide = singleViewController.getState();
 
     return Scaffold(
       body: Container(
@@ -61,7 +62,7 @@ class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
                   Text('${numSelectSlide + 1}/${totalSlide + 1}'),
                   const Spacer(),
                   IconButton(
-                    onPressed: stateController.decrement,
+                    onPressed: singleViewController.decrement,
                     icon: const Icon(
                       Icons.arrow_back_ios_new,
                       size: 40,
@@ -72,7 +73,7 @@ class ViewPresentationState extends ConsumerState<SingleViewPresentation> {
                     width: 8,
                   ),
                   IconButton(
-                    onPressed: stateController.increment,
+                    onPressed: singleViewController.increment,
                     icon: const Icon(
                       Icons.arrow_forward_ios_rounded,
                       size: 40,
@@ -123,7 +124,6 @@ class ItemsViewPresentation extends ConsumerStatefulWidget {
 }
 
 class ItemsViewPresentationState extends ConsumerState<ItemsViewPresentation> {
-
   final TextEditingController controller = TextEditingController();
 
   @override
@@ -191,7 +191,7 @@ class PresentationViewport extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final slideNum = ref.watch(singleView) as int;
+    final slideNum = ref.watch(singleViewProvider) as int;
 
     return Center(
       child: AspectRatio(
@@ -223,7 +223,9 @@ class PresentationViewport extends ConsumerWidget {
                         sizing: StackFit.expand,
                         index: slideNum,
                         children: <Widget>[
-                          for (SlideItems name in SlideData().getListSlide())
+                          for (SlideItems name in ref
+                              .read(slideDataProvider.notifier)
+                              .getListSlide())
                             (name.getSlideView()),
                         ],
                       ),

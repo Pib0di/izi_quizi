@@ -7,11 +7,14 @@ import 'package:mysql_client/mysql_client.dart';
 SQL sql = SQL();
 
 Future<void> main() async {
-  final server = await HttpServer.bind('localhost', 3000);
+  final server = await HttpServer.bind('localhost', 5000);
   // final server = await HttpServer.bind('185.251.89.216', 85);
+  print('Listening on ${server.address}:${server.port}');
 
   await for (var request in server) {
     if (WebSocketTransformer.isUpgradeRequest(request)) {
+      print('request.method => ${request.method}');
+      // request.uri.path == '/stream';
       handleWebSocket(request);
     } else {
       request.response.statusCode = HttpStatus.badRequest;
@@ -32,10 +35,11 @@ void handleWebSocket(HttpRequest request) {
     webSocket.listen(
       (message) async {
         final answer = await redirection(message, webSocket);
+
         if (webSocket.readyState == WebSocket.open) {
+          print("add => ${jsonEncode(answer)}");
           webSocket.add(jsonEncode(answer));
         }
-
         // final data = jsonDecode(message);
         // if (data is Map && data.containsKey('type') && data.containsKey('payload')) {
         //   switch (data['type']) {
@@ -193,9 +197,14 @@ class SQL {
           'SELECT idUser, password FROM iziqizi.user WHERE email = :email;',
           {'email': email},
         );
+        // await Future.delayed(const Duration(milliseconds: 1500));
         await conn.close();
-        if (!result.isNotEmpty) {
+        print("result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}");
+
+        if (result.isNotEmpty) {
           if (pass.toString() == result.rows.first.colAt(1).toString()) {
+            print(
+                "result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}");
             return 'authorized ${result.rows.first.colAt(0)}';
           } else {
             return 'authErr';
@@ -448,7 +457,7 @@ class SQL {
 
 Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
   final jsonData = Map<String, dynamic>.from(json.decode(data));
-
+  print("request => $jsonData");
   switch (jsonData['request_to']) {
     // Database queries
     case 'bd':

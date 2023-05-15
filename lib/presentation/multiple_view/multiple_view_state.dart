@@ -5,12 +5,14 @@ import 'package:izi_quizi/data/repository/local/multiple_view_data.dart';
 
 /// number of the current slide
 final multipleView = StateNotifierProvider((ref) {
-  return MultipleViewState();
+  return MultipleViewState(ref);
 });
 
 // state - number of the selected slide
 class MultipleViewState extends StateNotifier<int> {
-  MultipleViewState() : super(0);
+  MultipleViewState(this.ref) : super(0);
+
+  Ref ref;
 
   List<Widget> getUserWidgets() {
     return MultipleViewData().getUserWidgets();
@@ -25,6 +27,6 @@ class MultipleViewState extends StateNotifier<int> {
   }
 
   String idUser() {
-    return AppDataState.idUser;
+    return ref.read(appDataProvider.notifier).idUser;
   }
 }

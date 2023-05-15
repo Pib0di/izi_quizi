@@ -1,14 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/domain/home_page/home_page.dart';
+import 'package:izi_quizi/domain/home_page_case.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
+
+class HomePageScreen extends ConsumerWidget {
+  const HomePageScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(homePageProvider);
+    final homePageController = ref.read(homePageProvider.notifier);
+    return ListView(
+      padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
+      children: [
+        const JoinThePresentation(),
+        const SizedBox(
+          height: 90,
+        ),
+        const Text(
+          'Общедоступные презентации',
+          style: TextStyle(
+            fontSize: 20.0,
+          ),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          height: 190,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: getUserPresentations(homePageController),
+          ),
+        ),
+        Wrap(
+          runSpacing: 10.0,
+          spacing: 10,
+          alignment: WrapAlignment.start,
+          children: getUserPresentations(homePageController),
+        ),
+      ],
+    );
+  }
+}
 
 class JoinThePresentation extends ConsumerWidget {
   const JoinThePresentation({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final controller = ref.read(homePage.notifier).controller;
+    final homePageController =
+        ref.read(homePageProvider.notifier).joinPresentTextController;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -31,12 +73,12 @@ class JoinThePresentation extends ConsumerWidget {
             return SizedBox(
               height: 120,
               child: Column(
-                children: listElement(controller),
+                children: listElement(homePageController),
               ),
             );
           } else {
             return Row(
-              children: listElement(controller),
+              children: listElement(homePageController),
             );
           }
         },
@@ -91,7 +133,7 @@ List<Widget> listElement(TextEditingController controller) {
         ),
       ),
       onPressed: () {
-        HomePageCase().joinRoom('userName', controller.text);
+        joinTheRoom('userName', controller.text);
       },
     ),
   ];

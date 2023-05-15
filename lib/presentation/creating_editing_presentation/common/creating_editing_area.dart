@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/domain/creating_editing_presentation/create_editing.dart';
-import 'package:izi_quizi/presentation/creating_editing_presentation/common/presentation_creation_area.dart';
-import 'package:izi_quizi/presentation/creating_editing_presentation/common/side_slides.dart';
+import 'package:izi_quizi/domain/create_editing_case.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/common/presentation_creation_tab.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/common/sidebar.dart';
+import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/widgets/buttonFactory.dart';
 
 class CreatingEditingArea extends ConsumerStatefulWidget {
@@ -13,42 +13,29 @@ class CreatingEditingArea extends ConsumerStatefulWidget {
   CreatingEditingAreaState createState() => CreatingEditingAreaState();
 }
 
-class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea>
-    with RestorationMixin {
-  final RestorableInt _selectedIndex = RestorableInt(0);
+class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
+  late CreateEditingCase createEditingController;
+  late SideSlidesPreview slidesPreviewController;
+  late List<List<Widget>> selectWidget;
 
   @override
-  String get restorationId => 'nav_rail_demo';
+  void initState() {
+    createEditingController = ref.read(createEditingCaseProvider.notifier);
+    slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
 
-  @override
-  void restoreState(RestorationBucket? oldBucket, bool initialRestore) {
-    registerForRestoration(_selectedIndex, 'selected_index');
+    selectWidget = [
+      textMenu(createEditingController),
+      mediaMenu(context, createEditingController),
+      figureMenu(createEditingController),
+      tableMenu(createEditingController),
+    ];
+
+    super.initState();
   }
-
-  @override
-  void dispose() {
-    _selectedIndex.dispose();
-    super.dispose();
-  }
-
-  late ListSlide listSlide;
 
   @override
   Widget build(BuildContext context) {
-    CreateEditingCase().getRef(ref);
-    ref.watch(counterSlide);
-
-    // ref.watch(createEditing.notifier).context = context;
-
-    listSlide = const ListSlide();
-
-    final selectWidget = [
-      textMenu,
-      mediaMenu(context),
-      figureMenu,
-      tableMenu,
-    ];
-
+    ref.watch(slidesPreviewProvider);
     return Scaffold(
       body: Container(
         color: Colors.green[50],
@@ -57,11 +44,11 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea>
             NavigationRail(
               backgroundColor: Colors.green[300],
               indicatorColor: Colors.green[600],
-              selectedIndex: _selectedIndex.value,
+              selectedIndex: slidesPreviewController.selectedIndex,
               onDestinationSelected: (index) {
-                setState(() {
-                  _selectedIndex.value = index;
-                });
+                slidesPreviewController
+                  ..selectedIndex = index
+                  ..updateUi();
               },
               labelType: NavigationRailLabelType.all,
               destinations: navigationRailDestination,
@@ -69,17 +56,18 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea>
             const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
             Container(
               clipBehavior: Clip.none,
-              width: 160,
+              width: 190,
               color: Colors.green[200],
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: _selectedIndex.value != 0
+                child: slidesPreviewController.selectedIndex != 0
                     ? Column(
-                        children: selectWidget[_selectedIndex.value == 0
-                            ? 0
-                            : --_selectedIndex.value],
+                        children: selectWidget[
+                            slidesPreviewController.selectedIndex == 0
+                                ? 0
+                                : --slidesPreviewController.selectedIndex],
                       )
-                    : listSlide,
+                    : const SlidesPreview(),
               ),
             ),
             const PresentationCreationArea()
@@ -148,7 +136,8 @@ List<NavigationRailDestination> navigationRailDestination = const [
   ),
 ];
 
-List<Widget> mediaMenu(BuildContext context) {
+List<Widget> mediaMenu(
+    BuildContext context, CreateEditingCase createEditingController) {
   return <Widget>[
     ElevatedButtonFactory.numAddItem(
       onPressed: () => {
@@ -160,14 +149,13 @@ List<Widget> mediaMenu(BuildContext context) {
             actions: <Widget>[
               ConsumerTextButton.showDialog(
                 closeAfterClicking: true,
-                child: Text('Cancel'),
+                child: Text('отмена'),
               ),
               ConsumerTextButton.showDialog(
-                closeAfterClicking: true,
+                closeAfterClicking: false,
                 addedItem: 'image',
                 id: -4,
-                // child: Text('OK'),
-                child: Text('OK'),
+                child: Text('загрузить'),
               ),
             ],
           ),
@@ -176,39 +164,83 @@ List<Widget> mediaMenu(BuildContext context) {
       child: const Text('Изображения'),
     ),
     ElevatedButtonFactory.numAddItem(
-      onPressed: () => CreateEditingCase().addItem('video'),
+      onPressed: () => createEditingController.addItem('video'),
       child: const Text('Видео'),
     ),
     ElevatedButtonFactory.numAddItem(
-      onPressed: () => CreateEditingCase().addItem('sound'),
+      onPressed: () => createEditingController.addItem('sound'),
       child: const Text('Звук'),
     ),
   ];
 }
 
-final textMenu = buttons(
-  {'heading': 'Заголовок', 'mainText': 'Основной текст', 'list': 'Список'},
-);
-final figureMenu = buttons(
-  {'shape': 'Фигуры', 'pointers': 'Указатели'},
-);
-
-final tableMenu = buttons(
-  {'row': 'Строки', 'column': 'Столбцы'},
-);
-
-List<Widget> buttons(Map<String, String> mapParam) {
-  final list = <Widget>[];
-  mapParam.forEach((key, value) {
-    list.add(
-      ElevatedButtonFactory.numAddItem(
-        onPressed: () => CreateEditingCase().addItem(key),
-        child: Text(value),
-      ),
-    );
-  });
-  return list;
+List<Widget> textMenu(CreateEditingCase createEditingController) {
+  return <Widget>[
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('heading'),
+      child: const Text('Заголовок'),
+    ),
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('mainText'),
+      child: const Text('Основной текст'),
+    ),
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('list'),
+      child: const Text('Список'),
+    ),
+  ];
 }
+
+List<Widget> figureMenu(CreateEditingCase createEditingController) {
+  return <Widget>[
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('shape'),
+      child: const Text('Фигуры'),
+    ),
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('pointers'),
+      child: const Text('Указатели'),
+    ),
+  ];
+}
+
+List<Widget> tableMenu(CreateEditingCase createEditingController) {
+  return <Widget>[
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('row'),
+      child: const Text('Строки'),
+    ),
+    ElevatedButtonFactory.numAddItem(
+      onPressed: () => createEditingController.addItem('column'),
+      child: const Text('Столбцы'),
+    ),
+  ];
+}
+
+// todo maybe change the logic
+// final textMenu = buttons(
+//   {'heading': 'Заголовок', 'mainText': 'Основной текст', 'list': 'Список'},
+// );
+// final figureMenu = buttons(
+//   {'shape': 'Фигуры', 'pointers': 'Указатели'},
+// );
+//
+// final tableMenu = buttons(
+//   {'row': 'Строки', 'column': 'Столбцы'},
+// );
+//
+// List<Widget> buttons(Map<String, String> mapParam) {
+//   final list = <Widget>[];
+//   mapParam.forEach((key, value) {
+//     list.add(
+//       ElevatedButtonFactory.numAddItem(
+//         onPressed: () => CreateEditingCase().addItem(key),
+//         child: Text(value),
+//       ),
+//     );
+//   });
+//   return list;
+// }
 
 // todo implement image selection on pc
 // Future<void> _pickFile(StateController<int> fileProvidere) async {
@@ -220,7 +252,6 @@ List<Widget> buttons(Map<String, String> mapParam) {
 //
 //   if (result != null) {
 //     final file = result.files.single;
-//
 //     // File file_ = File(file.path!);
 //     fileProvidere.state = -4;
 //   } else {

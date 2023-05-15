@@ -1,7 +1,7 @@
-import 'package:flutter/widgets.dart' show BuildContext, Key, Stack, Widget;
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
-import 'package:izi_quizi/widgets/items_shel.dart';
+import 'package:izi_quizi/widgets/item_shel/items_shel.dart';
 
 ///
 class SlideItems extends ConsumerWidget {
@@ -32,7 +32,13 @@ class SlideItems extends ConsumerWidget {
 
   Stack getSlide() {
     if (listItems.isEmpty) {
-      return (Stack());
+      return (Stack(
+        children: [
+          Container(
+            color: Colors.grey,
+          )
+        ],
+      ));
     }
     return Stack(
       children: listItems,
