@@ -47,17 +47,17 @@ class HomePageState extends ConsumerState<HomePage>
     final validAuth = authenticationPopupController.isAuth;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.green,
         toolbarHeight: 50,
         leadingWidth: 120,
-        leading: const Center(
+        leading: Center(
           child: Text(
             'IziQuizi',
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.w400,
-              color: Colors.white70,
+              color: Theme.of(context).colorScheme.onPrimary,
             ),
           ),
         ),
@@ -65,8 +65,6 @@ class HomePageState extends ConsumerState<HomePage>
           Container(
             margin: const EdgeInsets.only(left: 150),
             child: TabBar(
-              labelColor: Colors.white60,
-              indicatorColor: Colors.green[800],
               isScrollable: true,
               controller: homePageController.tabController,
               tabs: [
@@ -109,7 +107,9 @@ class HomePageState extends ConsumerState<HomePage>
           Center(
             child: OutlinedButton.icon(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green.shade300,
+                // backgroundColor: Colors.green.shade300,
+                backgroundColor:
+                    Theme.of(context).colorScheme.secondaryContainer,
                 padding: const EdgeInsets.all(16.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -118,19 +118,19 @@ class HomePageState extends ConsumerState<HomePage>
                   color: Colors.transparent,
                 )),
               ),
-              icon: const Icon(
+              icon: Icon(
                 Icons.add,
                 size: 18,
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.onSecondaryContainer,
               ),
-              label: const Text(
+              label: Text(
                 'Создать',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
                 ),
               ),
               onPressed: () {
-                createQuizDialog(context, appDataController);
+                createQuizDialog(context, ref);
               },
             ),
           ),

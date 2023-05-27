@@ -8,6 +8,7 @@ import 'package:izi_quizi/data/repository/local/slide_items.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 import 'package:izi_quizi/widgets/item_shel/items_shel.dart';
+import 'package:izi_quizi/widgets/selection_slide/selection_slide.dart';
 
 /// номер текущего слайда
 final currentSlideNumber = StateProvider((ref) => 0);
@@ -26,9 +27,20 @@ final slideDataProvider = StateNotifierProvider<SlideData, int>((ref) {
 class SlideData extends StateNotifier<int> {
   SlideData(this.ref) : super(0);
 
+  List<int> sequenceArray = [];
+
   Ref ref;
+  List<Widget> listSlideWidget = [];
+
   List<SlideItems> listSlide = [];
   Map<String, dynamic> dataSlide = {};
+
+  void clear() {
+    sequenceArray.clear();
+    listSlideWidget.clear();
+    listSlide.clear();
+    dataSlide.clear();
+  }
 
   void setDataSlide(Map<String, dynamic> data) {
     dataSlide = data;
@@ -40,6 +52,12 @@ class SlideData extends StateNotifier<int> {
 
   void addListSlide(SlideItems item) {
     listSlide.add(item);
+    sequenceArray.add(0);
+  }
+
+  void addListSlideWidget(Widget item) {
+    listSlideWidget.add(item);
+    sequenceArray.add(1);
   }
 
   int getLengthListSlide() {
@@ -62,6 +80,23 @@ class SlideData extends StateNotifier<int> {
 
   List<SlideItems> getListSlide() {
     return listSlide;
+  }
+
+  List<Widget> getSlide() {
+    final listWidget = <Widget>[];
+    var listSlideCounter = 0;
+    var slideWidgetCounter = 0;
+    for (var i = 0; i < sequenceArray.length; ++i) {
+      if (sequenceArray[i] == 0) {
+        listWidget.add(listSlide[listSlideCounter].getSlide());
+        ++listSlideCounter;
+      }
+      if (sequenceArray[i] == 1) {
+        listWidget.add(const SelectionSlide());
+        ++slideWidgetCounter;
+      }
+    }
+    return listWidget;
   }
 
   JsonParse dataSlideParse(Map<String, dynamic> data) {

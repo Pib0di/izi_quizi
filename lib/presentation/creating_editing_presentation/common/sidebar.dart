@@ -5,6 +5,7 @@ import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_items.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/widgets/button_delete.dart';
+import 'package:izi_quizi/widgets/selection_slide/selection_slide.dart';
 import 'package:screenshot/screenshot.dart';
 
 class SlidesPreview extends ConsumerWidget {
@@ -46,6 +47,9 @@ class SlidesPreview extends ConsumerWidget {
               child: const Icon(
                 Icons.menu,
               ),
+            ),
+            const SizedBox(
+              width: 10,
             ),
             Expanded(
               child: ElevatedButton(
@@ -220,6 +224,8 @@ class SlideMenu extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    slideMenuItems = getSlideMenuItems(ref);
+
     return Expanded(
       child: ListView(
         children: [
@@ -285,8 +291,6 @@ List<Widget> slideMenuList() {
     --length;
   }
   for (var i = 0; i < length; i += 2) {
-    print('iiiii => $i >= ${slideMenuItems.length}');
-
     list.add(
       Column(
         children: [
@@ -328,56 +332,66 @@ List<Widget> slideMenuList() {
   return list;
 }
 
-List<ExpandedButtonFactory> slideMenuItems = [
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.check_box_outlined,
-    tooltip: 'Выбор правильного ответа',
-    text: 'Выбор',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.rectangle_outlined,
-    tooltip: 'Заполнить бланк',
-    text: 'Заполнить',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.featured_play_list_outlined,
-    tooltip: 'Свободный ответ',
-    text: 'Свободный',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.auto_graph_outlined,
-    tooltip: '',
-    text: 'Опрос',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.create_outlined,
-    tooltip: '',
-    text: 'Рисовать',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.play_circle_outline_outlined,
-    tooltip: '',
-    text: 'Видеоответ',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.audiotrack_outlined,
-    tooltip: 'Записать аудио',
-    text: 'Аудиоответ',
-  ),
-  ExpandedButtonFactory(
-    onPressed: () {},
-    icon: Icons.front_hand_outlined,
-    tooltip: '',
-    text: 'Перетащить',
-  ),
-];
+List<ExpandedButtonFactory> slideMenuItems = [];
+
+List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
+  final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
+  final slideDataController = ref.read(slideDataProvider.notifier);
+
+  return slideMenuItems = [
+    ExpandedButtonFactory(
+      onPressed: () {
+        slidesPreviewController.addItem();
+        slideDataController.addListSlideWidget(const SelectionSlide());
+      },
+      icon: Icons.check_box_outlined,
+      tooltip: 'Выбор правильного ответа',
+      text: 'Выбор',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.rectangle_outlined,
+      tooltip: 'Заполнить бланк',
+      text: 'Заполнить',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.featured_play_list_outlined,
+      tooltip: 'Свободный ответ',
+      text: 'Свободный',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.auto_graph_outlined,
+      tooltip: '',
+      text: 'Опрос',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.create_outlined,
+      tooltip: '',
+      text: 'Рисовать',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.play_circle_outline_outlined,
+      tooltip: '',
+      text: 'Видеоответ',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.audiotrack_outlined,
+      tooltip: 'Записать аудио',
+      text: 'Аудиоответ',
+    ),
+    ExpandedButtonFactory(
+      onPressed: () {},
+      icon: Icons.front_hand_outlined,
+      tooltip: '',
+      text: 'Перетащить',
+    ),
+  ];
+}
 
 class ExpandedButtonFactory extends ConsumerWidget {
   const ExpandedButtonFactory({

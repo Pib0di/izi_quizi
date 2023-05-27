@@ -25,8 +25,8 @@ final webSocketProvider = StreamProvider<String>((ref) async* {
 
 class SocketConnection {
   static final _channel = WebSocketChannel.connect(
-    // Uri.parse('ws://185.251.89.216:80'),
-    Uri.parse('ws://localhost:5000'),
+    Uri.parse('ws://185.251.89.216:80'),
+    // Uri.parse('ws://localhost:5000'),
   );
 
   static void sendMessage(data) {

@@ -55,10 +55,14 @@ class SelectionSlideController extends StateNotifier<int> {
     updateUi();
   }
 
-  Widget? mediaWidget;
+  Widget? _mediaWidget;
+
+  void setMediaWidget(Widget widget) {
+    _mediaWidget = widget;
+  }
 
   Widget getMediaWidget() {
-    return mediaWidget ?? const CircularProgressIndicator();
+    return _mediaWidget ?? const CircularProgressIndicator();
   }
 
   var isPickImage = false;

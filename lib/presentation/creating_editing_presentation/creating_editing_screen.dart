@@ -25,7 +25,6 @@ class PresentationEdit extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
         title: Text(currentNamePresent.text),
         actions: [
           Row(
@@ -33,14 +32,13 @@ class PresentationEdit extends ConsumerWidget {
               const Text(
                 'Переименовать',
                 style: TextStyle(
-                  color: Colors.white60,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
               RawMaterialButton(
                 enableFeedback: false,
-                fillColor: Colors.lightGreen,
+                // fillColor: Colors.lightGreen,
                 shape: const CircleBorder(),
                 onPressed: () {
                   showDialog(
@@ -92,20 +90,21 @@ class PresentationEdit extends ConsumerWidget {
                     },
                   );
                 },
-                child:
-                    const Icon(Icons.refresh, size: 25, color: Colors.white60),
+                child: const Icon(
+                  Icons.refresh,
+                  size: 25,
+                ),
               ),
               const Text(
                 'Сохранить',
                 style: TextStyle(
-                  color: Colors.white60,
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
               RawMaterialButton(
                 enableFeedback: false,
-                fillColor: Colors.lightGreen,
+                // fillColor: Colors.lightGreen,
                 shape: const CircleBorder(),
                 onPressed: () {
                   final jsonSlide = slideJsonController.slideJson();
@@ -115,7 +114,10 @@ class PresentationEdit extends ConsumerWidget {
                     jsonEncode(jsonSlide.toJson()),
                   );
                 },
-                child: const Icon(Icons.save, size: 25, color: Colors.white60),
+                child: const Icon(
+                  Icons.save,
+                  size: 25,
+                ),
               ),
             ],
           )

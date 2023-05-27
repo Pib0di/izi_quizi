@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
@@ -15,14 +16,15 @@ void createQuiz(String idUser, String presentName) {
   presentName = presentName;
 }
 
-void createQuizDialog(BuildContext context, AppDataState appDataController) {
-  final currentPresentName = appDataController.currentPresentName;
+void createQuizDialog(BuildContext context, WidgetRef ref) {
+  final currentPresentName =
+      ref.read(appDataProvider.notifier).currentPresentName;
+  final appDataController = ref.read(appDataProvider.notifier);
 
   showDialog(
     context: context,
     builder: (context) {
       return SimpleDialog(
-        backgroundColor: const Color(0xE5F4FFF0),
         contentPadding: const EdgeInsets.fromLTRB(14.0, 14.0, 14.0, 12.0),
         titlePadding: const EdgeInsets.fromLTRB(14.0, 24.0, 14.0, 10.0),
         title: const Text('Создать викторину'),
@@ -34,7 +36,6 @@ void createQuizDialog(BuildContext context, AppDataState appDataController) {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade300,
                     padding: const EdgeInsets.all(16.0),
                     textStyle: const TextStyle(fontSize: 20),
                     shape: RoundedRectangleBorder(
@@ -49,7 +50,6 @@ void createQuizDialog(BuildContext context, AppDataState appDataController) {
                 const Spacer(),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade300,
                     padding: const EdgeInsets.all(16.0),
                     textStyle: const TextStyle(fontSize: 20),
                     shape: RoundedRectangleBorder(
@@ -57,12 +57,15 @@ void createQuizDialog(BuildContext context, AppDataState appDataController) {
                     ),
                   ),
                   onPressed: () {
+                    // ref.read(slideDataProvider.notifier).clear();
                     createQuiz(
-                        appDataController.idUser, currentPresentName.text);
+                      appDataController.idUser,
+                      currentPresentName.text,
+                    );
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PresentationEdit.create(),
+                        builder: (context) => const PresentationEdit.create(),
                       ),
                     );
                   },

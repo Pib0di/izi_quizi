@@ -29,16 +29,18 @@ class PresentCardState extends ConsumerState<PresentCard> {
       children: [
         Positioned(
           child: Container(
+            clipBehavior: Clip.hardEdge,
             width: 190,
             height: 150,
             decoration: BoxDecoration(
-              color: const Color(0xff7c94b6),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
-                ),
-                fit: BoxFit.cover,
-              ),
+              color: Theme.of(context).colorScheme.secondaryContainer,
+              // color: const Color(0xff7c94b6),
+              // image: const DecorationImage(
+              //   image: NetworkImage(
+              //     'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
+              //   ),
+              //   fit: BoxFit.cover,
+              // ),
               borderRadius: BorderRadius.circular(15),
             ),
             child: RawMaterialButton(
@@ -61,14 +63,16 @@ class PresentCardState extends ConsumerState<PresentCard> {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
-                      color: const Color(0xE5DFFFD6),
+                      // color: const Color(0xE5DFFFD6),
+                      color: Theme.of(context).colorScheme.tertiaryContainer,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
-                        color: Colors.black54,
+                        color:
+                            Theme.of(context).colorScheme.onTertiaryContainer,
                       ),
                       widget.presentName,
                     ),
@@ -85,7 +89,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
             width: 30,
             height: 30,
             child: RawMaterialButton(
-              fillColor: Colors.redAccent,
+              fillColor: Theme.of(context).colorScheme.error,
               shape: const CircleBorder(),
               elevation: 0.0,
               onPressed: () {
@@ -96,6 +100,8 @@ class PresentCardState extends ConsumerState<PresentCard> {
               },
               child: const Icon(
                 Icons.delete,
+                // color: Theme.of(context).colorScheme.onPrimary,
+                color: Colors.black87,
                 size: 20,
               ),
             ),

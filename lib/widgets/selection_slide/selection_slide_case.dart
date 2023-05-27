@@ -119,7 +119,7 @@ Future<void> pickImageWeb(Ref ref) async {
           ),
         ),
       );
-      ref.read(selectionSlideProvider.notifier).mediaWidget = imageWidget;
+      ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
     });
   });
   ref.read(selectionSlideProvider.notifier).updateUi();
@@ -144,7 +144,7 @@ Future<void> pickImagePC(Ref ref) async {
         ),
       ),
     );
-    ref.read(selectionSlideProvider.notifier).mediaWidget = imageWidget;
+    ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
   } else {
     // User canceled the picker
   }

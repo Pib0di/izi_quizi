@@ -54,7 +54,8 @@ class PresentationDialog<T> extends PopupRoute<T> {
               color: Colors.white,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 // Text('Presentation Dialog', style: Theme.of(context).textTheme.headlineSmall),
                 ElevatedButton(
@@ -74,7 +75,7 @@ class PresentationDialog<T> extends PopupRoute<T> {
                       SizedBox(
                         width: 5,
                       ),
-                      Icon(Icons.person, color: Colors.green),
+                      Icon(Icons.person),
                     ],
                   ),
                 ),
@@ -96,7 +97,9 @@ class PresentationDialog<T> extends PopupRoute<T> {
                       SizedBox(
                         width: 5,
                       ),
-                      Icon(Icons.group, color: Colors.green),
+                      Icon(
+                        Icons.group,
+                      ),
                     ],
                   ),
                 ),
@@ -117,7 +120,9 @@ class PresentationDialog<T> extends PopupRoute<T> {
                       SizedBox(
                         width: 5,
                       ),
-                      Icon(Icons.edit, color: Colors.green),
+                      Icon(
+                        Icons.edit,
+                      ),
                     ],
                   ),
                 ),

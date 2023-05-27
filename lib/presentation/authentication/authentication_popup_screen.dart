@@ -120,8 +120,8 @@ class Buttons extends ConsumerWidget {
             Expanded(
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
+                  // backgroundColor: Colors.teal,
+                  // foregroundColor: Colors.white,
                   padding: const EdgeInsets.all(16.0),
                   textStyle: const TextStyle(fontSize: 20),
                 ),
@@ -146,8 +146,6 @@ class Buttons extends ConsumerWidget {
             Expanded(
               child: TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.all(16.0),
                   textStyle: const TextStyle(fontSize: 20),
                 ),

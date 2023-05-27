@@ -38,12 +38,13 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
     ref.watch(slidesPreviewProvider);
     return Scaffold(
       body: Container(
-        color: Colors.green[50],
+        color: Theme.of(context).colorScheme.secondaryContainer,
+        // color: Colors.green[50],
         child: Row(
           children: <Widget>[
             NavigationRail(
-              backgroundColor: Colors.green[300],
-              indicatorColor: Colors.green[600],
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              // indicatorColor: Colors.green[600],
               selectedIndex: slidesPreviewController.selectedIndex,
               onDestinationSelected: (index) {
                 slidesPreviewController
@@ -53,11 +54,16 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
               labelType: NavigationRailLabelType.all,
               destinations: navigationRailDestination,
             ),
-            const VerticalDivider(thickness: 1, width: 1, color: Colors.grey),
+            // VerticalDivider(
+            //   thickness: 1,
+            //   width: 1,
+            //   color: Theme.of(context).colorScheme.outline,
+            // ),
             Container(
+              // color: Theme.of(context).colorScheme.secondaryContainer,
+              color: Theme.of(context).colorScheme.secondaryContainer,
               clipBehavior: Clip.none,
               width: 190,
-              color: Colors.green[200],
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: slidesPreviewController.selectedIndex != 0
@@ -70,6 +76,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
                     : const SlidesPreview(),
               ),
             ),
+            const VerticalDivider(),
             const PresentationCreationArea()
           ],
         ),

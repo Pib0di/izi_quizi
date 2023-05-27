@@ -124,6 +124,7 @@ class SelectionSlide extends ConsumerWidget {
                         child: Padding(
                           padding: const EdgeInsets.all(40.0),
                           child: TextField(
+                            maxLines: 100000,
                             controller: selectionSlideController.controller,
                             style: const TextStyle(
                               fontSize: 46,
