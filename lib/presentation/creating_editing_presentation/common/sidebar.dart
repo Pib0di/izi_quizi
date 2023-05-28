@@ -342,7 +342,7 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
     ExpandedButtonFactory(
       onPressed: () {
         slidesPreviewController.addItem();
-        slideDataController.addListSlideWidget(const SelectionSlide());
+        slideDataController.addListSlideWidget(SelectionSlide(surveySlide: true,));
       },
       icon: Icons.check_box_outlined,
       tooltip: 'Выбор правильного ответа',
@@ -355,13 +355,19 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
       text: 'Заполнить',
     ),
     ExpandedButtonFactory(
-      onPressed: () {},
+      onPressed: () {
+        slidesPreviewController.addItem();
+        slideDataController.addListSlideWidget(SelectionSlide(freeResponseSlide: true,));
+      },
       icon: Icons.featured_play_list_outlined,
       tooltip: 'Свободный ответ',
       text: 'Свободный',
     ),
     ExpandedButtonFactory(
-      onPressed: () {},
+      onPressed: () {
+        slidesPreviewController.addItem();
+        slideDataController.addListSlideWidget(SelectionSlide());
+      },
       icon: Icons.auto_graph_outlined,
       tooltip: '',
       text: 'Опрос',
@@ -379,7 +385,10 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
       text: 'Видеоответ',
     ),
     ExpandedButtonFactory(
-      onPressed: () {},
+      onPressed: () {
+        slidesPreviewController.addItem();
+        slideDataController.addListSlideWidget(SelectionSlide(audioSlide: true,));
+      },
       icon: Icons.audiotrack_outlined,
       tooltip: 'Записать аудио',
       text: 'Аудиоответ',

@@ -92,7 +92,8 @@ class SlideData extends StateNotifier<int> {
         ++listSlideCounter;
       }
       if (sequenceArray[i] == 1) {
-        listWidget.add(const SelectionSlide());
+        // listWidget.add(SelectionSlide());
+        listWidget.add(listSlideWidget[slideWidgetCounter]);
         ++slideWidgetCounter;
       }
     }

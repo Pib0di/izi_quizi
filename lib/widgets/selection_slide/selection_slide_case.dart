@@ -9,11 +9,12 @@ import 'package:izi_quizi/widgets/button_delete.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 import 'package:universal_html/html.dart' as html;
 
-void addQuestion(SelectionSlideController selectionSlideController) {
+void addQuestion(SelectionSlideController selectionSlideController, bool? surveySlide) {
   if (selectionSlideController.list.length < 5) {
     selectionSlideController.list.add(
       Question(
         false,
+        surveySlide: surveySlide,
         key: UniqueKey(),
       ),
     );
@@ -21,10 +22,12 @@ void addQuestion(SelectionSlideController selectionSlideController) {
 }
 
 class Question extends ConsumerWidget {
-  Question(this.isSurvey, {super.key});
+  Question(this.isSurvey, {this.surveySlide, this.freeResponseSlide, super.key});
 
   final TextEditingController textEditingController = TextEditingController();
   bool isSurvey;
+  bool? surveySlide;
+  bool? freeResponseSlide;
 
   TextEditingController getTextEditingController() {
     return textEditingController;
@@ -33,7 +36,7 @@ class Question extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
-
+    print('surveySlide2 => $surveySlide');
     return Expanded(
       child: Stack(
         children: [
@@ -51,14 +54,14 @@ class Question extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: TextField(
-                    enabled: !selectionSlideController.freeResponseSlide,
+                    enabled: !(freeResponseSlide ?? false),
                     controller: textEditingController,
                     style: const TextStyle(
                       fontSize: 26,
                     ),
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: selectionSlideController.freeResponseSlide
+                      hintText: freeResponseSlide ?? false
                           ? 'Участники будут вводить здесь свои ответы'
                           : 'Введите текст',
                     ),
@@ -74,12 +77,12 @@ class Question extends ConsumerWidget {
             right: 10,
             child: Row(
               children: [
-                if (selectionSlideController.surveySlide)
+                if (surveySlide ?? false)
                   CheckButton(
                     key: context.widget.key!,
                     isSurvey: isSurvey,
                   ),
-                if (!selectionSlideController.freeResponseSlide)
+                if (!(freeResponseSlide ?? false))
                   Center(
                     child: ButtonDelete.deleteItemId(context.widget.key!),
                   ),

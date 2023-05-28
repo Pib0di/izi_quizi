@@ -4,13 +4,41 @@ import 'package:izi_quizi/widgets/selection_slide/selection_slide_case.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 
 class SelectionSlide extends ConsumerWidget {
-  const SelectionSlide({super.key});
+  SelectionSlide({
+    this.audioSlide,
+    this.freeResponseSlide,
+    this.surveySlide,
+    super.key,
+  });
+
+  bool? audioSlide = false;
+  bool? freeResponseSlide = false;
+  bool? isSurvey = false;
+  bool? surveySlide = false;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(selectionSlideProvider.notifier);
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
-
+    print('audioSlide => $audioSlide, '
+        'freeResponseSlide => $freeResponseSlide'
+        'isSurvey => $isSurvey'
+        'surveySlide => $surveySlide'
+    );
+    if (surveySlide ?? false){
+      selectionSlideController.list = [
+        Question(
+          false,
+          surveySlide: true,
+          key: UniqueKey(),
+        ),
+        Question(
+          false,
+          surveySlide: true,
+          key: UniqueKey(),
+        )
+      ];
+    }
     return Column(
       children: [
         Expanded(
@@ -149,11 +177,13 @@ class SelectionSlide extends ConsumerWidget {
           flex: 1,
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: selectionSlideController.audioSlide
+            child: audioSlide ?? false
                 ? const Recorder()
-                : selectionSlideController.freeResponseSlide
+                : freeResponseSlide ?? false
                     ? Question(
-                        false,
+                        isSurvey ?? false,
+                        surveySlide: surveySlide ?? false,
+                        freeResponseSlide: freeResponseSlide ?? false,
                         key: UniqueKey(),
                       )
                     : Row(
@@ -167,7 +197,7 @@ class SelectionSlide extends ConsumerWidget {
                             right: -16,
                             child: FloatingActionButton(
                               onPressed: () {
-                                addQuestion(selectionSlideController);
+                                addQuestion(selectionSlideController, surveySlide);
                                 selectionSlideController.updateUi();
                               },
                               backgroundColor: Colors.blue,
