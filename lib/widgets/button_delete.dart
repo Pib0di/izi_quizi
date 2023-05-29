@@ -38,7 +38,8 @@ class ButtonDelete extends ConsumerWidget {
               --currentSlideNum.state;
             }
 
-            selectionSlideController.deleteItem(deleteItemKey);
+            // selectionSlideController.deleteItem(deleteItemKey);
+            slideDataController.deleteListQuestion(deleteItemKey);
 
             createEditingController.updateUi();
           },

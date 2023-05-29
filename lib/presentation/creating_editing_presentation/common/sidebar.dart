@@ -341,8 +341,14 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
   return slideMenuItems = [
     ExpandedButtonFactory(
       onPressed: () {
+        final selectionSlide = SelectionSlide(
+          surveySlide: true,
+          key: UniqueKey(),
+        );
         slidesPreviewController.addItem();
-        slideDataController.addListSlideWidget(SelectionSlide(surveySlide: true,));
+        slideDataController
+          ..addListSlideWidget(selectionSlide)
+          ..initializeQuestion('surveySlide', selectionSlide.key!);
       },
       icon: Icons.check_box_outlined,
       tooltip: 'Выбор правильного ответа',
@@ -356,8 +362,14 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
     ),
     ExpandedButtonFactory(
       onPressed: () {
+        final selectionSlide = SelectionSlide(
+          freeResponseSlide: true,
+          key: UniqueKey(),
+        );
         slidesPreviewController.addItem();
-        slideDataController.addListSlideWidget(SelectionSlide(freeResponseSlide: true,));
+        slideDataController
+          ..addListSlideWidget(selectionSlide)
+          ..initializeQuestion('freeResponseSlide', selectionSlide.key!);
       },
       icon: Icons.featured_play_list_outlined,
       tooltip: 'Свободный ответ',
@@ -365,8 +377,13 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
     ),
     ExpandedButtonFactory(
       onPressed: () {
+        final selectionSlide = SelectionSlide(
+          key: UniqueKey(),
+        );
         slidesPreviewController.addItem();
-        slideDataController.addListSlideWidget(SelectionSlide());
+        slideDataController
+          ..addListSlideWidget(selectionSlide)
+          ..initializeQuestion('', selectionSlide.key!);
       },
       icon: Icons.auto_graph_outlined,
       tooltip: '',
@@ -387,7 +404,8 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
     ExpandedButtonFactory(
       onPressed: () {
         slidesPreviewController.addItem();
-        slideDataController.addListSlideWidget(SelectionSlide(audioSlide: true,));
+        slideDataController.addListSlideWidget(
+            SelectionSlide(audioSlide: true, key: UniqueKey()));
       },
       icon: Icons.audiotrack_outlined,
       tooltip: 'Записать аудио',

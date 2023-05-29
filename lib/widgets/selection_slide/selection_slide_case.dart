@@ -5,27 +5,27 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/widgets/button_delete.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 import 'package:universal_html/html.dart' as html;
 
-void addQuestion(SelectionSlideController selectionSlideController, bool? surveySlide) {
-  if (selectionSlideController.list.length < 5) {
-    selectionSlideController.list.add(
-      Question(
-        false,
-        surveySlide: surveySlide,
-        key: UniqueKey(),
-      ),
-    );
-  }
-}
+// void addQuestion(SelectionSlideController selectionSlideController) {
+//   // if (selectionSlideController.list.length < 5) {
+//   //   selectionSlideController.list.add(
+//   //     Question(
+//   //       surveySlide: surveySlide,
+//   //       key: UniqueKey(),
+//   //     ),
+//   //   );
+//   // }
+// }
 
 class Question extends ConsumerWidget {
-  Question(this.isSurvey, {this.surveySlide, this.freeResponseSlide, super.key});
+  Question({this.surveySlide, this.freeResponseSlide, super.key});
 
   final TextEditingController textEditingController = TextEditingController();
-  bool isSurvey;
+  bool isSurvey = false;
   bool? surveySlide;
   bool? freeResponseSlide;
 
@@ -163,6 +163,7 @@ class CheckButton extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(selectionSlideProvider);
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
+    final slideDataController = ref.read(slideDataProvider.notifier);
     return Positioned(
       right: 0,
       child: Container(
@@ -174,9 +175,8 @@ class CheckButton extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
-            selectionSlideController
-              ..isSurveySlide(context.widget.key!)
-              ..updateUi();
+            slideDataController.isSurveySlide(context.widget.key!);
+            selectionSlideController.updateUi();
           },
           child: isSurvey
               ? const Icon(

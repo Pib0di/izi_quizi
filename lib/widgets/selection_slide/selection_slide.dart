@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_case.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 
@@ -8,12 +9,11 @@ class SelectionSlide extends ConsumerWidget {
     this.audioSlide,
     this.freeResponseSlide,
     this.surveySlide,
-    super.key,
+    required super.key,
   });
 
   bool? audioSlide = false;
   bool? freeResponseSlide = false;
-  bool? isSurvey = false;
   bool? surveySlide = false;
 
   @override
@@ -22,23 +22,7 @@ class SelectionSlide extends ConsumerWidget {
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
     print('audioSlide => $audioSlide, '
         'freeResponseSlide => $freeResponseSlide'
-        'isSurvey => $isSurvey'
-        'surveySlide => $surveySlide'
-    );
-    if (surveySlide ?? false){
-      selectionSlideController.list = [
-        Question(
-          false,
-          surveySlide: true,
-          key: UniqueKey(),
-        ),
-        Question(
-          false,
-          surveySlide: true,
-          key: UniqueKey(),
-        )
-      ];
-    }
+        'surveySlide => $surveySlide');
     return Column(
       children: [
         Expanded(
@@ -181,7 +165,6 @@ class SelectionSlide extends ConsumerWidget {
                 ? const Recorder()
                 : freeResponseSlide ?? false
                     ? Question(
-                        isSurvey ?? false,
                         surveySlide: surveySlide ?? false,
                         freeResponseSlide: freeResponseSlide ?? false,
                         key: UniqueKey(),
@@ -190,14 +173,25 @@ class SelectionSlide extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: Row(
-                              children: selectionSlideController.list,
+                              children: ref
+                                  .read(slideDataProvider.notifier)
+                                  .getListQuestion(context.widget.key!),
                             ),
                           ),
                           Positioned(
                             right: -16,
                             child: FloatingActionButton(
                               onPressed: () {
-                                addQuestion(selectionSlideController, surveySlide);
+                                String typeSlide;
+                                if ((surveySlide ?? false) == true) {
+                                  typeSlide = 'surveySlide';
+                                } else {
+                                  typeSlide = 'freeResponseSlide';
+                                }
+                                ref
+                                    .read(slideDataProvider.notifier)
+                                    .addListQuestion(
+                                        typeSlide, context.widget.key!);
                                 selectionSlideController.updateUi();
                               },
                               backgroundColor: Colors.blue,
