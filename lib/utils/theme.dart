@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
 ColorScheme colorScheme = ColorScheme.fromSeed(
-  seedColor: const Color(0xe500c37e),
-  // brightness: Brightness.dark
+  // seedColor: const Color(0xe500c37e),
+  // seedColor: const Color(0xe585038a),
+  seedColor: Colors.deepPurpleAccent,
+  // brightness: Brightness.dark,
   // primary: const Color(0xe58de08e),
 );
 
 ThemeData basicTheme() => ThemeData(
       colorScheme: colorScheme,
-      // primaryColor: const Color(0xBFF69910),
+    // primaryColor: const Color(0xBFF69910),
 
       // appBarTheme: AppBarTheme(
       //   color: Color(0xFF78AF5D),
@@ -25,7 +27,7 @@ ThemeData basicTheme() => ThemeData(
         titleTextStyle: TextStyle(
           color: colorScheme.onPrimary,
         ),
-        backgroundColor: colorScheme.primary,
+        backgroundColor: colorScheme.secondary,
       ),
       scaffoldBackgroundColor: colorScheme.background,
       elevatedButtonTheme: const ElevatedButtonThemeData(

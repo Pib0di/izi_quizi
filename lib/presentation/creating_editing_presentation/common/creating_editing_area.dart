@@ -4,6 +4,7 @@ import 'package:izi_quizi/domain/create_editing_case.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/common/presentation_creation_tab.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/common/sidebar.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
+import 'package:izi_quizi/utils/theme.dart';
 import 'package:izi_quizi/widgets/buttonFactory.dart';
 
 class CreatingEditingArea extends ConsumerStatefulWidget {
@@ -43,7 +44,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
         child: Row(
           children: <Widget>[
             NavigationRail(
-              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              backgroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
               // indicatorColor: Colors.green[600],
               selectedIndex: slidesPreviewController.selectedIndex,
               onDestinationSelected: (index) {
@@ -54,6 +55,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
               labelType: NavigationRailLabelType.all,
               destinations: navigationRailDestination,
             ),
+            const VerticalDivider(),
             // VerticalDivider(
             //   thickness: 1,
             //   width: 1,
@@ -85,7 +87,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
   }
 }
 
-List<NavigationRailDestination> navigationRailDestination = const [
+List<NavigationRailDestination> navigationRailDestination = [
   NavigationRailDestination(
     icon: Icon(
       Icons.favorite_border,
@@ -100,9 +102,11 @@ List<NavigationRailDestination> navigationRailDestination = const [
   NavigationRailDestination(
     icon: Icon(
       Icons.favorite_border,
+      color: colorScheme.onError,
     ),
     selectedIcon: Icon(
       Icons.favorite,
+      color: colorScheme.onError,
     ),
     label: Text(
       'Текст',

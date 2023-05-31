@@ -35,6 +35,7 @@ class Question extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(selectionSlideProvider);
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
     print('surveySlide2 => $surveySlide');
     return Expanded(
@@ -46,7 +47,8 @@ class Question extends ConsumerWidget {
               height: double.maxFinite,
               decoration: BoxDecoration(
                 // color: getRandomColor(),
-                color: const Color(0xffddf59d),
+                // color: const Color(0xffddf59d),
+                color: Theme.of(context).colorScheme.tertiaryContainer,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Align(
@@ -79,12 +81,13 @@ class Question extends ConsumerWidget {
               children: [
                 if (surveySlide ?? false)
                   CheckButton(
+                    keyParent: context.widget.key!,
                     key: context.widget.key!,
                     isSurvey: isSurvey,
                   ),
                 if (!(freeResponseSlide ?? false))
                   Center(
-                    child: ButtonDelete.deleteItemId(context.widget.key!),
+                    child: ButtonDelete.deleteItemId(context.widget.key!, key: UniqueKey(),),
                   ),
               ],
             ),
@@ -122,7 +125,10 @@ Future<void> pickImageWeb(Ref ref) async {
           ),
         ),
       );
-      ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
+      // ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
+      final keyCurrentSlide = ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
+      ref.read(slideDataProvider.notifier).setMediaWidget(imageWidget, keyCurrentSlide);
+      ref.read(selectionSlideProvider.notifier).updateUi();
     });
   });
   ref.read(selectionSlideProvider.notifier).updateUi();
@@ -147,7 +153,10 @@ Future<void> pickImagePC(Ref ref) async {
         ),
       ),
     );
-    ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
+    // ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
+    final keyCurrentSlide = ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
+    ref.read(slideDataProvider.notifier).setMediaWidget(imageWidget,keyCurrentSlide );
+    ref.read(selectionSlideProvider.notifier).updateUi();
   } else {
     // User canceled the picker
   }
@@ -155,9 +164,10 @@ Future<void> pickImagePC(Ref ref) async {
 }
 
 class CheckButton extends ConsumerWidget {
-  const CheckButton({required this.isSurvey, super.key});
+  const CheckButton({required this.isSurvey, required this.keyParent, super.key});
 
   final bool isSurvey;
+  final Key keyParent;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -175,7 +185,7 @@ class CheckButton extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
-            slideDataController.isSurveySlide(context.widget.key!);
+            slideDataController.isSurveySlide(context.widget.key!, ref.read(selectionSlideProvider.notifier).currentKeySelectSlide);
             selectionSlideController.updateUi();
           },
           child: isSurvey
@@ -208,7 +218,8 @@ class Recorder extends ConsumerWidget {
         height: double.maxFinite,
         decoration: BoxDecoration(
           // color: getRandomColor(),
-          color: const Color(0xffddf59d),
+          // color: const Color(0xffddf59d),
+          color: Theme.of(context).colorScheme.tertiaryContainer,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Align(
@@ -255,10 +266,11 @@ class Recorder extends ConsumerWidget {
                                 ],
                               )
                             : Column(
-                                children: const [
+                                children: [
                                   Icon(
                                     Icons.keyboard_voice_sharp,
-                                    color: Color(0xE58FDC73),
+                                    // color: Color(0xE58FDC73),
+                                    color: Theme.of(context).colorScheme.onTertiaryContainer,
                                     size: 100,
                                   ),
                                 ],
@@ -335,10 +347,10 @@ class Recorder extends ConsumerWidget {
                                     ],
                                   )
                                 : Column(
-                                    children: const [
+                                    children: [
                                       Icon(
                                         Icons.play_circle_outline_outlined,
-                                        color: Color(0xE58FDC73),
+                                        color: Theme.of(context).colorScheme.onTertiaryContainer,
                                         size: 100,
                                       ),
                                     ],

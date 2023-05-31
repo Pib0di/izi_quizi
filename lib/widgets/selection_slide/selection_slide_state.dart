@@ -17,37 +17,13 @@ class SelectionSlideController extends StateNotifier<int> {
   SelectionSlideController(this.ref) : super(0);
 
   Ref ref;
+  Key currentKeySelectSlide = UniqueKey();
 
   final TextEditingController controller = TextEditingController();
-
-  // List<Question> list = [
-  //   Question(
-  //     key: UniqueKey(),
-  //   ),
-  //   Question(
-  //     key: UniqueKey(),
-  //   )
-  // ];
-
-  // void deleteItem(Key deleteKey) {
-  //   if (list.length > 2) {
-  //     list.removeWhere((element) => element.key == deleteKey);
-  //   }
-  //   updateUi();
-  // }
 
   bool freeResponseSlide = false;
   bool surveySlide = false;
   bool audioSlide = true;
-
-  // void isSurveySlide(Key key) {
-  //   for (var i = 0; i < list.length; ++i) {
-  //     if (list[i].key == key) {
-  //       list[i].isSurvey = !list[i].isSurvey;
-  //     }
-  //   }
-  //   updateUi();
-  // }
 
   Widget? _mediaWidget;
 

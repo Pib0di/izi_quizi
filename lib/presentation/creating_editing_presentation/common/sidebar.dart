@@ -186,7 +186,8 @@ class SidebarItem extends ConsumerWidget {
                                     horizontal: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xE5DFFFD6),
+                                    // color: const Color(0xE5DFFFD6),
+                                    color: Theme.of(context).colorScheme.secondaryContainer,
                                     borderRadius: BorderRadius.circular(15),
                                   ),
                                   child: Text(

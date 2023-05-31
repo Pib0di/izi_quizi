@@ -57,12 +57,15 @@ class PresentationCreationArea extends ConsumerWidget {
                                   ..watch(createEditing)
                                   ..watch(delItemKey);
                                 var count = ref.watch(currentSlideNumber);
-
                                 if (count > 0) {
                                   --count;
                                 } else {
                                   count = 0;
                                 }
+                                if (slideDataController.getSlide().isNotEmpty){
+                                  ref.read(selectionSlideProvider.notifier).currentKeySelectSlide = slideDataController.getSlide()[count].key ?? UniqueKey();
+                                }
+
                                 // return SelectionSlide(key: UniqueKey());
                                 return IndexedStack(
                                   sizing: StackFit.expand,

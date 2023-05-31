@@ -33,6 +33,8 @@ class SlideData extends StateNotifier<int> {
 
   //номер слайда и его возможный список вопросов
   Map<Key, List<Question>> listQuestion = {};
+  Map<Key, Widget?> listMediaWidget = {};
+  Map<Key, Widget?> listTextController = {};
   List<Widget> listSlideWidget = [];
 
   List<SlideItems> listSlide = [];
@@ -43,6 +45,17 @@ class SlideData extends StateNotifier<int> {
     listSlideWidget.clear();
     listSlide.clear();
     dataSlide.clear();
+  }
+
+  void setMediaWidget(Widget widget, Key key) {
+    listMediaWidget.putIfAbsent(key, () => widget);
+  }
+
+  Widget getMediaWidget(Key key) {
+    return listMediaWidget[key] ?? const CircularProgressIndicator();
+  }
+  bool isPickImage(Key key){
+    return listMediaWidget[key] != null;
   }
 
   void setDataSlide(Map<String, dynamic> data) {
@@ -104,35 +117,39 @@ class SlideData extends StateNotifier<int> {
   }
 
   void addListQuestion(String typeSlide, Key key) {
-    if (typeSlide == 'surveySlide') {
-      listQuestion[key]?.add(
-        Question(
-          surveySlide: true,
-          key: UniqueKey(),
-        ),
-      );
-    } else if (typeSlide == 'freeResponseSlide') {
-      listQuestion[key]?.add(
-        Question(
-          freeResponseSlide: true,
-          key: UniqueKey(),
-        ),
-      );
-    } else {
-      listQuestion[key]?.add(
-        Question(
-          key: UniqueKey(),
-        ),
-      );
+    if (listQuestion[key]!.length < 5){
+      if (typeSlide == 'surveySlide') {
+        listQuestion[key]?.add(
+          Question(
+            surveySlide: true,
+            key: UniqueKey(),
+          ),
+        );
+      } else if (typeSlide == 'freeResponseSlide') {
+        listQuestion[key]?.add(
+          Question(
+            freeResponseSlide: true,
+            key: UniqueKey(),
+          ),
+        );
+      } else {
+        listQuestion[key]?.add(
+          Question(
+            key: UniqueKey(),
+          ),
+        );
+      }
+      ref.read(selectionSlideProvider.notifier).updateUi();
     }
-    ref.read(selectionSlideProvider.notifier).updateUi();
   }
 
   void deleteListQuestion(Key deleteKey) {
-    final list = listQuestion[deleteKey]!;
+    final currentKey = ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
+    print('deleteKey => $deleteKey, currentKey => $currentKey');
+    final list = listQuestion[currentKey]!;
     if (list.length > 2) {
-      listQuestion[deleteKey]!
-          .removeWhere((element) => element.key == deleteKey);
+      listQuestion[currentKey]!.removeWhere((element) => element.key == deleteKey);
+      ref.read(selectionSlideProvider.notifier).updateUi();
     }
   }
 
@@ -141,13 +158,16 @@ class SlideData extends StateNotifier<int> {
     return listQuestion[key] ?? list;
   }
 
-  void isSurveySlide(Key key) {
-    final list = getListQuestion(key);
+  void isSurveySlide(Key key, Key keyParent) {
+
+    final list = getListQuestion(keyParent);
     for (var i = 0; i < list.length; ++i) {
       if (list[i].key == key) {
-        list[i].isSurvey = !list[i].isSurvey;
+        getListQuestion(keyParent)[i].isSurvey = !getListQuestion(keyParent)[i].isSurvey;
+        ref.read(selectionSlideProvider.notifier).updateUi();
       }
     }
+
     // updateUi();
   }
 
@@ -161,7 +181,9 @@ class SlideData extends StateNotifier<int> {
     }
     if (listSlide.isEmpty) {
       listSlide.add(SlideItems());
+      index = 0;
     }
+    listSlide.add(SlideItems());
     return listSlide[index];
   }
 

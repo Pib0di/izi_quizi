@@ -27,6 +27,10 @@ class ButtonDelete extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
+            print('deleteItemKey => $deleteItemKey');
+            slideDataController.deleteListQuestion(deleteItemKey);
+            createEditingController.updateUi();
+
             final buttonId = ref.read(currentSlideNumber.notifier);
             slideDataController
                 .indexOfListSlide(buttonId.state - 1)
@@ -39,9 +43,7 @@ class ButtonDelete extends ConsumerWidget {
             }
 
             // selectionSlideController.deleteItem(deleteItemKey);
-            slideDataController.deleteListQuestion(deleteItemKey);
 
-            createEditingController.updateUi();
           },
           child: const Icon(
             Icons.delete,

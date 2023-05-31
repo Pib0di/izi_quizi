@@ -9,20 +9,27 @@ class SelectionSlide extends ConsumerWidget {
     this.audioSlide,
     this.freeResponseSlide,
     this.surveySlide,
-    required super.key,
+    super.key,
   });
 
   bool? audioSlide = false;
   bool? freeResponseSlide = false;
   bool? surveySlide = false;
 
+  final TextEditingController textEditingController = TextEditingController();
+  TextEditingController getTextEditingController() {
+    return textEditingController;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(selectionSlideProvider.notifier);
+    ref.watch(selectionSlideProvider);
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
-    print('audioSlide => $audioSlide, '
-        'freeResponseSlide => $freeResponseSlide'
-        'surveySlide => $surveySlide');
+    final slideDataController = ref.read(slideDataProvider.notifier);
+    print('context.widget.key! => ${context.widget.key!}');
+    // ref.read(selectionSlideProvider.notifier).currentKeySelectSlide =
+    //     context.widget.key!;
+
     return Column(
       children: [
         Expanded(
@@ -31,10 +38,15 @@ class SelectionSlide extends ConsumerWidget {
             padding: const EdgeInsets.all(20),
             child: Row(
               children: [
-                if (selectionSlideController.isPickImage)
+                if (slideDataController.isPickImage(context.widget.key!))
                   Expanded(
-                    child: selectionSlideController.getMediaWidget(),
+                    // child: selectionSlideController.getMediaWidget(),
+                    child: slideDataController.getMediaWidget(context.widget.key!),
                   )
+                // if (selectionSlideController.isPickImage)
+                //   Expanded(
+                //     child: selectionSlideController.getMediaWidget(),
+                //   )
                 else
                   Column(
                     mainAxisSize: MainAxisSize.max,
@@ -128,7 +140,8 @@ class SelectionSlide extends ConsumerWidget {
                     child: Container(
                       height: double.maxFinite,
                       decoration: BoxDecoration(
-                        color: const Color(0xE5B7F1A1),
+                        // color: const Color(0xE5B7F1A1),
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Align(
@@ -137,7 +150,7 @@ class SelectionSlide extends ConsumerWidget {
                           padding: const EdgeInsets.all(40.0),
                           child: TextField(
                             maxLines: 100000,
-                            controller: selectionSlideController.controller,
+                            controller: textEditingController,
                             style: const TextStyle(
                               fontSize: 46,
                             ),
@@ -185,13 +198,18 @@ class SelectionSlide extends ConsumerWidget {
                                 String typeSlide;
                                 if ((surveySlide ?? false) == true) {
                                   typeSlide = 'surveySlide';
-                                } else {
+                                } else if ((freeResponseSlide ?? false) ==
+                                    true) {
                                   typeSlide = 'freeResponseSlide';
+                                } else {
+                                  typeSlide = '';
                                 }
                                 ref
                                     .read(slideDataProvider.notifier)
                                     .addListQuestion(
-                                        typeSlide, context.widget.key!);
+                                      typeSlide,
+                                      context.widget.key!,
+                                    );
                                 selectionSlideController.updateUi();
                               },
                               backgroundColor: Colors.blue,
