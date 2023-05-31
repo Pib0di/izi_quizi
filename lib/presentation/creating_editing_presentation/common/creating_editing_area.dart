@@ -18,7 +18,6 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
   late CreateEditingCase createEditingController;
   late SideSlidesPreview slidesPreviewController;
   late List<List<Widget>> selectWidget;
-
   @override
   void initState() {
     createEditingController = ref.read(createEditingCaseProvider.notifier);
