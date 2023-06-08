@@ -35,7 +35,7 @@ class SlideItems extends ConsumerWidget {
       return (Stack(
         children: [
           Container(
-            color: Colors.grey,
+            color: Colors.white,
           )
         ],
       ));

@@ -137,13 +137,38 @@ class HomePageState extends ConsumerState<HomePage>
           const PopupMenu(),
         ],
       ),
-      body: TabBarView(
-        controller: homePageController.tabController,
-        children: const <Widget>[
-          HomePageScreen(),
-          EventsScreen(),
-          RoomsScreen(),
-        ],
+      body: Container(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            repeat: ImageRepeat.repeat,
+            image: AssetImage('assets/image/background.png'),
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.background,
+                blurRadius: 40, // Установите радиус размытия тени
+                spreadRadius: 15, // Установите радиус распространения тени
+                offset: Offset(0,
+                    -40), // Установите смещение тени по горизонтали и вертикали
+              ),
+            ],
+          ),
+          // color: Theme.of(context).colorScheme.background,
+          margin: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.1,
+          ),
+          child: TabBarView(
+            controller: homePageController.tabController,
+            children: const <Widget>[
+              HomePageScreen(),
+              EventsScreen(),
+              RoomsScreen(),
+            ],
+          ),
+        ),
       ),
     );
   }

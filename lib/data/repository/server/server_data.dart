@@ -25,8 +25,8 @@ final webSocketProvider = StreamProvider<String>((ref) async* {
 
 class SocketConnection {
   static final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://185.251.89.216:80'),
-    // Uri.parse('ws://localhost:5000'),
+    // Uri.parse('ws://185.251.89.216:80'),
+    Uri.parse('ws://localhost:5000'),
   );
 
   static void sendMessage(data) {
@@ -60,10 +60,12 @@ void joinRoom(String userName, String roomId) {
 }
 
 //- - - - - - - - - - - - - - - - - - - - BD - - - - - - - - - - - - - - - - -
-void setPresentation(String idUser, String presentName, String jsonSlide) {
+void setPresentation(
+    int idPresent, String idUser, String presentName, String jsonSlide) {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
         'action': 'setSlideData',
+        'idPresent': idPresent,
         'idUser': idUser,
         'presentName': presentName,
         'slideData': jsonSlide,

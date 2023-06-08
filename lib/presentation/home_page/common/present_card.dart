@@ -24,7 +24,6 @@ class PresentCardState extends ConsumerState<PresentCard> {
   Widget build(BuildContext context) {
     final myValueRef = ref.read(slideDataProvider.notifier).ref;
     final appDataController = ref.read(appDataProvider.notifier);
-
     return Stack(
       children: [
         Positioned(
@@ -48,6 +47,9 @@ class PresentCardState extends ConsumerState<PresentCard> {
               shape: const RoundedRectangleBorder(),
               onPressed: () {
                 getPresentation(widget.idPresent, widget.presentName);
+                appDataController
+                  ..idPresent = widget.idPresent
+                  ..presentName = widget.presentName;
                 Navigator.of(context).push(
                   PresentationDialog<void>(
                     idPresent: widget.idPresent,

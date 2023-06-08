@@ -15,8 +15,9 @@ void renameQuiz(String email, String currentNamePresent, String newName) {
   renamePresent(email, currentNamePresent, newName);
 }
 
-void saveQuiz(String idUser, String presentName, String jsonSlide) {
-  setPresentation(idUser, presentName, jsonSlide);
+void saveQuiz(
+    int idPresent, String idUser, String presentName, String jsonSlide) {
+  setPresentation(idPresent, idUser, presentName, jsonSlide);
 }
 
 final createEditingCaseProvider =
@@ -133,9 +134,9 @@ Future<void> pickFileWeb(int buttonId, Ref ref) async {
           .read(slideDataProvider.notifier)
           .indexOfListSlide(buttonId)
           .addItemShel(imageBox);
+      ref.read(createEditing.notifier).updateUi();
     });
   });
-  ref.read(createEditing.notifier).updateUi();
 }
 
 Future<void> pickFilePC(int buttonId, Ref ref) async {

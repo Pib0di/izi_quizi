@@ -13,6 +13,7 @@ class AppDataState extends StateNotifier<int> {
 
   final currentPresentName = TextEditingController();
 
+  int idPresent = 0;
   String idUser = '1';
   String email = '';
   String presentName = '';

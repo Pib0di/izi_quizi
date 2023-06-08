@@ -16,8 +16,8 @@ class HomePageScreen extends ConsumerWidget {
       children: [
         Container(
           margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.1,
-          ),
+            // horizontal: MediaQuery.of(context).size.width * 0.1,
+              ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

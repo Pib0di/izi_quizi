@@ -6,6 +6,7 @@ import 'package:izi_quizi/presentation/creating_editing_presentation/common/side
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/utils/theme.dart';
 import 'package:izi_quizi/widgets/buttonFactory.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CreatingEditingArea extends ConsumerStatefulWidget {
   const CreatingEditingArea({super.key});
@@ -52,9 +53,10 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
                   ..updateUi();
               },
               labelType: NavigationRailLabelType.all,
-              destinations: navigationRailDestination,
+              destinations:
+                  getNavRailDestination(slidesPreviewController.selectedIndex),
             ),
-            const VerticalDivider(),
+            // const VerticalDivider(),
             // VerticalDivider(
             //   thickness: 1,
             //   width: 1,
@@ -69,10 +71,10 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
                 padding: const EdgeInsets.all(8.0),
                 child: slidesPreviewController.selectedIndex != 0
                     ? Column(
-                        children: selectWidget[
+                  children: selectWidget[
                             slidesPreviewController.selectedIndex == 0
                                 ? 0
-                                : --slidesPreviewController.selectedIndex],
+                                : slidesPreviewController.selectedIndex - 1],
                       )
                     : const SlidesPreview(),
               ),
@@ -86,68 +88,100 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
   }
 }
 
-List<NavigationRailDestination> navigationRailDestination = [
-  NavigationRailDestination(
-    icon: Icon(
-      Icons.favorite_border,
+Color colorIcon = colorScheme.onPrimary;
+// Color colorIcon = Color(0xE570FF00);
+Color colorSelectedIcon = Color(0xE500FFE1);
+Color colorText = colorIcon;
+
+List<NavigationRailDestination> getNavRailDestination(int selectedIndex) {
+  return [
+    NavigationRailDestination(
+      icon: Icon(
+        MdiIcons.presentation,
+        color: colorIcon,
+      ),
+      selectedIcon: Icon(
+        MdiIcons.presentation,
+        color: colorSelectedIcon,
+      ),
+      label: Text(
+        'Слайды',
+        style: TextStyle(
+          color: selectedIndex == 0 ? colorSelectedIcon : colorIcon,
+        ),
+      ),
     ),
-    selectedIcon: Icon(
-      Icons.favorite,
+    NavigationRailDestination(
+      icon: Icon(
+        Icons.text_fields,
+        color: colorIcon,
+      ),
+      selectedIcon: Icon(
+        Icons.text_fields_outlined,
+        color: colorSelectedIcon,
+      ),
+      label: Text(
+        'Текст',
+        style: TextStyle(
+          color: selectedIndex == 1 ? colorSelectedIcon : colorIcon,
+        ),
+      ),
     ),
-    label: Text(
-      'Слайды',
+    NavigationRailDestination(
+      icon: Icon(
+        Icons.perm_media,
+        color: colorIcon,
+      ),
+      selectedIcon: Icon(
+        Icons.perm_media_outlined,
+        color: colorSelectedIcon,
+      ),
+      label: Text(
+        'Медиа',
+        style: TextStyle(
+          color: selectedIndex == 2 ? colorSelectedIcon : colorIcon,
+        ),
+      ),
     ),
-  ),
-  NavigationRailDestination(
-    icon: Icon(
-      Icons.favorite_border,
-      color: colorScheme.onError,
+    NavigationRailDestination(
+      icon: Icon(
+        Icons.interests,
+        color: colorIcon,
+      ),
+      selectedIcon: Icon(
+        Icons.interests_outlined,
+        color: colorSelectedIcon,
+      ),
+      label: Text(
+        'Фигуры',
+        style: TextStyle(
+          color: selectedIndex == 3 ? colorSelectedIcon : colorIcon,
+        ),
+      ),
     ),
-    selectedIcon: Icon(
-      Icons.favorite,
-      color: colorScheme.onError,
+    NavigationRailDestination(
+      icon: Icon(
+        Icons.view_comfortable_sharp,
+        color: colorIcon,
+      ),
+      selectedIcon: Icon(
+        Icons.view_comfortable_outlined,
+        color: colorSelectedIcon,
+      ),
+      label: Text(
+        'Таблицы',
+        style: TextStyle(
+          color: selectedIndex == 4 ? colorSelectedIcon : colorIcon,
+        ),
+      ),
     ),
-    label: Text(
-      'Текст',
-    ),
-  ),
-  NavigationRailDestination(
-    icon: Icon(
-      Icons.bookmark_border,
-    ),
-    selectedIcon: Icon(
-      Icons.book,
-    ),
-    label: Text(
-      'Медиа',
-    ),
-  ),
-  NavigationRailDestination(
-    icon: Icon(
-      Icons.star_border,
-    ),
-    selectedIcon: Icon(
-      Icons.star,
-    ),
-    label: Text(
-      'Фигуры',
-    ),
-  ),
-  NavigationRailDestination(
-    icon: Icon(
-      Icons.favorite_border,
-    ),
-    selectedIcon: Icon(
-      Icons.favorite,
-    ),
-    label: Text(
-      'Таблицы',
-    ),
-  ),
-];
+  ];
+}
 
 List<Widget> mediaMenu(
-    BuildContext context, CreateEditingCase createEditingController) {
+  BuildContext context,
+  CreateEditingCase createEditingController,
+) {
   return <Widget>[
     ElevatedButtonFactory.numAddItem(
       onPressed: () => {

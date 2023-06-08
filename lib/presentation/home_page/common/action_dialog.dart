@@ -61,7 +61,10 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ElevatedButton(
                   onPressed: () {
                     // request.getSlideData(idPresent, presentName); //Т.К ДАННЫЕ УЖЕ ЗАПРОШЕНЫ ПРИ НАЖАТИИ
-                    slideDataController.setItemsView();
+                    // slideDataController.setItemsView();
+                    slideDataController
+                      ..clear()
+                      ..setSlidesSingleView();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -83,7 +86,10 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ElevatedButton(
                   onPressed: () {
                     createRoom(appDataController.idUser, presentName);
-                    slideDataController.setItemsView();
+                    // slideDataController.setItemsView();
+                    slideDataController
+                      ..clear()
+                      ..setSlidesSingleView();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -106,7 +112,10 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    slideDataController.setItemsEdit();
+                    // slideDataController.setItemsEdit();
+                    slideDataController
+                      ..clear()
+                      ..setSlidesEdit();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

@@ -136,17 +136,17 @@ class PresentNameMap {
 }
 
 class SQL {
-  // late String host = 'localhost',
-  //     user = 'root',
-  //     password = '1234',
-  //     db = 'iziqizi';
-  // int port = 3306;
-
-  late String host = '185.251.89.216',
+  late String host = 'localhost',
       user = 'root',
       password = '1234',
       db = 'iziqizi';
-  int port = 85;
+  int port = 3306;
+
+  // late String host = '185.251.89.216',
+  //     user = 'root',
+  //     password = '1234',
+  //     db = 'iziqizi';
+  // int port = 85;
 
   Future<Map<dynamic, String>> listWidget(String userId) async {
     final conn = await MySQLConnection.createConnection(
@@ -427,6 +427,7 @@ class SQL {
   }
 
   Future<void> setSlideData(
+    int idPresent,
     String idUser,
     String presentName,
     String jsonSlide,
@@ -442,8 +443,9 @@ class SQL {
     if (conn.connected) {
       try {
         await conn.execute(
-            'UPDATE `iziqizi`.`present` SET `slides_data` = (:jsonSlide) WHERE (`userId` = :idUser) and (`presentName` = :presentName);',
+            'UPDATE `iziqizi`.`present` SET `slides_data` = (:jsonSlide) WHERE (`idPresent` = :idPresent) and (`userId` = :idUser) and (`presentName` = :presentName);',
             {
+              'idPresent': idPresent,
               'idUser': idUser,
               'presentName': presentName,
               'jsonSlide': jsonSlide,
@@ -510,6 +512,7 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
           case 'setSlideData':
             {
               await sql.setSlideData(
+                jsonData['idPresent'],
                 jsonData['idUser'],
                 jsonData['presentName'],
                 jsonData['slideData'],

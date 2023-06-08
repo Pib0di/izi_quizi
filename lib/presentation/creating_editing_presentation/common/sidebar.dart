@@ -18,8 +18,8 @@ class SlidesPreview extends ConsumerWidget {
     final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
     final slideDataController = ref.read(slideDataProvider.notifier);
 
-    final delId = ref.watch(delItemKey);
-    slidesPreviewController.delItem(delId);
+    // final delId = ref.watch(delItemKey);
+    // slidesPreviewController.delItem(delId);
 
     return Column(
       children: [
@@ -29,7 +29,7 @@ class SlidesPreview extends ConsumerWidget {
             child: ListView.builder(
               itemCount: slidesPreviewController.getLengthSideList(),
               itemBuilder: (BuildContext context, int index) {
-                return slidesPreviewController.getSlide()[index];
+                return slidesPreviewController.getSideItems()[index];
               },
             ),
           ),
@@ -151,7 +151,7 @@ class SidebarItem extends ConsumerWidget {
                           if (imageFile.length > 10)
                             FadeInImage(
                               placeholder:
-                                  const AssetImage('image/loading.png'),
+                                  const AssetImage('assets/image/loading.png'),
                               image: MemoryImage(imageFile),
                               fit: BoxFit.contain,
                               fadeInDuration: const Duration(milliseconds: 300),
@@ -187,7 +187,9 @@ class SidebarItem extends ConsumerWidget {
                                   ),
                                   decoration: BoxDecoration(
                                     // color: const Color(0xE5DFFFD6),
-                                    color: Theme.of(context).colorScheme.secondaryContainer,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
                                     borderRadius: BorderRadius.circular(15),
                                   ),
                                   child: Text(
@@ -348,8 +350,10 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
         );
         slidesPreviewController.addItem();
         slideDataController
-          ..addListSlideWidget(selectionSlide)
-          ..initializeQuestion('surveySlide', selectionSlide.key!);
+          // ..addListSlideWidget(selectionSlide)
+          ..addSelectionSlide(selectionSlide)
+          ..initializeQuestion('surveySlide', selectionSlide.key!)
+          ..addSelectSlideTextController(selectionSlide.key!);
       },
       icon: Icons.check_box_outlined,
       tooltip: 'Выбор правильного ответа',
@@ -369,8 +373,10 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
         );
         slidesPreviewController.addItem();
         slideDataController
-          ..addListSlideWidget(selectionSlide)
-          ..initializeQuestion('freeResponseSlide', selectionSlide.key!);
+          // ..addListSlideWidget(selectionSlide)
+          ..addSelectionSlide(selectionSlide)
+          ..initializeQuestion('freeResponseSlide', selectionSlide.key!)
+          ..addSelectSlideTextController(selectionSlide.key!);
       },
       icon: Icons.featured_play_list_outlined,
       tooltip: 'Свободный ответ',
@@ -383,8 +389,10 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
         );
         slidesPreviewController.addItem();
         slideDataController
-          ..addListSlideWidget(selectionSlide)
-          ..initializeQuestion('', selectionSlide.key!);
+          // ..addListSlideWidget(selectionSlide)
+          ..addSelectionSlide(selectionSlide)
+          ..initializeQuestion('', selectionSlide.key!)
+          ..addSelectSlideTextController(selectionSlide.key!);
       },
       icon: Icons.auto_graph_outlined,
       tooltip: '',
@@ -404,9 +412,13 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
     ),
     ExpandedButtonFactory(
       onPressed: () {
+        final selectionSlide =
+            SelectionSlide(audioSlide: true, key: UniqueKey());
         slidesPreviewController.addItem();
-        slideDataController.addListSlideWidget(
-            SelectionSlide(audioSlide: true, key: UniqueKey()));
+        slideDataController
+          // ..addListSlideWidget(selectionSlide)
+          ..addSelectionSlide(selectionSlide)
+          ..addSelectSlideTextController(selectionSlide.key!);
       },
       icon: Icons.audiotrack_outlined,
       tooltip: 'Записать аудио',

@@ -13,7 +13,7 @@ class SingleViewController extends StateNotifier<int> {
   Ref ref;
 
   int getTotalSlide() {
-    return ref.read(slideDataProvider.notifier).getLengthListSlide() - 1;
+    return ref.read(slideDataProvider.notifier).getLengthListSlideWidget() - 1;
   }
 
   void increment() {

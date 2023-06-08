@@ -16,9 +16,18 @@ class SelectionSlide extends ConsumerWidget {
   bool? freeResponseSlide = false;
   bool? surveySlide = false;
 
-  final TextEditingController textEditingController = TextEditingController();
-  TextEditingController getTextEditingController() {
-    return textEditingController;
+  String getType() {
+    String type;
+    if (audioSlide ?? false) {
+      type = 'audio';
+    } else if (freeResponseSlide ?? false) {
+      type = 'freeResponseSlide';
+    } else if (surveySlide ?? false) {
+      type = 'surveySlide';
+    } else {
+      type = '';
+    }
+    return type;
   }
 
   @override
@@ -26,9 +35,6 @@ class SelectionSlide extends ConsumerWidget {
     ref.watch(selectionSlideProvider);
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
     final slideDataController = ref.read(slideDataProvider.notifier);
-    print('context.widget.key! => ${context.widget.key!}');
-    // ref.read(selectionSlideProvider.notifier).currentKeySelectSlide =
-    //     context.widget.key!;
 
     return Column(
       children: [
@@ -40,13 +46,9 @@ class SelectionSlide extends ConsumerWidget {
               children: [
                 if (slideDataController.isPickImage(context.widget.key!))
                   Expanded(
-                    // child: selectionSlideController.getMediaWidget(),
-                    child: slideDataController.getMediaWidget(context.widget.key!),
+                    child:
+                        slideDataController.getMediaWidget(context.widget.key!),
                   )
-                // if (selectionSlideController.isPickImage)
-                //   Expanded(
-                //     child: selectionSlideController.getMediaWidget(),
-                //   )
                 else
                   Column(
                     mainAxisSize: MainAxisSize.max,
@@ -68,6 +70,7 @@ class SelectionSlide extends ConsumerWidget {
                               children: const [
                                 Icon(
                                   Icons.image,
+                                  size: 60,
                                 ),
                                 Text('Изображение')
                               ],
@@ -94,6 +97,7 @@ class SelectionSlide extends ConsumerWidget {
                                 children: const [
                                   Icon(
                                     Icons.audio_file_outlined,
+                                    size: 60,
                                   ),
                                   Text('Аудио')
                                 ],
@@ -121,6 +125,7 @@ class SelectionSlide extends ConsumerWidget {
                                 children: const [
                                   Icon(
                                     Icons.video_camera_front_outlined,
+                                    size: 60,
                                   ),
                                   Text('Видео')
                                 ],
@@ -140,7 +145,6 @@ class SelectionSlide extends ConsumerWidget {
                     child: Container(
                       height: double.maxFinite,
                       decoration: BoxDecoration(
-                        // color: const Color(0xE5B7F1A1),
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -150,7 +154,8 @@ class SelectionSlide extends ConsumerWidget {
                           padding: const EdgeInsets.all(40.0),
                           child: TextField(
                             maxLines: 100000,
-                            controller: textEditingController,
+                            controller: slideDataController
+                                .getTextController(context.widget.key!),
                             style: const TextStyle(
                               fontSize: 46,
                             ),
@@ -186,8 +191,7 @@ class SelectionSlide extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: Row(
-                              children: ref
-                                  .read(slideDataProvider.notifier)
+                              children: slideDataController
                                   .getListQuestion(context.widget.key!),
                             ),
                           ),

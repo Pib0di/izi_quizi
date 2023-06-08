@@ -11,7 +11,6 @@ import 'package:izi_quizi/widgets/enter_presentation_name.dart';
 
 class PresentationEdit extends ConsumerWidget {
   const PresentationEdit.create({super.key});
-
   const PresentationEdit.edit({super.key});
 
   @override
@@ -107,8 +106,12 @@ class PresentationEdit extends ConsumerWidget {
                 // fillColor: Colors.lightGreen,
                 shape: const CircleBorder(),
                 onPressed: () {
-                  final jsonSlide = slideJsonController.slideJson();
+                  // final jsonSlide = slideJsonController.slideJson();
+                  // final jsonSlide = Slides(numSlide: 10, );
+                  final jsonSlide = slideJsonController.slidesToJson();
+
                   saveQuiz(
+                    appDataController.idPresent,
                     appDataController.idUser,
                     appDataController.presentName,
                     jsonEncode(jsonSlide.toJson()),

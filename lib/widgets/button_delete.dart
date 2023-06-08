@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
-import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 
 class ButtonDelete extends ConsumerWidget {
   const ButtonDelete.deleteItemId(this.deleteItemKey, {super.key});
@@ -15,7 +14,7 @@ class ButtonDelete extends ConsumerWidget {
     final slideDataController = ref.read(slideDataProvider.notifier);
     final deleteItemKeyController = ref.read(delItemKey.notifier);
     final currentSlideNum = ref.read(currentSlideNumber.notifier);
-    final selectionSlideController = ref.read(selectionSlideProvider.notifier);
+    final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
     return Positioned(
       right: 0,
       child: Container(
@@ -27,23 +26,25 @@ class ButtonDelete extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
-            print('deleteItemKey => $deleteItemKey');
-            slideDataController.deleteListQuestion(deleteItemKey);
-            createEditingController.updateUi();
-
-            final buttonId = ref.read(currentSlideNumber.notifier);
-            slideDataController
-                .indexOfListSlide(buttonId.state - 1)
-                .delItem(deleteItemKey);
-            deleteItemKeyController.state = deleteItemKey;
-
-            if (slideDataController.getLengthListSlide() ==
+            if (slideDataController.getLengthListSlideWidget() ==
                 currentSlideNum.state) {
               --currentSlideNum.state;
             }
 
-            // selectionSlideController.deleteItem(deleteItemKey);
+            final buttonId = ref.read(currentSlideNumber.notifier);
+            if (buttonId.state -
+                    1 -
+                    slideDataController.countWidgetSlides(buttonId.state - 1) <
+                slideDataController.listSlide.length) {
+              slideDataController
+                  .indexOfListSlide(buttonId.state - 1)
+                  .delItem(deleteItemKey);
+              deleteItemKeyController.state = deleteItemKey;
+            }
 
+            slideDataController.deleteListQuestion(deleteItemKey);
+            slidesPreviewController.delItem(deleteItemKey);
+            createEditingController.updateUi();
           },
           child: const Icon(
             Icons.delete,

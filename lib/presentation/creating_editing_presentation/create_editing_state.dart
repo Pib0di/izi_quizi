@@ -54,6 +54,7 @@ class SideSlidesPreview extends StateNotifier<int> {
     return sideList.length;
   }
 
+  //добавить элемнт в боковое превью слайдов
   void addItem() {
     sideList.add(
       SidebarItem.buttonID(
@@ -78,12 +79,13 @@ class SideSlidesPreview extends StateNotifier<int> {
   Future<void> updateImage() async {
     final currentSlideNum = ref.read(currentSlideNumber.notifier).state - 1;
     final imageFile = await screenshotController.capture();
-    if (currentSlideNum >= 0)
+    if (currentSlideNum >= 0) {
       sideList[currentSlideNum].setImagePreview(imageFile);
+    }
     updateUi();
   }
 
-  List<SidebarItem> getSlide() {
+  List<SidebarItem> getSideItems() {
     return sideList;
   }
 
@@ -95,21 +97,35 @@ class SideSlidesPreview extends StateNotifier<int> {
   void delItem(Key delItemKey) {
     var i = 0;
     final slideDataController = ref.read(slideDataProvider.notifier);
+
     if (sideList.isNotEmpty) {
       for (var item in sideList) {
         if (item.keyDelete == delItemKey) {
+          var countWidget = 0;
+          var countSlide = 0;
+          for (var j = 0; j < i; ++j) {
+            if (slideDataController.sequenceArray[j] == 1) {
+              ++countWidget;
+            } else {
+              ++countSlide;
+            }
+          }
+
+          if (slideDataController.sequenceArray[i] == 1) {
+            slideDataController.listSelectionSlide.removeAt(i - countSlide);
+          } else {
+            slideDataController.listSlide.removeAt(i - countWidget);
+          }
+          slideDataController.sequenceArray.removeAt(i);
           sideList.removeAt(i);
-          slideDataController.removeAt(i);
+
+          updateUi();
           break;
         }
-        // if (item.buttonId == AppDataState().ref!.watch(buttonID.notifier).state) {
-        //   // --appData.ref!.watch(buttonID.notifier).state;
-        // }
         ++i;
       }
       updateCount();
     }
-    // sideList.retainWhere((item) => item.key != delItemId);
   }
 
   void updateUi() {
