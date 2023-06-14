@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/common_functionality/jsonParse.dart';
 import 'package:izi_quizi/data/repository/local/slide_items.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
+import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 import 'package:izi_quizi/widgets/item_shel/items_shel.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide.dart';
@@ -36,7 +37,6 @@ class SlideData extends StateNotifier<int> {
   Map<Key, TextEditingController> selectSlideTextController = {};
   Map<Key, Widget?> listMediaWidget = {};
 
-  List<Widget> listSlideWidget = [];
   List<SelectionSlide> listSelectionSlide = [];
   List<SlideItems> listSlide = [];
 
@@ -44,10 +44,27 @@ class SlideData extends StateNotifier<int> {
 
   void clear() {
     sequenceArray.clear();
-    listSlideWidget.clear();
     listSlide.clear();
     // dataSlide.clear();
     ref.read(slidesPreviewProvider.notifier).sideList.clear();
+  }
+
+  List<Widget> getSlideSingleView() {
+    final listWidget = <Widget>[];
+    var listSlideCounter = 0;
+    var slideWidgetCounter = 0;
+    for (var i = 0; i < sequenceArray.length; ++i) {
+      if (sequenceArray[i] == 0) {
+        listWidget.add(listSlide[listSlideCounter].getSlideView());
+        ++listSlideCounter;
+      }
+      if (sequenceArray[i] == 1) {
+        // listWidget.add(listSlideWidget[slideWidgetCounter]);
+        listWidget.add(listSelectionSlide[slideWidgetCounter]);
+        ++slideWidgetCounter;
+      }
+    }
+    return listWidget;
   }
 
   void setMediaWidget(Widget widget, Key key) {
@@ -64,16 +81,12 @@ class SlideData extends StateNotifier<int> {
 
   void setDataSlide(Map<String, dynamic> data) {
     dataSlide = data;
+    ref.read(multipleViewProvider.notifier).updateUi();
   }
 
   void addListSlide(SlideItems item) {
     listSlide.add(item);
     sequenceArray.add(0);
-  }
-
-  void addListSlideWidget(Widget item) {
-    listSlideWidget.add(item);
-    sequenceArray.add(1);
   }
 
   void addSelectionSlide(SelectionSlide selectionSlide) {
@@ -326,7 +339,6 @@ class SlideData extends StateNotifier<int> {
       });
 
       final slideDataController = ref.read(slideDataProvider.notifier);
-      final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
       if (element.quizItem != null) {
         final typeQuizSlide = element.quizItem?.type;
         if (typeQuizSlide == 'surveySlide') {
@@ -350,15 +362,13 @@ class SlideData extends StateNotifier<int> {
           );
         }
       }
-      // if (element.quizItem != null) {
-      //   element.quizItem!.question;
-      // }
 
       if (quizSlide != null) {
         final quizSlideKey = quizSlide.key!;
         slideDataController
           ..addSelectionSlide(quizSlide)
           ..addSelectSlideTextController(quizSlideKey);
+        var i = 0;
         element.quizItem!.questions?.forEach((value) {
           print('element.quizItem => ${value}');
           slideDataController.parseListQuestion(
@@ -371,17 +381,17 @@ class SlideData extends StateNotifier<int> {
               .last
               .getTextEditingController()
               .text = value;
+          slideDataController.getListQuestion(quizSlideKey).last.isSurvey =
+              element.quizItem!.isSurveyList![i];
+          ++i;
         });
-        // slideDataController.getListQuestion(quizSlideKey).forEach((element) {
-        //   element.getTextEditingController().text
-        //   questions.add(element.getTextEditingController().text);
-        //   isSurveyList.add(element.isSurvey);
-        // });
+        if (element.quizItem!.urlImg != null) {
+          quizSlide.url = element.quizItem!.urlImg;
+        }
         slideDataController.getTextController(quizSlideKey)?.text =
             element.quizItem!.question ?? 'nulllll';
       } else {
         addListSlide(slide);
-        // listSlide.add(slide);
       }
     });
   }
@@ -409,7 +419,7 @@ class SlideData extends StateNotifier<int> {
       element.imageItems?.forEach((element) {
         final itemsViewImage = ItemsViewPresentation.imageWidgetJson(
           key: UniqueKey(),
-          url: element.url!,
+          url: element.url,
           width: element.width!,
           height: element.height!,
           left: element.offsetX!,
@@ -418,6 +428,7 @@ class SlideData extends StateNotifier<int> {
         slide.addItemsView(itemsViewImage);
       });
 
+      final slideDataController = ref.read(slideDataProvider.notifier);
       if (element.quizItem != null) {
         final typeQuizSlide = element.quizItem?.type;
         if (typeQuizSlide == 'surveySlide') {
@@ -430,7 +441,7 @@ class SlideData extends StateNotifier<int> {
             freeResponseSlide: true,
             key: UniqueKey(),
           );
-        } else if (typeQuizSlide == 'survey') {
+        } else if (typeQuizSlide == '') {
           quizSlide = SelectionSlide(
             key: UniqueKey(),
           );
@@ -443,9 +454,32 @@ class SlideData extends StateNotifier<int> {
       }
 
       if (quizSlide != null) {
-        // listSlideWidget.add(quizSlide);
-        listSelectionSlide.add(quizSlide);
-        sequenceArray.add(1);
+        final quizSlideKey = quizSlide.key!;
+        slideDataController
+          ..addSelectionSlide(quizSlide)
+          ..addSelectSlideTextController(quizSlideKey);
+        var i = 0;
+        element.quizItem!.questions?.forEach((value) {
+          print('element.quizItem => ${value}');
+          slideDataController.parseListQuestion(
+            quizSlide!.getType(),
+            quizSlideKey,
+            true,
+          );
+          slideDataController
+              .getListQuestion(quizSlideKey)
+              .last
+              .getTextEditingController()
+              .text = value;
+          slideDataController.getListQuestion(quizSlideKey).last.isSurvey =
+              element.quizItem!.isSurveyList![i];
+          ++i;
+        });
+        if (element.quizItem!.urlImg != null) {
+          quizSlide.url = element.quizItem!.urlImg;
+        }
+        slideDataController.getTextController(quizSlideKey)?.text =
+            element.quizItem!.question ?? 'nulllll';
       } else {
         addListSlide(slide);
       }
@@ -486,7 +520,6 @@ class SlideData extends StateNotifier<int> {
       listSlide.add(slide);
     });
   }
-
   void setItemsView() {
     final jsonParse = dataSlideParse(dataSlide);
     listSlide.clear();

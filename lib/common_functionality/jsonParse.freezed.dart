@@ -22,12 +22,10 @@ Slides _$SlidesFromJson(Map<String, dynamic> json) {
 mixin _$Slides {
   @JsonKey(name: 'num_slide')
   int get numSlide => throw _privateConstructorUsedError;
-
   @JsonKey(name: 'slides_data')
   List<SlideData>? get slidesData => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
   @JsonKey(ignore: true)
   $SlidesCopyWith<Slides> get copyWith => throw _privateConstructorUsedError;
 }
@@ -36,7 +34,6 @@ mixin _$Slides {
 abstract class $SlidesCopyWith<$Res> {
   factory $SlidesCopyWith(Slides value, $Res Function(Slides) then) =
       _$SlidesCopyWithImpl<$Res, Slides>;
-
   @useResult
   $Res call(
       {@JsonKey(name: 'num_slide') int numSlide,
@@ -50,7 +47,6 @@ class _$SlidesCopyWithImpl<$Res, $Val extends Slides>
 
   // ignore: unused_field
   final $Val _value;
-
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -77,7 +73,6 @@ class _$SlidesCopyWithImpl<$Res, $Val extends Slides>
 abstract class _$$_SlidesCopyWith<$Res> implements $SlidesCopyWith<$Res> {
   factory _$$_SlidesCopyWith(_$_Slides value, $Res Function(_$_Slides) then) =
       __$$_SlidesCopyWithImpl<$Res>;
-
   @override
   @useResult
   $Res call(
@@ -128,7 +123,6 @@ class _$_Slides implements _Slides {
   @JsonKey(name: 'num_slide')
   final int numSlide;
   final List<SlideData>? _slidesData;
-
   @override
   @JsonKey(name: 'slides_data')
   List<SlideData>? get slidesData {
@@ -185,11 +179,9 @@ abstract class _Slides implements Slides {
   @override
   @JsonKey(name: 'num_slide')
   int get numSlide;
-
   @override
   @JsonKey(name: 'slides_data')
   List<SlideData>? get slidesData;
-
   @override
   @JsonKey(ignore: true)
   _$$_SlidesCopyWith<_$_Slides> get copyWith =>
@@ -204,15 +196,12 @@ SlideData _$SlideDataFromJson(Map<String, dynamic> json) {
 mixin _$SlideData {
   @JsonKey(name: 'text_items')
   List<TextItem>? get textItems => throw _privateConstructorUsedError;
-
   @JsonKey(name: 'image_items')
   List<ImageItem>? get imageItems => throw _privateConstructorUsedError;
-
   @JsonKey(name: 'quiz_item')
   QuizItem? get quizItem => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
   @JsonKey(ignore: true)
   $SlideDataCopyWith<SlideData> get copyWith =>
       throw _privateConstructorUsedError;
@@ -222,7 +211,6 @@ mixin _$SlideData {
 abstract class $SlideDataCopyWith<$Res> {
   factory $SlideDataCopyWith(SlideData value, $Res Function(SlideData) then) =
       _$SlideDataCopyWithImpl<$Res, SlideData>;
-
   @useResult
   $Res call(
       {@JsonKey(name: 'text_items') List<TextItem>? textItems,
@@ -239,7 +227,6 @@ class _$SlideDataCopyWithImpl<$Res, $Val extends SlideData>
 
   // ignore: unused_field
   final $Val _value;
-
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -284,7 +271,6 @@ abstract class _$$_SlideDataCopyWith<$Res> implements $SlideDataCopyWith<$Res> {
   factory _$$_SlideDataCopyWith(
           _$_SlideData value, $Res Function(_$_SlideData) then) =
       __$$_SlideDataCopyWithImpl<$Res>;
-
   @override
   @useResult
   $Res call(
@@ -345,7 +331,6 @@ class _$_SlideData implements _SlideData {
       _$$_SlideDataFromJson(json);
 
   final List<TextItem>? _textItems;
-
   @override
   @JsonKey(name: 'text_items')
   List<TextItem>? get textItems {
@@ -357,7 +342,6 @@ class _$_SlideData implements _SlideData {
   }
 
   final List<ImageItem>? _imageItems;
-
   @override
   @JsonKey(name: 'image_items')
   List<ImageItem>? get imageItems {
@@ -424,15 +408,12 @@ abstract class _SlideData implements SlideData {
   @override
   @JsonKey(name: 'text_items')
   List<TextItem>? get textItems;
-
   @override
   @JsonKey(name: 'image_items')
   List<ImageItem>? get imageItems;
-
   @override
   @JsonKey(name: 'quiz_item')
   QuizItem? get quizItem;
-
   @override
   @JsonKey(ignore: true)
   _$$_SlideDataCopyWith<_$_SlideData> get copyWith =>
@@ -446,19 +427,13 @@ TextItem _$TextItemFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$TextItem {
   String? get text => throw _privateConstructorUsedError;
-
   double? get offsetX => throw _privateConstructorUsedError;
-
   double? get offsetY => throw _privateConstructorUsedError;
-
   double? get width => throw _privateConstructorUsedError;
-
   double? get height => throw _privateConstructorUsedError;
-
   String? get property => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
   @JsonKey(ignore: true)
   $TextItemCopyWith<TextItem> get copyWith =>
       throw _privateConstructorUsedError;
@@ -468,7 +443,6 @@ mixin _$TextItem {
 abstract class $TextItemCopyWith<$Res> {
   factory $TextItemCopyWith(TextItem value, $Res Function(TextItem) then) =
       _$TextItemCopyWithImpl<$Res, TextItem>;
-
   @useResult
   $Res call(
       {String? text,
@@ -486,7 +460,6 @@ class _$TextItemCopyWithImpl<$Res, $Val extends TextItem>
 
   // ignore: unused_field
   final $Val _value;
-
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -534,7 +507,6 @@ abstract class _$$_TextItemCopyWith<$Res> implements $TextItemCopyWith<$Res> {
   factory _$$_TextItemCopyWith(
           _$_TextItem value, $Res Function(_$_TextItem) then) =
       __$$_TextItemCopyWithImpl<$Res>;
-
   @override
   @useResult
   $Res call(
@@ -671,22 +643,16 @@ abstract class _TextItem implements TextItem {
 
   @override
   String? get text;
-
   @override
   double? get offsetX;
-
   @override
   double? get offsetY;
-
   @override
   double? get width;
-
   @override
   double? get height;
-
   @override
   String? get property;
-
   @override
   @JsonKey(ignore: true)
   _$$_TextItemCopyWith<_$_TextItem> get copyWith =>
@@ -700,19 +666,13 @@ ImageItem _$ImageItemFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$ImageItem {
   String? get url => throw _privateConstructorUsedError;
-
   double? get offsetX => throw _privateConstructorUsedError;
-
   double? get offsetY => throw _privateConstructorUsedError;
-
   double? get width => throw _privateConstructorUsedError;
-
   double? get height => throw _privateConstructorUsedError;
-
   String? get property => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
   @JsonKey(ignore: true)
   $ImageItemCopyWith<ImageItem> get copyWith =>
       throw _privateConstructorUsedError;
@@ -722,7 +682,6 @@ mixin _$ImageItem {
 abstract class $ImageItemCopyWith<$Res> {
   factory $ImageItemCopyWith(ImageItem value, $Res Function(ImageItem) then) =
       _$ImageItemCopyWithImpl<$Res, ImageItem>;
-
   @useResult
   $Res call(
       {String? url,
@@ -740,7 +699,6 @@ class _$ImageItemCopyWithImpl<$Res, $Val extends ImageItem>
 
   // ignore: unused_field
   final $Val _value;
-
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -788,7 +746,6 @@ abstract class _$$_ImageItemCopyWith<$Res> implements $ImageItemCopyWith<$Res> {
   factory _$$_ImageItemCopyWith(
           _$_ImageItem value, $Res Function(_$_ImageItem) then) =
       __$$_ImageItemCopyWithImpl<$Res>;
-
   @override
   @useResult
   $Res call(
@@ -926,22 +883,16 @@ abstract class _ImageItem implements ImageItem {
 
   @override
   String? get url;
-
   @override
   double? get offsetX;
-
   @override
   double? get offsetY;
-
   @override
   double? get width;
-
   @override
   double? get height;
-
   @override
   String? get property;
-
   @override
   @JsonKey(ignore: true)
   _$$_ImageItemCopyWith<_$_ImageItem> get copyWith =>
@@ -955,21 +906,14 @@ QuizItem _$QuizItemFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$QuizItem {
   String? get type => throw _privateConstructorUsedError;
-
   String? get urlImg => throw _privateConstructorUsedError;
-
   String? get question => throw _privateConstructorUsedError;
-
   List<String>? get questions => throw _privateConstructorUsedError;
-
   List<bool>? get isSurveyList => throw _privateConstructorUsedError;
-
   String? get audio => throw _privateConstructorUsedError;
-
   String? get property => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
   @JsonKey(ignore: true)
   $QuizItemCopyWith<QuizItem> get copyWith =>
       throw _privateConstructorUsedError;
@@ -979,7 +923,6 @@ mixin _$QuizItem {
 abstract class $QuizItemCopyWith<$Res> {
   factory $QuizItemCopyWith(QuizItem value, $Res Function(QuizItem) then) =
       _$QuizItemCopyWithImpl<$Res, QuizItem>;
-
   @useResult
   $Res call(
       {String? type,
@@ -998,7 +941,6 @@ class _$QuizItemCopyWithImpl<$Res, $Val extends QuizItem>
 
   // ignore: unused_field
   final $Val _value;
-
   // ignore: unused_field
   final $Res Function($Val) _then;
 
@@ -1051,7 +993,6 @@ abstract class _$$_QuizItemCopyWith<$Res> implements $QuizItemCopyWith<$Res> {
   factory _$$_QuizItemCopyWith(
           _$_QuizItem value, $Res Function(_$_QuizItem) then) =
       __$$_QuizItemCopyWithImpl<$Res>;
-
   @override
   @useResult
   $Res call(
@@ -1143,7 +1084,6 @@ class _$_QuizItem implements _QuizItem {
   @JsonKey()
   final String? question;
   final List<String>? _questions;
-
   @override
   @JsonKey()
   List<String>? get questions {
@@ -1155,7 +1095,6 @@ class _$_QuizItem implements _QuizItem {
   }
 
   final List<bool>? _isSurveyList;
-
   @override
   @JsonKey()
   List<bool>? get isSurveyList {
@@ -1236,25 +1175,18 @@ abstract class _QuizItem implements QuizItem {
 
   @override
   String? get type;
-
   @override
   String? get urlImg;
-
   @override
   String? get question;
-
   @override
   List<String>? get questions;
-
   @override
   List<bool>? get isSurveyList;
-
   @override
   String? get audio;
-
   @override
   String? get property;
-
   @override
   @JsonKey(ignore: true)
   _$$_QuizItemCopyWith<_$_QuizItem> get copyWith =>

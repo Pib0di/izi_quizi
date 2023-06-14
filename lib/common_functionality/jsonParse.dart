@@ -75,6 +75,37 @@ class QuizItem with _$QuizItem {
       _$QuizItemFromJson(json);
 }
 
+// *************************** messageReceived ***********************
+// @freezed
+// class MessageReceived with _$MessageReceived {
+//   factory MessageReceived({
+//     @Default('') String obj,
+//     @Default('') String senderId,
+//     List<Message>? message,
+//   }) = _MessageReceived;
+//
+//   factory MessageReceived.fromJson(Map<String, dynamic> json) => _$MessageReceivedFromJson(json);
+// }
+//
+// @freezed
+// class Message with _$Message {
+//   factory Message.listUser({
+//     @JsonKey(name: 'message') StringMessage? message,
+//   }) = _ListUser;
+//
+//   factory Message.fromJson(Map<String, dynamic> json) =>
+//       _$MessageFromJson(json);
+// }
+// @freezed
+// class StringMessage with _$StringMessage {
+//   factory StringMessage({
+//     @Default({}) @JsonKey(name: 'listUser') Map<String, dynamic>? listUser,
+// }) = _StringMessage;
+//
+//   factory StringMessage.fromJson(Map<String, dynamic> json) =>
+//       _$StringMessageFromJson(json);
+// }
+
 ///parse slides
 class JsonParse {
   int? numSlide;
@@ -172,6 +203,7 @@ class TextItems {
     return data;
   }
 }
+
 class ImageItems {
   String? url;
   double? offsetX;
@@ -218,53 +250,6 @@ class SlideJson extends StateNotifier<int> {
   SlideJson(this.ref) : super(0);
 
   Ref ref;
-
-  JsonParse slideJson() {
-    final data = ref.read(slideDataProvider.notifier);
-
-    SlidesData slidesData;
-    final slidesDataList = <SlidesData>[];
-
-    data.getListSlide().forEach((v) {
-      final imageItemsList = <ImageItems>[];
-      final textItemsList = <TextItems>[];
-      v.getListItems().forEach((a) {
-        final dataText = a.getItemsShelDataText();
-        if (dataText != null && dataText.type == 'text') {
-          final textItems = TextItems(
-            text: dataText.text,
-            offsetX: dataText.offsetX,
-            offsetY: dataText.offsetY,
-            width: dataText.width,
-            height: dataText.height,
-            property: 'txt',
-          );
-          textItemsList.add(textItems);
-        }
-
-        final dataImage = a.getItemsShelDataImage();
-        if (dataImage != null && dataImage.type == 'image') {
-          final imageItems = ImageItems(
-            url: dataImage.url,
-            offsetX: dataImage.offsetX,
-            offsetY: dataImage.offsetY,
-            width: dataImage.width,
-            height: dataImage.height,
-            property: 'txt',
-          );
-          imageItemsList.add(imageItems);
-        }
-      });
-      slidesData = SlidesData(
-        imageItems: imageItemsList,
-        textItems: textItemsList,
-      );
-      slidesDataList.add(slidesData);
-    });
-
-    // JsonParse jsonParse = JsonParse(numSlide: 20, slidesData: slidesDataList);
-    return JsonParse(numSlide: 20, slidesData: slidesDataList);
-  }
 
   Slides slidesToJson() {
     final dataSlide = ref.read(slideDataProvider.notifier);
@@ -332,6 +317,7 @@ class SlideJson extends StateNotifier<int> {
         questions: questions,
         question: question ?? '',
         isSurveyList: isSurveyList,
+        urlImg: selectionSlide.getUrl(),
       );
 
       slideData = SlideData(

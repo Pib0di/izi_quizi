@@ -4,6 +4,7 @@ ColorScheme colorScheme = ColorScheme.fromSeed(
   // seedColor: const Color(0xe500c37e),
   // seedColor: const Color(0xe585038a),
   // seedColor: Colors.deepPurpleAccent,
+  // seedColor: Color(0xE527D2D9),
   seedColor: Color(0xE527D2D9),
   // brightness: Brightness.dark,
   // primary: const Color(0xE527D2D9),

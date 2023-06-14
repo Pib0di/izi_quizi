@@ -5,7 +5,12 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
+import 'package:izi_quizi/data/repository/server/server_data.dart';
+import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
+import 'package:izi_quizi/presentation/single_view/single_view_state.dart';
+import 'package:izi_quizi/utils/theme.dart';
 import 'package:izi_quizi/widgets/button_delete.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 import 'package:universal_html/html.dart' as html;
@@ -18,12 +23,28 @@ class Question extends ConsumerWidget {
   bool? surveySlide;
   bool? freeResponseSlide;
 
+  String getType() {
+    if (surveySlide ?? false) {
+      return 'surveySlide';
+    } else if (freeResponseSlide ?? false) {
+      return 'freeResponseSlide';
+    } else {
+      return '';
+    }
+  }
+
   TextEditingController getTextEditingController() {
     return textEditingController;
   }
 
+  Color backgroundColor = colorScheme.tertiaryContainer;
+  bool pressed = false;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(multipleViewProvider);
+    final multipleViewController = ref.read(multipleViewProvider.notifier);
+    final appDataController = ref.read(appDataProvider.notifier);
     ref.watch(selectionSlideProvider);
     return Expanded(
       child: Stack(
@@ -32,53 +53,184 @@ class Question extends ConsumerWidget {
             padding: const EdgeInsets.all(8.0),
             child: Container(
               height: double.maxFinite,
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 // color: getRandomColor(),
                 // color: const Color(0xffddf59d),
                 color: Theme.of(context).colorScheme.tertiaryContainer,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(40),
               ),
               child: Align(
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: TextField(
-                    enabled: !(freeResponseSlide ?? false),
-                    controller: textEditingController,
-                    style: const TextStyle(
-                      fontSize: 26,
-                    ),
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: freeResponseSlide ?? false
-                          ? 'Участники будут вводить здесь свои ответы'
-                          : 'Введите текст',
-                    ),
-                    maxLines: null,
-                    textAlign: TextAlign.center,
-                  ),
+                  padding: appDataController.viewingMode
+                      ? const EdgeInsets.symmetric(horizontal: 0)
+                      : const EdgeInsets.symmetric(horizontal: 15),
+                  child: ((freeResponseSlide ?? false) ||
+                          !appDataController.viewingMode)
+                      ? Row(
+                          children: [
+                            Expanded(
+                              flex: 9,
+                              child: TextField(
+                                enableInteractiveSelection:
+                                    !appDataController.viewingMode,
+                                readOnly: appDataController.viewingMode &&
+                                    !(freeResponseSlide ?? false),
+                                // enabled: !appDataController.viewingMode && (freeResponseSlide ?? false),
+                                controller: textEditingController,
+                                style: const TextStyle(
+                                  fontSize: 26,
+                                ),
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: ((freeResponseSlide ?? false) &&
+                                          !appDataController.viewingMode)
+                                      ? 'Участники будут вводить здесь свои ответы'
+                                      : 'Введите текст',
+                                ),
+                                maxLines: null,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            if (appDataController.viewingMode)
+                              Expanded(
+                                flex: 1,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    presentationQuizRequest(
+                                      appDataController.getIdRoom(),
+                                      ref
+                                              .read(singleViewProvider.notifier)
+                                              .getState() -
+                                          1,
+                                      getType(),
+                                      textEditingController.text,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        colorScheme.secondaryContainer,
+                                    shape: RoundedRectangleBorder(),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: const [
+                                      Icon(
+                                        Icons.send,
+                                        color: Colors.grey,
+                                        size: 90,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                          ],
+                        )
+                      : Container(
+                          height: double.maxFinite,
+                          width: double.maxFinite,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(40),
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (pressed == false) {
+                                if (isSurvey == true) {
+                                  if (surveySlide ?? false) {
+                                    backgroundColor = Colors.lightGreen;
+                                    presentationQuizRequest(
+                                      appDataController.getIdRoom(),
+                                      ref
+                                              .read(singleViewProvider.notifier)
+                                              .getState() -
+                                          1,
+                                      getType(),
+                                      'true',
+                                    );
+                                  } else {
+                                    backgroundColor = Colors.orangeAccent;
+                                    presentationQuizRequest(
+                                      appDataController.getIdRoom(),
+                                      ref
+                                              .read(singleViewProvider.notifier)
+                                              .getState() -
+                                          1,
+                                      getType(),
+                                      textEditingController.text,
+                                    );
+                                  }
+                                } else {
+                                  if (surveySlide ?? false) {
+                                    backgroundColor = Colors.redAccent;
+                                    presentationQuizRequest(
+                                      appDataController.getIdRoom(),
+                                      ref
+                                              .read(singleViewProvider.notifier)
+                                              .getState() -
+                                          1,
+                                      getType(),
+                                      'false',
+                                    );
+                                  } else {
+                                    backgroundColor = Colors.orangeAccent;
+                                    presentationQuizRequest(
+                                      appDataController.getIdRoom(),
+                                      ref
+                                              .read(singleViewProvider.notifier)
+                                              .getState() -
+                                          1,
+                                      getType(),
+                                      textEditingController.text,
+                                    );
+                                  }
+                                }
+                              }
+                              pressed = true;
+                              multipleViewController.updateUi();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: backgroundColor,
+                              onPrimary: Colors.yellow,
+                              onSurface: Colors.yellow,
+                            ),
+                            child: Text(
+                              textEditingController.text,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onTertiaryContainer,
+                                fontSize: 30,
+                              ),
+                            ),
+                          ),
+                        ),
                 ),
               ),
             ),
           ),
-          Positioned(
-            top: 10,
-            right: 10,
-            child: Row(
-              children: [
-                if (surveySlide ?? false)
-                  CheckButton(
-                    keyParent: context.widget.key!,
-                    key: context.widget.key!,
-                    isSurvey: isSurvey,
-                  ),
-                if (!(freeResponseSlide ?? false))
-                  Center(
-                    child: ButtonDelete.deleteItemId(context.widget.key!, key: UniqueKey(),),
-                  ),
-              ],
+          if (!appDataController.viewingMode)
+            Positioned(
+              top: 10,
+              right: 10,
+              child: Row(
+                children: [
+                  if (surveySlide ?? false)
+                    CheckButton(
+                      keyParent: context.widget.key!,
+                      key: context.widget.key!,
+                      isSurvey: isSurvey,
+                    ),
+                  if (!(freeResponseSlide ?? false))
+                    Center(
+                      child: ButtonDelete.deleteItemId(
+                        context.widget.key!,
+                        key: UniqueKey(),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -113,8 +265,11 @@ Future<void> pickImageWeb(Ref ref) async {
         ),
       );
       // ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
-      final keyCurrentSlide = ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
-      ref.read(slideDataProvider.notifier).setMediaWidget(imageWidget, keyCurrentSlide);
+      final keyCurrentSlide =
+          ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
+      ref
+          .read(slideDataProvider.notifier)
+          .setMediaWidget(imageWidget, keyCurrentSlide);
       ref.read(selectionSlideProvider.notifier).updateUi();
     });
   });
@@ -141,8 +296,11 @@ Future<void> pickImagePC(Ref ref) async {
       ),
     );
     // ref.read(selectionSlideProvider.notifier).setMediaWidget(imageWidget);
-    final keyCurrentSlide = ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
-    ref.read(slideDataProvider.notifier).setMediaWidget(imageWidget,keyCurrentSlide );
+    final keyCurrentSlide =
+        ref.read(selectionSlideProvider.notifier).currentKeySelectSlide;
+    ref
+        .read(slideDataProvider.notifier)
+        .setMediaWidget(imageWidget, keyCurrentSlide);
     ref.read(selectionSlideProvider.notifier).updateUi();
   } else {
     // User canceled the picker
@@ -151,7 +309,8 @@ Future<void> pickImagePC(Ref ref) async {
 }
 
 class CheckButton extends ConsumerWidget {
-  const CheckButton({required this.isSurvey, required this.keyParent, super.key});
+  const CheckButton(
+      {required this.isSurvey, required this.keyParent, super.key});
 
   final bool isSurvey;
   final Key keyParent;
@@ -172,7 +331,11 @@ class CheckButton extends ConsumerWidget {
           shape: const CircleBorder(),
           elevation: 0.0,
           onPressed: () {
-            slideDataController.isSurveySlide(context.widget.key!, ref.read(selectionSlideProvider.notifier).currentKeySelectSlide);
+            slideDataController.isSurveySlide(
+                context.widget.key!,
+                ref
+                    .read(selectionSlideProvider.notifier)
+                    .currentKeySelectSlide);
             selectionSlideController.updateUi();
           },
           child: isSurvey
@@ -198,7 +361,7 @@ class Recorder extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectionSlideController = ref.read(selectionSlideProvider.notifier);
-    ref.read(selectionSlideProvider);
+    ref.watch(selectionSlideProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -258,7 +421,9 @@ class Recorder extends ConsumerWidget {
                                   Icon(
                                     Icons.keyboard_voice_sharp,
                                     // color: Color(0xE58FDC73),
-                                    color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onTertiaryContainer,
                                     size: 100,
                                   ),
                                 ],
@@ -338,7 +503,9 @@ class Recorder extends ConsumerWidget {
                                     children: [
                                       Icon(
                                         Icons.play_circle_outline_outlined,
-                                        color: Theme.of(context).colorScheme.onTertiaryContainer,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onTertiaryContainer,
                                         size: 100,
                                       ),
                                     ],

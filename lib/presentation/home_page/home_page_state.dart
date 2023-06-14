@@ -10,7 +10,9 @@ class HomePageController extends StateNotifier<int> {
   HomePageController() : super(0);
 
   final joinPresentTextController = TextEditingController();
+  final nameController = TextEditingController();
   late TabController tabController;
+  BuildContext? context;
 
   void updateUi() {
     ++state;

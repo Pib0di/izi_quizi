@@ -46,7 +46,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
               padding: const EdgeInsets.only(bottom: 10),
               shape: const RoundedRectangleBorder(),
               onPressed: () {
-                getPresentation(widget.idPresent, widget.presentName);
+                getPresentation(widget.idPresent);
                 appDataController
                   ..idPresent = widget.idPresent
                   ..presentName = widget.presentName;

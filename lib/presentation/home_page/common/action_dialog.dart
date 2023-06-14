@@ -5,6 +5,7 @@ import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/creating_editing_screen.dart';
 import 'package:izi_quizi/presentation/multiple_view/multiple_view_screen.dart';
+import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
 import 'package:izi_quizi/presentation/single_view/single_view_screen.dart';
 
 ///A presentation dialog box that allows you to select an action (single viewing, multiple viewing, editing)
@@ -48,23 +49,37 @@ class PresentationDialog<T> extends PopupRoute<T> {
         style: Theme.of(context).textTheme.bodyMedium!,
         child: UnconstrainedBox(
           child: Container(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(vertical: 30.0, horizontal: 50),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(20),
               color: Colors.white,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
+                Text(
+                  appDataController.presentName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 28,
+                  ),
+                ),
+                const Divider(),
                 // Text('Presentation Dialog', style: Theme.of(context).textTheme.headlineSmall),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
                   onPressed: () {
                     // request.getSlideData(idPresent, presentName); //Т.К ДАННЫЕ УЖЕ ЗАПРОШЕНЫ ПРИ НАЖАТИИ
                     // slideDataController.setItemsView();
                     slideDataController
                       ..clear()
                       ..setSlidesSingleView();
+                    ref.read(multipleViewProvider.notifier).isManager = true;
+                    ref.read(appDataProvider.notifier).viewingMode = true;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -74,7 +89,12 @@ class PresentationDialog<T> extends PopupRoute<T> {
                   },
                   child: Row(
                     children: const [
-                      Text('Просмотреть'),
+                      Text(
+                        'Просмотреть',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
                       SizedBox(
                         width: 5,
                       ),
@@ -84,12 +104,26 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
                   onPressed: () {
-                    createRoom(appDataController.idUser, presentName);
+                    ref.read(multipleViewProvider.notifier).isHideMenu = false;
+                    ref.read(multipleViewProvider.notifier).isManager = true;
+                    createRoom(appDataController.idUser, idPresent.toString());
                     // slideDataController.setItemsView();
+                    appDataController.idRoom =
+                        '${appDataController.idUser}-${idPresent.toString()}';
                     slideDataController
                       ..clear()
                       ..setSlidesSingleView();
+                    getUserRoom(
+                      appDataController.idUser,
+                      '${appDataController.idUser}-${appDataController.idPresent}',
+                    );
+                    ref.read(appDataProvider.notifier).viewingMode = true;
+                    presentationQuizReport.clear();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -99,7 +133,12 @@ class PresentationDialog<T> extends PopupRoute<T> {
                   },
                   child: Row(
                     children: const [
-                      Text('Начать сессию'),
+                      Text(
+                        'Начать сессию',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
                       SizedBox(
                         width: 5,
                       ),
@@ -111,11 +150,16 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                  ),
                   onPressed: () {
                     // slideDataController.setItemsEdit();
                     slideDataController
                       ..clear()
                       ..setSlidesEdit();
+                    ref.read(appDataProvider.notifier).viewingMode = false;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -125,7 +169,12 @@ class PresentationDialog<T> extends PopupRoute<T> {
                   },
                   child: Row(
                     children: const [
-                      Text('Редактировать'),
+                      Text(
+                        'Редактировать',
+                        style: TextStyle(
+                          fontSize: 20,
+                        ),
+                      ),
                       SizedBox(
                         width: 5,
                       ),

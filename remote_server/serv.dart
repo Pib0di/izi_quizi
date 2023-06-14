@@ -4,17 +4,18 @@ import 'dart:io';
 
 import 'package:mysql_client/mysql_client.dart';
 
+import 'multiple_processing.dart';
+
 SQL sql = SQL();
 
 Future<void> main() async {
-  final server = await HttpServer.bind('localhost', 5000);
-  // final server = await HttpServer.bind('185.251.89.216', 85);
+  final server = await HttpServer.bind('127.0.0.1', 80);
+  // final server = await HttpServer.bind('45.91.8.210', 80);
   print('Listening on ${server.address}:${server.port}');
 
   await for (var request in server) {
     if (WebSocketTransformer.isUpgradeRequest(request)) {
       print('request.method => ${request.method}');
-      // request.uri.path == '/stream';
       handleWebSocket(request);
     } else {
       request.response.statusCode = HttpStatus.badRequest;
@@ -26,127 +27,45 @@ Future<void> main() async {
 
 void handleWebSocket(HttpRequest request) {
   WebSocketTransformer.upgrade(request).then((webSocket) async {
-    // final roomId = "Uri.parse(request.uri.toString()).pathSegments.last";
-    // print('roomId => $roomId');
-    // final room = Room.getOrCreateRoom(roomId);
-    // final user = User(webSocket);
-    // room.addUser(user);
-
     webSocket.listen(
       (message) async {
         final answer = await redirection(message, webSocket);
 
         if (webSocket.readyState == WebSocket.open) {
-          print("add => ${jsonEncode(answer)}");
+          print('add => ${jsonEncode(answer)}');
           webSocket.add(jsonEncode(answer));
         }
-        // final data = jsonDecode(message);
-        // if (data is Map && data.containsKey('type') && data.containsKey('payload')) {
-        //   switch (data['type']) {
-        //     case 'sendMessage':
-        //       room.broadcastMessage(user, data['payload']);
-        //       break;
-        //     default:
-        //       print('Unknown message type: ${data['type']}');
-        //   }
-        // } else {
-        //   print('Invalid message format: $message');
-        // }
       },
       onDone: () {
-        // room.removeUser(user);
+        final id = webSocket.hashCode.toRadixString(16).toString();
+        for (var room in Room.rooms.values) {
+          if (room.users.isNotEmpty && room.users.first.id == id) {
+            room.dispose();
+            break;
+          } else if (room.users.isEmpty) {
+            room.dispose();
+          } else if (room.users.isNotEmpty) {
+            room.removeUser(id);
+          }
+        }
+        print('Room.rooms.length => ${Room.rooms.length}');
       },
     );
   });
 }
 
-class Room {
-  final String id;
-  final List<User> users = [];
-
-  Room(this.id);
-
-  Map<dynamic, String> getListUser() {
-    final listMap = <dynamic, String>{};
-
-    for (var user in users) {
-      listMap[user.id] = user.userName;
-    }
-    return listMap;
-  }
-
-  void addUser(User user) {
-    users.add(user);
-    user.send({
-      'obj': 'joinRoom',
-      'payload': {'roomId': id}
-    });
-    broadcastMessage(user, '${user.id} has joined the room');
-  }
-
-  void removeUser(User user) {
-    users.remove(user);
-    broadcastMessage(user, '${user.id} has left the room');
-  }
-
-  void broadcastMessage(User sender, String message) {
-    for (var user in users) {
-      if (user != sender) {
-        user.send({
-          'type': 'messageReceived',
-          'payload': {'senderId': sender.id, 'message': message}
-        });
-      }
-    }
-  }
-
-  static final Map<String, Room> rooms = {};
-
-  static Room getOrCreateRoom(String id) {
-    return rooms.putIfAbsent(id, () => Room(id));
-  }
-}
-
-class User {
-  final String id;
-  final WebSocket webSocket;
-  final String idUser;
-  String userName = 'undefined user';
-
-  User.name(this.webSocket, this.userName, this.idUser)
-      : id = webSocket.hashCode.toRadixString(16);
-
-  User(this.webSocket, this.idUser) : id = webSocket.hashCode.toRadixString(16);
-
-  void send(data) {
-    webSocket.add(jsonEncode(data));
-  }
-}
-
-class PresentNameMap {
-  String presentName;
-  String idPresent;
-
-  PresentNameMap(this.presentName, this.idPresent);
-
-  @override
-  String toString() {
-    return '{ $presentName, $idPresent }';
-  }
-}
-
 class SQL {
-  late String host = 'localhost',
-      user = 'root',
-      password = '1234',
-      db = 'iziqizi';
-  int port = 3306;
-
-  // late String host = '185.251.89.216',
+  // late String host = 'localhost',
   //     user = 'root',
   //     password = '1234',
   //     db = 'iziqizi';
-  // int port = 85;
+  // int port = 3306;
+
+  late String host = '45.91.8.210',
+      user = 'root',
+      password = '1234',
+      db = 'iziqizi';
+  int port = 85;
 
   Future<Map<dynamic, String>> listWidget(String userId) async {
     final conn = await MySQLConnection.createConnection(
@@ -199,12 +118,12 @@ class SQL {
         );
         // await Future.delayed(const Duration(milliseconds: 1500));
         await conn.close();
-        print("result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}");
+        print('result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}');
 
         if (result.isNotEmpty) {
           if (pass.toString() == result.rows.first.colAt(1).toString()) {
             print(
-                "result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}");
+                'result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}');
             return 'authorized ${result.rows.first.colAt(0)}';
           } else {
             return 'authErr';
@@ -280,9 +199,6 @@ class SQL {
     await conn.connect();
 
     if (conn.connected) {
-      // final String? JWT = prefs.getString('JWT');   // *********SharedPreferences
-      // print("JWT =  $JWT");  // *********SharedPreferences
-
       if (emailValid && passwordValid) {
         await conn.execute(
             'INSERT INTO `iziquiziusers`.`users` (`email`, `password`) '
@@ -320,12 +236,6 @@ class SQL {
           'SELECT idPresent FROM iziqizi.present where userId = (:idUser) ;',
           {'idUser': email, 'name': '$namePresent'},
         );
-        // await conn.execute("INSERT INTO `iziqizi`.`1-m` (`email`, `present`) VALUES (:email, :present);",
-        //     {
-        //       "email":"$email",
-        //       "present": "$namePresent"
-        //     }
-        // );
         return 'success';
       } on Exception catch (e) {
         return ('CreateError => $e');
@@ -392,7 +302,7 @@ class SQL {
     }
   }
 
-  Future<String> getSlideData(int idPresent, String presentName) async {
+  Future<String> getSlideData(int idPresent) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -409,13 +319,9 @@ class SQL {
             {
               'idPresent': idPresent,
             });
-        // result.rowsStream.listen((row) {
-        //   list.add(row.colAt(0)!);
-        // });
         for (final row in result.rows) {
           json += row.colAt(0)!;
         }
-        // json = result.rows.first.toString();
       } finally {
         await conn.close();
       }
@@ -459,9 +365,9 @@ class SQL {
 
 Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
   final jsonData = Map<String, dynamic>.from(json.decode(data));
-  print("request => $jsonData");
+  print('request => $jsonData');
   switch (jsonData['request_to']) {
-    // Database queries
+    // *********************** Database queries *************************
     case 'bd':
       {
         switch (jsonData['action']) {
@@ -523,7 +429,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
             {
               final list = await sql.getSlideData(
                 jsonData['idPresent'],
-                jsonData['presentName'],
               );
               Map<String, dynamic> json() => {
                     'obj': 'SlideData',
@@ -536,7 +441,7 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
         }
         break;
       }
-    // User queries
+  // *********************** User queries *************************
     case 'user':
       {
         switch (jsonData['action']) {
@@ -572,46 +477,173 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
         }
         break;
       }
-    case 'MultipleView':
+
+    // *********************** Multiple queries *************************
+    case 'multipleView':
       {
         switch (jsonData['action']) {
           case 'createRoom':
             {
-              final String userId = jsonData['idUser'];
-              final roomId = userId;
+              final String idUser = jsonData['idUser'];
+              final String idPresent = jsonData['idPresent'];
+              final idRoom = '$idUser-$idPresent';
 
-              final room = Room.getOrCreateRoom(roomId);
-              final user = User(webSocket, userId);
+              final room = Room.getOrCreateRoom(idRoom);
+              final user = User.name(webSocket, idUser, idUser);
               room.addUser(user);
 
-              //todo finish returning the value
-              // final presentName = jsonData['presentName'];
-              // Map<String, dynamic> json() => {
-              //       'obj': 'MultipleView',
-              //       'roomId': roomId,
-              //       'presentName': presentName,
-              //     };
+              final presentName = jsonData['presentName'].toString();
+              Map<String, dynamic> json() => {
+                    'obj': 'multipleView',
+                    'idUser': user.id,
+                    'idRoom': idRoom,
+                    'presentName': presentName,
+                  };
+              // webSocket.listen((event) { }).onDone(() {
+              //   room.removeUser(idUser);
+              // });
+              return json();
               break;
             }
           case 'joinRoom':
             {
               final String userName = jsonData['userName'];
-              final String roomId = jsonData['roomId'];
+              final String idRoom = jsonData['idRoom'];
 
-              final room = Room.getOrCreateRoom(roomId);
-              final user = User.name(
-                webSocket,
-                userName,
-                webSocket.hashCode.toRadixString(16),
-              );
-              room.addUser(user);
+              Map<String, dynamic> json;
+              if (Room.rooms.containsKey(idRoom) == true) {
+                json = {
+                  'obj': 'joinRoom',
+                  'result': 'successful',
+                  'idRoom': idRoom,
+                  'idUser': webSocket.hashCode.toRadixString(16).toString(),
+                };
 
-              final list = room.getListUser();
-              Map<String, dynamic> json() => {
-                    'obj': 'listUser',
-                    'list': list,
-                  };
-              return json();
+                final room = Room.getOrCreateRoom(idRoom);
+                final user = User.name(
+                  webSocket,
+                  userName,
+                  webSocket.hashCode.toRadixString(16),
+                );
+                room.addUser(user);
+                final list = room.getListUser();
+                room.sendUserList(
+                  list,
+                );
+              } else {
+                json = {
+                  'obj': 'joinRoom',
+                  'result': 'error',
+                };
+              }
+              return json;
+              break;
+            }
+          case 'getUserRoom':
+            {
+              final String userName = jsonData['userName'];
+              final String idRoom = jsonData['idRoom'];
+              if (Room.rooms.containsKey(idRoom) == true) {
+                final room = Room.getOrCreateRoom(idRoom);
+                final list = room.getListUser();
+                room.sendUserList(
+                  list,
+                );
+              }
+              break;
+            }
+          case 'removeUser':
+            {
+              final String idUserInRoom = jsonData['idUserInRoom'];
+              final String idRoom = jsonData['idRoom'];
+              if (Room.rooms.containsKey(idRoom) == true) {
+                final room = Room.getOrCreateRoom(idRoom);
+                room.removeUser(idUserInRoom);
+                final list = room.getListUser();
+                room.sendUserList(
+                  list,
+                );
+              }
+              break;
+            }
+          case 'presentationManagement':
+            {
+              final String command = jsonData['command'];
+              final String idRoom = jsonData['idRoom'];
+              final User? user;
+
+              if (Room.rooms.containsKey(idRoom) == true) {
+                final room = Room.getOrCreateRoom(idRoom);
+                user = room.getUser(webSocket.hashCode.toRadixString(16));
+                if (user != null) {
+                  room.broadcastMessage(user, command);
+                }
+              }
+              break;
+            }
+          case 'presentationQuizRequest':
+            {
+              final String idRoom = jsonData['idRoom'];
+              final int numSlide = jsonData['numSlide'];
+              final String typeSlide = jsonData['typeSlide'];
+              final String data = jsonData['data'];
+
+              final User? user;
+
+              if (Room.rooms.containsKey(idRoom) == true) {
+                final room = Room.getOrCreateRoom(idRoom);
+                user = room.getUser(webSocket.hashCode.toRadixString(16));
+                if (user != null) {
+                  final report = Report(
+                    numSlide,
+                    typeSlide,
+                    data,
+                  );
+                  var isFound = false;
+                  for (var element in user.report) {
+                    if ((element.numSlide ?? -1) == numSlide) {
+                      isFound = true;
+                      element = report;
+                      break;
+                    }
+                  }
+                  if (!isFound) {
+                    user.report.add(report);
+                  }
+
+                  final hostUser = room.users.first;
+                  // final userId = <String>[];
+                  // final numSlideList = <String>[];
+                  // final typeSlideList = <String>[];
+                  // final dataList = <String>[];
+                  hostUser.send({
+                    'obj': 'presentationQuizRequest',
+                    'idUser': user.id,
+                    'numSlide': report.numSlide.toString(),
+                    'typeSlide': report.typeSlide ?? '',
+                    'data': report.data ?? '',
+                  });
+                  for (var user in room.users) {
+                    for (var report in user.report) {
+                      // userId.add(user.id);
+                      // numSlideList.add(report.numSlide.toString());
+                      // typeSlideList.add(report.typeSlide ?? '');
+                      // dataList.add(report.data ?? '');
+                    }
+                    // print ('dataList => $dataList');
+                  }
+                  // hostUser.send({
+                  //   'obj': 'presentationQuizRequest',
+                  //   'idUser': userId,
+                  //   'numSlide': numSlideList,
+                  //   'typeSlide': typeSlideList,
+                  //   'data': dataList,
+                  // });
+
+                  // room.broadcastMessage(user, command);
+                }
+              }
+              break;
             }
           default:
             {}

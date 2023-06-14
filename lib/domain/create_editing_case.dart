@@ -30,6 +30,9 @@ class CreateEditingCase extends StateNotifier<int> {
 
   Ref ref;
 
+  final urlTextController = TextEditingController();
+  int addSettings = 0;
+
   void itemNum(int itemNum) {}
 
   void addItem(String nameItem) {
@@ -66,6 +69,20 @@ class CreateEditingCase extends StateNotifier<int> {
           final slideNum = ref.read(currentSlideNumber.notifier).state - 1;
           final isMobileDevice =
               ref.read(appDataProvider.notifier).isMobileDevice;
+
+          if (addSettings == -4) {
+            final imageBox = ItemsShel.imageWidgetJson(
+              key: UniqueKey(),
+              url: urlTextController.text,
+            );
+
+            ref
+                .read(slideDataProvider.notifier)
+                .indexOfListSlide(slideNum)
+                .addItemShel(imageBox);
+            ref.read(createEditing.notifier).updateUi();
+            break;
+          }
 
           if (isMobileDevice) {
             pickFileWeb(slideNum, ref);
@@ -110,7 +127,7 @@ class CreateEditingCase extends StateNotifier<int> {
   }
 }
 
-Future<void> pickFileWeb(int buttonId, Ref ref) async {
+Future<void> pickFileWeb(int slideNum, Ref ref) async {
   Uint8List? imageData;
 
   final input = FileUploadInputElement()..click();
@@ -132,14 +149,14 @@ Future<void> pickFileWeb(int buttonId, Ref ref) async {
 
       ref
           .read(slideDataProvider.notifier)
-          .indexOfListSlide(buttonId)
+          .indexOfListSlide(slideNum)
           .addItemShel(imageBox);
       ref.read(createEditing.notifier).updateUi();
     });
   });
 }
 
-Future<void> pickFilePC(int buttonId, Ref ref) async {
+Future<void> pickFilePC(int slideNum, Ref ref) async {
   final result = await FilePicker.platform.pickFiles(
     dialogTitle: "Выберите изображение или gif",
     type: FileType.image,
@@ -164,7 +181,7 @@ Future<void> pickFilePC(int buttonId, Ref ref) async {
 
     ref
         .read(slideDataProvider.notifier)
-        .indexOfListSlide(buttonId)
+        .indexOfListSlide(slideNum)
         .addItemShel(imageBox);
   } else {
     // User canceled the picker

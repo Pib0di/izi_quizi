@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/app_data.dart';
+import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/domain/home_page_case.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
+import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
 import 'package:izi_quizi/utils/theme.dart';
 
 class HomePageScreen extends ConsumerWidget {
@@ -15,8 +18,8 @@ class HomePageScreen extends ConsumerWidget {
       padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
       children: [
         Container(
-          margin: EdgeInsets.symmetric(
-            // horizontal: MediaQuery.of(context).size.width * 0.1,
+          margin: const EdgeInsets.symmetric(
+              // horizontal: MediaQuery.of(context).size.width * 0.1,
               ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,9 +67,8 @@ class JoinThePresentation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final homePageController =
-        ref.read(homePageProvider.notifier).joinPresentTextController;
-
+    final homePageController = ref.read(homePageProvider.notifier);
+    homePageController.context = context;
     return Container(
       padding: const EdgeInsets.all(20),
       // color: Colors.black,
@@ -88,12 +90,16 @@ class JoinThePresentation extends ConsumerWidget {
             return SizedBox(
               height: 120,
               child: Column(
-                children: listElement(homePageController),
+                children: listElement(
+                  ref,
+                ),
               ),
             );
           } else {
             return Row(
-              children: listElement(homePageController),
+              children: listElement(
+                ref,
+              ),
             );
           }
         },
@@ -102,18 +108,40 @@ class JoinThePresentation extends ConsumerWidget {
   }
 }
 
-List<Widget> listElement(TextEditingController controller) {
+List<Widget> listElement(WidgetRef ref) {
+  final homePageController = ref.read(homePageProvider.notifier);
   return <Widget>[
     Expanded(
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
-          filled: true,
-          fillColor: colorScheme.onPrimary,
-          border: OutlineInputBorder(),
-          labelText: 'Введите код присоединения',
-        ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: homePageController.joinPresentTextController,
+              decoration: InputDecoration(
+                // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                filled: true,
+                fillColor: colorScheme.onPrimary,
+                border: const OutlineInputBorder(),
+                labelText: 'Код присоединения',
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          Expanded(
+            child: TextFormField(
+              controller: homePageController.nameController,
+              decoration: InputDecoration(
+                // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                filled: true,
+                fillColor: colorScheme.onPrimary,
+                border: const OutlineInputBorder(),
+                labelText: 'Никнейм',
+              ),
+            ),
+          ),
+        ],
       ),
     ),
     const SizedBox(
@@ -144,7 +172,21 @@ List<Widget> listElement(TextEditingController controller) {
         ),
       ),
       onPressed: () {
-        joinTheRoom('userName', controller.text);
+        ref.read(appDataProvider.notifier).viewingMode = true;
+        ref.read(multipleViewProvider.notifier).isManager = false;
+        final userName = homePageController.nameController.text;
+        final roomId = homePageController.joinPresentTextController.text;
+        ref.read(appDataProvider.notifier).idRoom = roomId;
+        joinTheRoom(
+          userName,
+          roomId,
+        );
+        getUserRoom(
+          userName,
+          roomId,
+        );
+        // final idPresent = int.parse(roomId.split('-')[1]);
+        // getPresentation(idPresent);
       },
     ),
   ];

@@ -20,6 +20,7 @@ class SelectionSlideController extends StateNotifier<int> {
   Key currentKeySelectSlide = UniqueKey();
 
   final TextEditingController controller = TextEditingController();
+  final TextEditingController urlTextController = TextEditingController();
 
   bool freeResponseSlide = false;
   bool surveySlide = false;

@@ -34,14 +34,16 @@ class ElevatedButtonFactory extends StatelessWidget {
 }
 
 class ConsumerTextButton extends ConsumerWidget {
-  const ConsumerTextButton.showDialog({
+  ConsumerTextButton.showDialog({
     this.addedItem,
     this.id,
     this.child,
     this.closeAfterClicking,
+    this.onPressed,
     super.key,
   });
 
+  void Function()? onPressed;
   final bool? closeAfterClicking;
   final String? addedItem;
   final int? id;
@@ -53,19 +55,18 @@ class ConsumerTextButton extends ConsumerWidget {
         ref.read(createEditingCaseProvider.notifier);
 
     return TextButton(
-      onPressed: () => {
-        // if (id != null) {
-        //   ref.read(createEditing.notifier).set(id!),
-        // },
+      onPressed: onPressed ??
+          () => {
+                if (addedItem != null)
+                  {
+                    createEditingController.addSettings = id ?? 0,
+                    createEditingController.addItem(addedItem!),
+                  },
 
-        if (addedItem != null)
-          {
-            createEditingController.addItem(addedItem!),
-          },
-
-        //if the button be to a dialog box then close it
-        if (closeAfterClicking ?? false) {Navigator.pop(context, 'close')},
-      },
+                //if the button be to a dialog box then close it
+                if (closeAfterClicking ?? false)
+                  {Navigator.pop(context, 'close')},
+              },
       child: child ?? const Text(''),
     );
   }

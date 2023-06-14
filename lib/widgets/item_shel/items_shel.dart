@@ -1,5 +1,6 @@
 // ignore_for_file: directives_ordering
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
@@ -14,16 +15,16 @@ class ItemsShel extends ConsumerStatefulWidget {
   }
 
   ItemsShel.imageWidget(Key key, this.widgetInit) : super(key: key) {
-    type = 'image';
+    type = 'imageWidget';
   }
 
   ItemsShel.imageWidgetJson({
     super.key,
     this.url = '',
-    this.width = 0,
-    this.height = 0,
-    this.left = 0,
-    this.top = 0,
+    this.width = 300,
+    this.height = 200,
+    this.left = 800,
+    this.top = 400,
   }) {
     type = 'image';
   }
@@ -31,10 +32,10 @@ class ItemsShel extends ConsumerStatefulWidget {
   ItemsShel.textWidgetJson({
     super.key,
     this.text = '',
-    this.width = 0,
-    this.height = 0,
-    this.left = 0,
-    this.top = 0,
+    this.width = 300,
+    this.height = 200,
+    this.left = 800,
+    this.top = 400,
   }) {
     type = 'text';
   }
@@ -63,7 +64,8 @@ class ItemsShel extends ConsumerStatefulWidget {
       ..offsetX = left
       ..offsetY = top
       ..width = width
-      ..height = height;
+      ..height = height
+      ..url = url;
     // todo url implementation
     // itemsShelDataImage.url = _controller.value.text;
     if (type == 'image') {
@@ -76,10 +78,10 @@ class ItemsShel extends ConsumerStatefulWidget {
   int itemCount = 0;
   String text = '';
   String url = '';
-  double width = 300, height = 100;
+  double width = 300, height = 200;
   Offset offsetPos = Offset.zero;
   Widget? widgetInit;
-  double left = 100, top = 100;
+  double left = 800, top = 400;
 
   @override
   ItemsShelState createState() => ItemsShelState();
@@ -102,8 +104,8 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
 
   @override
   void initState() {
-    super.initState();
     widget.controller.text = widget.text;
+    super.initState();
   }
 
   late ButtonDelete buttonDelete;
@@ -172,7 +174,6 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
               widget.height -= widget.offsetPos.dy,
               if (widget.width + widget.offsetPos.dx > 20)
                 {
-                  // print("left"),
                   widget.left += widget.offsetPos.dx,
                 },
               if (widget.height + widget.offsetPos.dy > 20)
@@ -217,11 +218,11 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
     return RepaintBoundary(
       child: GestureDetector(
         onPanUpdate: (details) => setState(
-          () => {
-            offset += details.delta,
-            // angle = (_offset.dx) / 2 * 0.01,
-            widget.top = 200 + offset.dy,
-            widget.left = 200 + offset.dx,
+          () =>
+          {
+            offset = details.delta,
+            widget.top += offset.dy,
+            widget.left += offset.dx,
           },
         ),
         onTap: () {
@@ -258,13 +259,11 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                       Container(
                         margin: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
-                          // image: DecorationImage(
-                          //   // image: Image.file(File('dfg')),
-                          //   image: Image.file(imageFile).image,
-                          //   // image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                          //   fit: BoxFit.cover,
-                          // ),
-                          // borderRadius: BorderRadius.circular(15),
+                          image: DecorationImage(
+                            // image: NetworkImage(widget.url),
+                            image: CachedNetworkImageProvider(widget.url),
+                            fit: BoxFit.cover,
+                          ),
                           border:
                               itemId.state == itemCount ? setBorder : border,
                         ),
@@ -274,43 +273,48 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
                           padding: widget.widgetInit != null
                               ? const EdgeInsets.all(0)
                               : const EdgeInsets.all(10.0),
-                          child: Consumer(
-                            builder: (context, ref, _) {
-                              if (widget.widgetInit != null) {
-                                return widget.widgetInit!;
-                              } else {
-                                return OverflowBox(
-                                  child: ScrollConfiguration(
-                                    behavior: ScrollConfiguration.of(context)
-                                        .copyWith(scrollbars: false),
-                                    child: TextField(
-                                      scrollPhysics:
-                                          const NeverScrollableScrollPhysics(),
-                                      textDirection: TextDirection.ltr,
-                                      controller: widget.controller,
-                                      clipBehavior: Clip.none,
-                                      expands: false,
-                                      maxLines: double.maxFinite.toInt(),
-                                      scrollPadding: const EdgeInsets.all(0.0),
-                                      // keyboardType: TextInputType.multiline,
-                                      style: const TextStyle(
-                                        fontSize: 50,
-                                      ),
-                                      decoration: const InputDecoration(
-                                        hintText: 'Заголовок',
-                                        border: InputBorder.none,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
+                          child: widget.type == 'image'
+                              ? const Text('')
+                              : Consumer(
+                                  builder: (context, ref, _) {
+                                    // if (widget.widgetInit != null) {
+                                    if (widget.widgetInit != null) {
+                                      return widget.widgetInit!;
+                                    } else {
+                                      return OverflowBox(
+                                        child: ScrollConfiguration(
+                                          behavior:
+                                              ScrollConfiguration.of(context)
+                                                  .copyWith(scrollbars: false),
+                                          child: TextField(
+                                            scrollPhysics:
+                                                const NeverScrollableScrollPhysics(),
+                                            textDirection: TextDirection.ltr,
+                                            controller: widget.controller,
+                                            clipBehavior: Clip.none,
+                                            expands: false,
+                                            maxLines: double.maxFinite.toInt(),
+                                            scrollPadding:
+                                                const EdgeInsets.all(0.0),
+                                            // keyboardType: TextInputType.multiline,
+                                            style: const TextStyle(
+                                              fontSize: 50,
+                                            ),
+                                            decoration: const InputDecoration(
+                                              hintText: 'Заголовок',
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
                         ),
                       ),
                       if (hover || select) (leftTopTrigger()),
                       if (hover || select) (rightBottomTrigger()),
-                      if (hover || select) (rotateTrigger()),
+                      // if (hover || select) (rotateTrigger()),
                       if (select) (buttonDelete),
                       const SizedBox(
                         height: 50,
@@ -328,207 +332,114 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
   }
 }
 
-class LeftTopTrigger extends ConsumerWidget {
-  const LeftTopTrigger({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final itemsShelController = ref.read(itemShelProvider.notifier);
-    return Positioned(
-      top: 0,
-      left: 0,
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          itemsShelController
-            ..hover = true
-            ..border = itemsShelController.setBorder
-            ..offsetPos = details.delta
-            ..width -= itemsShelController.offsetPos.dx
-            ..height -= itemsShelController.offsetPos.dy;
-          if (itemsShelController.width + itemsShelController.offsetPos.dx >
-              20) {
-            itemsShelController.left += itemsShelController.offsetPos.dx;
-          }
-          if (itemsShelController.height + itemsShelController.offsetPos.dy >
-              20) {
-            itemsShelController.top += itemsShelController.offsetPos.dy;
-          }
-          itemsShelController.updateUi();
-        },
-        child: Container(
-          height: 10,
-          width: 10,
-          decoration: BoxDecoration(
-            color: const Color(0xFF66D286),
-            // color: const Color(0xE5DFFFD6),
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class RotateTrigger extends ConsumerWidget {
-  const RotateTrigger({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final itemsShelController = ref.read(itemShelProvider.notifier);
-    return Positioned(
-      top: 25,
-      left: itemsShelController.width / 2,
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          itemsShelController
-            ..angle += details.delta.dx * 0.01
-            ..updateUi();
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(3),
-          ),
-          child: const Icon(Icons.rotate_right, color: Color(0xFF66D286)),
-        ),
-      ),
-    );
-  }
-}
-
-class RightBottomTrigger extends ConsumerWidget {
-  const RightBottomTrigger({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final itemsShelController = ref.read(itemShelProvider.notifier);
-    final height = itemsShelController.height;
-    final width = itemsShelController.width;
-    return Positioned(
-      top: (height) < 20 ? 20 : height,
-      left: (width) < 20 ? 20 : width,
-      child: GestureDetector(
-        onPanUpdate: (details) {
-          itemsShelController
-            ..hover = true
-            ..border = itemsShelController.setBorder
-            ..offsetPos = details.delta;
-
-          if (width + itemsShelController.offsetPos.dx >= 20) {
-            itemsShelController.width += itemsShelController.offsetPos.dx;
-          } else {
-            itemsShelController.width = 20;
-          }
-
-          if (height + itemsShelController.offsetPos.dy >= 20) {
-            itemsShelController.height += itemsShelController.offsetPos.dy;
-          } else {
-            itemsShelController.height = 20;
-          }
-          itemsShelController.updateUi();
-        },
-        child: Container(
-          height: 10,
-          width: 10,
-          decoration: BoxDecoration(
-            color: const Color(0xFF66D286),
-            // color: const Color(0xE5DFFFD6),
-            borderRadius: BorderRadius.circular(3),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Widget rightBottomTrigger() {
-//   return Positioned(
-//     top: (widget.height + 0) < 20 ? 20 : widget.height + 0,
-//     left: (widget.width + 0) < 20 ? 20 : widget.width + 0,
-//     child: GestureDetector(
-//       onPanUpdate: (details) => setState(
-//             () => {
-//           hover = true,
-//           border = setBorder,
-//           widget.offsetPos = details.delta,
-//           if (widget.width + widget.offsetPos.dx >= 20)
-//             {
-//               widget.width += widget.offsetPos.dx,
-//             }
-//           else
-//             {widget.width = 20},
-//           if (widget.height + widget.offsetPos.dy >= 20)
-//             {
-//               widget.height += widget.offsetPos.dy,
-//             }
-//           else
-//             {widget.height = 20},
+// class LeftTopTrigger extends ConsumerWidget {
+//   const LeftTopTrigger({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final itemsShelController = ref.read(itemShelProvider.notifier);
+//     return Positioned(
+//       top: 0,
+//       left: 0,
+//       child: GestureDetector(
+//         onPanUpdate: (details) {
+//           itemsShelController
+//             ..hover = true
+//             ..border = itemsShelController.setBorder
+//             ..offsetPos = details.delta
+//             ..width -= itemsShelController.offsetPos.dx
+//             ..height -= itemsShelController.offsetPos.dy;
+//           if (itemsShelController.width + itemsShelController.offsetPos.dx >
+//               20) {
+//             itemsShelController.left += itemsShelController.offsetPos.dx;
+//           }
+//           if (itemsShelController.height + itemsShelController.offsetPos.dy >
+//               20) {
+//             itemsShelController.top += itemsShelController.offsetPos.dy;
+//           }
+//           itemsShelController.updateUi();
 //         },
-//       ),
-//       child: Container(
-//         height: 10,
-//         width: 10,
-//         decoration: BoxDecoration(
-//           color: const Color(0xFF66D286),
-//           // color: const Color(0xE5DFFFD6),
-//           borderRadius: BorderRadius.circular(3),
+//         child: Container(
+//           height: 10,
+//           width: 10,
+//           decoration: BoxDecoration(
+//             color: const Color(0xFF66D286),
+//             // color: const Color(0xE5DFFFD6),
+//             borderRadius: BorderRadius.circular(3),
+//           ),
 //         ),
 //       ),
-//     ),
-//   );
+//     );
+//   }
 // }
-
-// Widget leftTopTrigger() {
-//   return Positioned(
-//     top: 0,
-//     left: 0,
-//     child: GestureDetector(
-//       onPanUpdate: (details) => setState(
-//         () => {
-//           hover = true,
-//           border = setBorder,
-//           widget.offsetPos = details.delta,
-//           widget.width -= widget.offsetPos.dx,
-//           widget.height -= widget.offsetPos.dy,
-//           if (widget.width + widget.offsetPos.dx > 20)
-//             {
-//               // print("left"),
-//               widget.left += widget.offsetPos.dx,
-//             },
-//           if (widget.height + widget.offsetPos.dy > 20)
-//             {
-//               widget.top += widget.offsetPos.dy,
-//             },
+//
+// class RotateTrigger extends ConsumerWidget {
+//   const RotateTrigger({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final itemsShelController = ref.read(itemShelProvider.notifier);
+//     return Positioned(
+//       top: 25,
+//       left: itemsShelController.width / 2,
+//       child: GestureDetector(
+//         onPanUpdate: (details) {
+//           itemsShelController
+//             ..angle += details.delta.dx * 0.01
+//             ..updateUi();
 //         },
-//       ),
-//       child: Container(
-//         height: 10,
-//         width: 10,
-//         decoration: BoxDecoration(
-//           color: const Color(0xFF66D286),
-//           // color: const Color(0xE5DFFFD6),
-//           borderRadius: BorderRadius.circular(3),
+//         child: Container(
+//           decoration: BoxDecoration(
+//             borderRadius: BorderRadius.circular(3),
+//           ),
+//           child: const Icon(Icons.rotate_right, color: Color(0xFF66D286)),
 //         ),
 //       ),
-//     ),
-//   );
+//     );
+//   }
 // }
-
-// Widget rotateTrigger() {
-//   return Positioned(
-//     top: 25,
-//     left: widget.width / 2,
-//     child: GestureDetector(
-//       onPanUpdate: (details) => setState(
-//             () => {
-//           angle += details.delta.dx * 0.01,
+//
+// class RightBottomTrigger extends ConsumerWidget {
+//   const RightBottomTrigger({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     final itemsShelController = ref.read(itemShelProvider.notifier);
+//     final height = itemsShelController.height;
+//     final width = itemsShelController.width;
+//     return Positioned(
+//       top: (height) < 20 ? 20 : height,
+//       left: (width) < 20 ? 20 : width,
+//       child: GestureDetector(
+//         onPanUpdate: (details) {
+//           itemsShelController
+//             ..hover = true
+//             ..border = itemsShelController.setBorder
+//             ..offsetPos = details.delta;
+//
+//           if (width + itemsShelController.offsetPos.dx >= 20) {
+//             itemsShelController.width += itemsShelController.offsetPos.dx;
+//           } else {
+//             itemsShelController.width = 20;
+//           }
+//
+//           if (height + itemsShelController.offsetPos.dy >= 20) {
+//             itemsShelController.height += itemsShelController.offsetPos.dy;
+//           } else {
+//             itemsShelController.height = 20;
+//           }
+//           itemsShelController.updateUi();
 //         },
-//       ),
-//       child: Container(
-//         decoration: BoxDecoration(
-//           borderRadius: BorderRadius.circular(3),
+//         child: Container(
+//           height: 10,
+//           width: 10,
+//           decoration: BoxDecoration(
+//             color: const Color(0xFF66D286),
+//             // color: const Color(0xE5DFFFD6),
+//             borderRadius: BorderRadius.circular(3),
+//           ),
 //         ),
-//         child: const Icon(Icons.rotate_right, color: Color(0xFF66D286)),
 //       ),
-//     ),
-//   );
+//     );
+//   }
 // }

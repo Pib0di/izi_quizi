@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
 
@@ -11,6 +12,7 @@ class SingleViewController extends StateNotifier<int> {
   SingleViewController(this.ref) : super(0);
 
   Ref ref;
+  late BuildContext context;
 
   int getTotalSlide() {
     return ref.read(slideDataProvider.notifier).getLengthListSlideWidget() - 1;
@@ -28,9 +30,13 @@ class SingleViewController extends StateNotifier<int> {
     }
   }
 
+  void set(int num) {
+    if (num <= getTotalSlide() && num >= 0) {
+      state = num;
+    }
+  }
+
   int getState() {
     return state;
   }
-
-  void set(int value) => state = value;
 }

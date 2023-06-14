@@ -20,6 +20,15 @@ class AppDataState extends StateNotifier<int> {
   bool isMobile = false;
   bool isMobileDevice = true;
 
+  bool viewingMode = false;
+
+  String idRoom = '';
+  String idUserInRoom = '';
+
+  String getIdRoom() {
+    return idRoom;
+  }
+
   Map<String, dynamic> userPresentations = {};
 
   Map<String, dynamic> getUserPresentName() {

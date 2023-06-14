@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/domain/create_editing_case.dart';
@@ -19,6 +20,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
   late CreateEditingCase createEditingController;
   late SideSlidesPreview slidesPreviewController;
   late List<List<Widget>> selectWidget;
+
   @override
   void initState() {
     createEditingController = ref.read(createEditingCaseProvider.notifier);
@@ -54,7 +56,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
               },
               labelType: NavigationRailLabelType.all,
               destinations:
-                  getNavRailDestination(slidesPreviewController.selectedIndex),
+              getNavRailDestination(slidesPreviewController.selectedIndex),
             ),
             // const VerticalDivider(),
             // VerticalDivider(
@@ -75,7 +77,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
                             slidesPreviewController.selectedIndex == 0
                                 ? 0
                                 : slidesPreviewController.selectedIndex - 1],
-                      )
+                )
                     : const SlidesPreview(),
               ),
             ),
@@ -90,7 +92,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
 
 Color colorIcon = colorScheme.onPrimary;
 // Color colorIcon = Color(0xE570FF00);
-Color colorSelectedIcon = Color(0xE500FFE1);
+Color colorSelectedIcon = const Color(0xE500FFE1);
 Color colorText = colorIcon;
 
 List<NavigationRailDestination> getNavRailDestination(int selectedIndex) {
@@ -178,31 +180,69 @@ List<NavigationRailDestination> getNavRailDestination(int selectedIndex) {
   ];
 }
 
-List<Widget> mediaMenu(
-  BuildContext context,
-  CreateEditingCase createEditingController,
+List<Widget> mediaMenu(BuildContext context,
+    CreateEditingCase createEditingController,
 ) {
   return <Widget>[
     ElevatedButtonFactory.numAddItem(
       onPressed: () => {
         showDialog<String>(
           context: context,
-          builder: (BuildContext context) => const AlertDialog(
-            title: Text('Вставьте изображение или gif'),
-            content: Text('AlertDialog description'),
+          builder: (BuildContext context) => AlertDialog(
+            title: const Text('Вставьте изображение или gif'),
+            content: IntrinsicHeight(
+              child: Column(
+                children: [
+                  Form(
+                    child: TextFormField(
+                      onChanged: (value) {
+                        // createEditingController.updateUi();
+                      },
+                      controller: createEditingController.urlTextController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'https://animal/cat.jpg',
+                        labelText: 'URL',
+                      ),
+                      maxLines: 1,
+                    ),
+                  ),
+                  Container(
+                    width: 300,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        // image: NetworkImage(createEditingController.urlTextController.text ?? ''),
+                        // image: CachedNetworkImageProvider(url ?? ''),
+                        image: CachedNetworkImageProvider(
+                            createEditingController.urlTextController.text ??
+                                ''),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             actions: <Widget>[
               ConsumerTextButton.showDialog(
                 closeAfterClicking: true,
-                child: Text('отмена'),
+                child: const Text('отмена'),
               ),
               ConsumerTextButton.showDialog(
                 closeAfterClicking: false,
                 addedItem: 'image',
-                id: -4,
-                child: Text('загрузить'),
+                child: const Text('проводник'),
               ),
+              if (true)
+                ConsumerTextButton.showDialog(
+                  closeAfterClicking: false,
+                  addedItem: 'image',
+                  id: -4,
+                  child: const Text('вставить'),
+                ),
             ],
-          ),
+              ),
         )
       },
       child: const Text('Изображения'),
