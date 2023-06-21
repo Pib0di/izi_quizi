@@ -4,15 +4,19 @@ import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
 import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/presentation/home_page/common/action_dialog.dart';
+import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
+import 'package:izi_quizi/presentation/single_view/single_view_state.dart';
 
 class PresentCard extends ConsumerStatefulWidget {
   const PresentCard({
+    this.isPublic,
     required this.idPresent,
     required this.presentName,
     super.key,
   });
 
-  final int idPresent;
+  final bool? isPublic;
+  final String idPresent;
   final String presentName;
 
   @override
@@ -24,10 +28,22 @@ class PresentCardState extends ConsumerState<PresentCard> {
   Widget build(BuildContext context) {
     final myValueRef = ref.read(slideDataProvider.notifier).ref;
     final appDataController = ref.read(appDataProvider.notifier);
-    return Stack(
-      children: [
-        Positioned(
-          child: Container(
+    return Container(
+      margin: const EdgeInsets.only(right: 24),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.outline.withAlpha(40),
+            blurRadius: 7,
+            spreadRadius: 2,
+            offset: const Offset(-5, 5),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Container(
             clipBehavior: Clip.hardEdge,
             width: 190,
             height: 150,
@@ -43,15 +59,19 @@ class PresentCardState extends ConsumerState<PresentCard> {
               borderRadius: BorderRadius.circular(15),
             ),
             child: RawMaterialButton(
-              padding: const EdgeInsets.only(bottom: 10),
+              // padding: const EdgeInsets.only(bottom: 10),
               shape: const RoundedRectangleBorder(),
               onPressed: () {
+                ref.read(singleViewProvider.notifier).state = 0;
+                // final numSelectSlide = singleViewController.getState();
+
                 getPresentation(widget.idPresent);
                 appDataController
                   ..idPresent = widget.idPresent
                   ..presentName = widget.presentName;
                 Navigator.of(context).push(
                   PresentationDialog<void>(
+                    isPublic: widget.isPublic ?? false,
                     idPresent: widget.idPresent,
                     presentName: widget.presentName,
                     ref: myValueRef,
@@ -63,18 +83,20 @@ class PresentCardState extends ConsumerState<PresentCard> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    decoration: BoxDecoration(
-                      // color: const Color(0xE5DFFFD6),
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                      borderRadius: BorderRadius.circular(15),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    // margin: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: const BoxDecoration(
+                      color: Color(0xE5DFFFD6),
+                      // color: Theme.of(context).colorScheme.surfaceVariant,
+                      // borderRadius: BorderRadius.circular(15),
                     ),
                     child: Text(
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 16,
-                        color:
-                            Theme.of(context).colorScheme.onTertiaryContainer,
+                        color: Theme.of(context).colorScheme.outline,
+                        fontWeight: FontWeight.w500,
                       ),
                       widget.presentName,
                     ),
@@ -83,33 +105,154 @@ class PresentCardState extends ConsumerState<PresentCard> {
               ),
             ),
           ),
-        ),
-        Positioned(
-          right: 0,
-          child: Container(
-            margin: const EdgeInsets.all(5),
-            width: 30,
-            height: 30,
-            child: RawMaterialButton(
-              fillColor: Theme.of(context).colorScheme.error,
-              shape: const CircleBorder(),
-              elevation: 0.0,
-              onPressed: () {
-                deletePresent(
-                  appDataController.email,
-                  widget.idPresent.toString(),
-                );
-              },
-              child: const Icon(
-                Icons.delete,
-                // color: Theme.of(context).colorScheme.onPrimary,
-                color: Colors.black87,
-                size: 20,
+          if (!(widget.isPublic ?? false))
+            Positioned(
+              right: 0,
+              child: Container(
+                margin: const EdgeInsets.all(5),
+                width: 30,
+                height: 30,
+                child: RawMaterialButton(
+                  // fillColor: Theme.of(context).colorScheme.errorContainer,
+                  shape: const CircleBorder(),
+                  elevation: 0.0,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return SimpleDialog(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.background,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          title: Column(
+                            children: [
+                              Text(
+                                'Удалить презентацию:',
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                widget.presentName,
+                                style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onBackground,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                          children: <Widget>[
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Row(
+                              children: [
+                                const SizedBox(width: 10),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context, ClipRRect);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
+                                    padding: const EdgeInsets.all(16.0),
+                                    textStyle: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Отмена',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
+                                  ),
+                                ),
+                                const Spacer(),
+                                TextButton(
+                                  onPressed: () {
+                                    getPublicListPresentation();
+                                    deletePresent(
+                                      appDataController.email,
+                                      widget.idPresent.toString(),
+                                    );
+                                    ScaffoldMessenger.of(ref
+                                            .read(homePageProvider.notifier)
+                                            .context!)
+                                        .showSnackBar(
+                                      const SnackBar(
+                                        behavior: SnackBarBehavior.floating,
+                                        duration: Duration(seconds: 2),
+                                        content: Center(
+                                          child: Text(
+                                            'Процесс удаления...',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    Navigator.pop(context, ClipRRect);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(30),
+                                    ),
+                                    backgroundColor: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
+                                    padding: const EdgeInsets.all(16.0),
+                                    textStyle: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Удалить',
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: Icon(
+                    Icons.cancel,
+                    // color: Theme.of(context).colorScheme.onPrimary,
+                    color: Theme.of(context).colorScheme.error.withAlpha(80),
+                    size: 30,
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

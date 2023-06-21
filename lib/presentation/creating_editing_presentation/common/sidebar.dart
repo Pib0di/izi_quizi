@@ -298,6 +298,7 @@ List<Widget> slideMenuList() {
       Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               slideMenuItems[i],
               const SizedBox(
@@ -449,23 +450,21 @@ class ExpandedButtonFactory extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Expanded(
-      child: Tooltip(
-        message: tooltip,
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
+    return Tooltip(
+      message: tooltip,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          child: Column(
-            children: [
-              Icon(icon),
-              if (text != null) Text(text!),
-            ],
-          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon),
+            if (text != null) Text(text!),
+          ],
         ),
       ),
     );

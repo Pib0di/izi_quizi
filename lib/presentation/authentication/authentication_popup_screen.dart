@@ -103,6 +103,7 @@ class Buttons extends ConsumerWidget {
     final authenticationController = ref.read(authenticationProvider.notifier);
     var buttonPressed = authenticationController.buttonPressed;
     final authorizeError = authenticationController.authorizeError;
+    final registrationError = authenticationController.registrationError;
 
     if (authorizeError) {
       buttonPressed = false;
@@ -112,6 +113,7 @@ class Buttons extends ConsumerWidget {
       children: <Widget>[
         if (buttonPressed) circularProgress,
         if (authorizeError) errorWidget,
+        if (registrationError) errorRegistrationWidget,
         const SizedBox(
           height: 10,
         ),
@@ -126,9 +128,14 @@ class Buttons extends ConsumerWidget {
                   textStyle: const TextStyle(fontSize: 20),
                 ),
                 onPressed: () {
+                  authenticationController.registrationError = false;
                   if (formKey.currentState!.validate()) {
+                    registration(
+                      authenticationController.controllerEmail.text,
+                      authenticationController.controllerPass.text,
+                    );
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')),
+                      const SnackBar(content: Text('Процесс регистрации')),
                     );
                   }
                 },
@@ -198,6 +205,16 @@ Widget errorWidget = Row(
       size: 30,
     ),
     Text('Ошибка авторизации'),
+  ],
+);
+Widget errorRegistrationWidget = Row(
+  children: const [
+    Icon(
+      Icons.account_circle,
+      color: Colors.redAccent,
+      size: 30,
+    ),
+    Text('Возможно такая почта уже существует'),
   ],
 );
 

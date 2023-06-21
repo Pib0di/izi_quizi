@@ -9,10 +9,11 @@ class AuthenticationController extends StateNotifier<int> {
   AuthenticationController() : super(0);
 
   bool buttonPressed = false;
+  bool registrationError = false;
   bool authorizeError = false;
 
-  final controllerEmail = TextEditingController();
-  final controllerPass = TextEditingController();
+  final controllerEmail = TextEditingController(text: 'test@test');
+  final controllerPass = TextEditingController(text: '1234qwerASD');
   final formKey = GlobalKey<FormState>();
 
   bool isAuth = false;

@@ -20,7 +20,7 @@ class ElevatedButtonFactory extends StatelessWidget {
         style: ButtonStyle(
           alignment: Alignment.center,
           padding: MaterialStateProperty.all(
-            const EdgeInsets.symmetric(vertical: 5),
+            const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
           ),
         ),
         onPressed: onPressed,

@@ -167,7 +167,7 @@ class SingleViewPresentationState
                                 height: 600,
                                 clipBehavior: Clip.hardEdge,
                                 decoration: BoxDecoration(
-                                  color: Colors.transparent,
+                                    color: Colors.transparent,
                                 ),
                                 child: const ReportWidget()),
                           ],

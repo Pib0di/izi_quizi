@@ -1,0 +1,31 @@
+
+//Производим сборку
+docker build . 
+
+//Смотрим имеющиеся изображения
+docker images  
+
+//меняем <none>, добавляя репозиторий и тег (первые 3 символа изображения)
+docker tag 43f pib0di/iziquizi_serv:serv
+
+//Входим в Docker Hub
+docker login -u pib0di -p yfrjytxysqfylhtq123
+
+//пушим
+docker push pib0di/iziquizi_serv:servlast
+
+
+
+
+
+docker-compose up   
+
+docker build . -t dart_serv    
+ 
+docker push pib0di/iziquizi_serv:serv  
+docker push pib0di/docker-dart_serv:latest
+docker push docker-dart_serv:latest
+
+docker container commit f5d5e403abd0 docker-dart_serv:latest
+
+docker push pib0di/iziquizi_serv:docker-dart_serv:latest

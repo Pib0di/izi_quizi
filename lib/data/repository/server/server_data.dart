@@ -13,28 +13,96 @@ import 'package:izi_quizi/presentation/single_view/single_view_state.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 final webSocketProvider = StreamProvider<String>((ref) async* {
-  final socket = SocketConnection._channel;
-
-  socket.stream.listen((data) {
-    ref.read(parseMessageProvider.notifier).parse(data);
-  });
-});
-
-class SocketConnection {
-  static final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://45.91.8.210:80'),
-    // Uri.parse('ws://127.0.0.1:80'),
+  ref.onDispose(() {});
+  SocketConnection.websocket().listen(
+    (data) {
+      ref.read(parseMessageProvider.notifier).parse(data);
+    },
+    onError: (error) {
+      print('Ошибка приема сообщения11111111111111111: $error');
+    },
+    onDone: () {
+      print('Соединение закрыто11111111111');
+      SocketConnection.reconnect();
+    },
   );
 
+  // final socket = SocketConnection.channel.stream.listen(
+  //   (data) {
+  //     ref.read(parseMessageProvider.notifier).parse(data);
+  //   },
+  //   onError: (error) {
+  //     print('Ошибка приема сообщения: $error');
+  //   },
+  //   onDone: () {
+  //     print('Соединение закрыто');
+  //     SocketConnection.reconnect();
+  //   },
+  // );
+});
+
+class WebSocket {
+  late StreamController<String> _streamController = StreamController<String>();
+
+  Stream<String> get stream => _streamController.stream;
+
+  // Метод для перезапуска потока
+  void restartStream() {
+    // Закройте предыдущий поток
+    _streamController.close();
+
+    // Создайте новый поток
+    _streamController = StreamController<String>();
+  }
+
+  // Метод для отправки данных по потоку
+  void sendToStream(String data) {
+    _streamController.sink.add(data);
+  }
+
+  // Метод для закрытия потока
+  void closeStream() {
+    _streamController.close();
+  }
+}
+
+final container = ProviderContainer();
+final webSocket = container.read(webSocketProvider);
+
+class SocketConnection {
+  static var channel = WebSocketChannel.connect(
+    // Uri.parse('ws://45.91.8.210:80'),
+    Uri.parse('ws://127.0.0.1:80'), //local
+  );
+
+  static void reconnect() {
+    print('Переподключение');
+    if (channel != null && channel.closeCode == null) {
+      // channel.sink.close();
+    }
+    channel = WebSocketChannel.connect(
+      // Uri.parse('ws://45.91.8.210:80'),
+      Uri.parse('ws://127.0.0.1:80'), //local
+    );
+  }
+
   static void sendMessage(data) {
-    // Timer? timer;
-    // timer = Timer.periodic(const Duration(seconds: 5), (_) {
-    // });
-    _channel.sink.add(data);
+    if (channel.closeCode == null) {
+      print('WebSocket подключен => ${channel.closeCode}');
+      // reconnect();
+    } else {
+      print('WebSocket закрыт с кодом: ${channel.closeCode}');
+      reconnect();
+    }
+    channel.sink.add(data);
   }
 
   static WebSocketChannel getConnection() {
-    return _channel;
+    return channel;
+  }
+
+  static websocket() {
+    return SocketConnection.channel.stream;
   }
 }
 
@@ -104,7 +172,7 @@ void presentationQuizRequest(
 
 //- - - - - - - - - - - - - - - - - - - - BD - - - - - - - - - - - - - - - - -
 void setPresentation(
-  int idPresent,
+  String idPresent,
   String idUser,
   String presentName,
   String jsonSlide,
@@ -120,7 +188,7 @@ void setPresentation(
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
-void getPresentation(int idPresent) {
+void getPresentation(String idPresent) {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
         'action': 'getSlideData',
@@ -129,45 +197,53 @@ void getPresentation(int idPresent) {
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
-void deletePresent(String email, String deletedPresent) {
+void deletePresent(String email, String idDeletedPresent) {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
-        'action': 'delete',
+        'action': 'deletePresentation',
         'email': email,
-        'nameDeletePresent': deletedPresent,
+        'idDeletedPresent': idDeletedPresent,
       };
   // var jsonRequest = jsonEncode(json());
   SocketConnection.sendMessage(jsonEncode(json()));
   // Map<String, dynamic> users = jsonDecode(json);
 }
 
-void createPresent(String idUser, String namePresent) {
+void createPresent(String idUser, String namePresent, bool isPublic) {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
         'action': 'create',
         'email': idUser,
+        'isPublic': isPublic,
         'namePresent': namePresent,
       };
   // var jsonRequest = jsonEncode(json());
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
-void renamePresent(String email, String nameUpdate, String newName) {
+void renamePresent(String idPresent, String newName) {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
         'action': 'rename',
-        'email': email,
-        'nameUpdate': nameUpdate,
         'newName': newName,
+        'idPresent': idPresent,
       };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
-Future<void> getListWidget(String idUser) async {
+Future<void> getUserListPresentation(String idUser) async {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
         'action': 'presentList',
         'idUser': idUser,
+      };
+  SocketConnection.sendMessage(jsonEncode(json()));
+}
+
+Future<void> getPublicListPresentation() async {
+  Map<String, dynamic> json() => {
+        'request_to': 'bd',
+        'action': 'publicPresentList',
       };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
@@ -213,51 +289,169 @@ class ParseMessage extends StateNotifier<int> {
           switch (data['valid']) {
             case 'true':
               {
+                final appDataController = ref.read(appDataProvider.notifier);
                 ref
                     .read(authenticationProvider.notifier)
                     .authorized(data['idUser']);
                 ref.read(homePageProvider.notifier).updateUi();
-                ref.read(appDataProvider.notifier).idUser = data['idUser'];
+                appDataController
+                  ..idUser = data['idUser'].toString()
+                  ..isAuthorized = true;
+
+                await getUserListPresentation(appDataController.idUser);
                 break;
               }
             default:
               {
                 ref.read(authenticationProvider.notifier).notAuthorized();
-
-                // AppDataState()
-                //   ..authentication(true)
-                //   ..authentication(false);
               }
           }
           break;
         }
       case 'registration':
         {
-          switch (data['valid']) {
-            case 'true':
-              {
-                // bool verification = true; // ????
-                break;
-              }
-            default:
-              {}
+          final valid = data['valid'];
+          if (valid == 'success') {
+            final authenticationController =
+                ref.read(authenticationProvider.notifier);
+            authenticationController.registrationError = false;
+            authenticationController.update();
+            ScaffoldMessenger.of(ref.read(homePageProvider.notifier).context!)
+                .showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+                content: Center(
+                  child: Text(
+                    'Регистрация прошла успешно',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          } else if (valid == 'error') {
+            ref.read(authenticationProvider.notifier).registrationError = true;
+            ref.read(authenticationProvider.notifier).update();
+            ScaffoldMessenger.of(ref.read(homePageProvider.notifier).context!)
+                .showSnackBar(
+              SnackBar(
+                backgroundColor: Colors.red.shade100,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 1, milliseconds: 500),
+                content: Center(
+                  child: Text(
+                    'Ошибка регистрации нового пользователя',
+                    style: TextStyle(
+                      color: Colors.redAccent.withAlpha(90),
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
           }
           break;
         }
-      case 'listWidget':
+      case 'presentList':
         {
           if (!data['list']!.isEmpty) {
-            ref
-                .read(homePageProvider.notifier)
-                .setUserPresentName(data['list']);
-            ref.read(homePageProvider.notifier).updateUi();
+            final homePageController = ref.read(homePageProvider.notifier);
+            homePageController
+              ..currentPosition = 0
+              ..userPresentations.clear()
+              ..setUserPresentName(data['list'])
+              ..updateUi();
           }
+          break;
+        }
+      case 'publicPresentList':
+        {
+          if (!data['list']!.isEmpty) {
+            final homePageController = ref.read(homePageProvider.notifier);
+            homePageController
+              ..publicPresentName.clear()
+              ..setPublicPresentName(data['list'])
+              ..updateUi();
+          }
+          break;
+        }
+      case 'renamePresent':
+        {
+          final result = data['result'].toString();
+          if (result == 'renameSuccess') {
+            ScaffoldMessenger.of(ref.read(homePageProvider.notifier).context!)
+                .showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+                content: Center(
+                  child: Text(
+                    'Перзентация успешно переименована',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+          final appDataController = ref.read(appDataProvider.notifier);
+          await getUserListPresentation(appDataController.idUser);
+          break;
+        }
+      case 'deletePresentation':
+        {
+          if (!data['result']!.isEmpty && data['result'] == 'successful') {
+            unawaited(getPublicListPresentation());
+            ScaffoldMessenger.of(ref.read(homePageProvider.notifier).context!)
+                .showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+                content: Center(
+                  child: Text(
+                    'Перзентация успешно удалена',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }
+          final appDataController = ref.read(appDataProvider.notifier);
+          await getUserListPresentation(appDataController.idUser);
           break;
         }
       case 'create':
         {
           if (data['success'] == 'true') {
-            // bool _presentCreate = true; // ????
+            final homePageController = ref.read(homePageProvider.notifier);
+            final appDataController = ref.read(appDataProvider.notifier);
+            appDataController.idPresent = data['idPresent'];
+            unawaited(getUserListPresentation(appDataController.idUser));
+            unawaited(getPublicListPresentation());
+            ScaffoldMessenger.of(homePageController.context!).showSnackBar(
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+                content: Center(
+                  child: Text(
+                    'Перзентация создана',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            );
           }
           break;
         }
@@ -265,7 +459,7 @@ class ParseMessage extends StateNotifier<int> {
         {
           ref.read(slideDataProvider.notifier).setDataSlide(data);
           ref.read(slideDataProvider.notifier)
-            ..clear()
+            ..clearPresentation()
             ..setSlidesSingleView();
           break;
         }
@@ -288,7 +482,7 @@ class ParseMessage extends StateNotifier<int> {
           final idRoom = data['idRoom'].toString();
           final appDataController = ref.read(appDataProvider.notifier);
           if (result == 'successful') {
-            final idPresent = int.parse(idRoom.split('-')[1]);
+            final idPresent = idRoom.split('-')[1];
             getPresentation(idPresent);
             appDataController.idUserInRoom = idUserInRoom;
             unawaited(
@@ -301,7 +495,19 @@ class ParseMessage extends StateNotifier<int> {
             );
           } else {
             ScaffoldMessenger.of(homePageController.context!).showSnackBar(
-              const SnackBar(content: Text('Такой конмнаты на существует!')),
+              const SnackBar(
+                behavior: SnackBarBehavior.floating,
+                duration: Duration(seconds: 2),
+                content: Center(
+                  child: Text(
+                    'Такой конмнаты на существует!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             );
           }
           break;
@@ -426,7 +632,6 @@ class Report {
     typeSlideList.add(typeSlide);
     dataList.add(data);
   }
-
   final numSlideList = <String>[];
   final typeSlideList = <String>[];
   final dataList = <String>[];

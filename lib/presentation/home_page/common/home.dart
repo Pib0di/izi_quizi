@@ -9,11 +9,11 @@ import 'package:izi_quizi/utils/theme.dart';
 
 class HomePageScreen extends ConsumerWidget {
   const HomePageScreen({super.key});
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(homePageProvider);
     final homePageController = ref.read(homePageProvider.notifier);
+
     return ListView(
       padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
       children: [
@@ -31,28 +31,151 @@ class HomePageScreen extends ConsumerWidget {
               const SizedBox(
                 height: 90,
               ),
-              Text(
-                'Общедоступные презентации',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  color: Theme.of(context).colorScheme.onBackground,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Text(
+                  'Ваши презентации',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
                 ),
               ),
               const SizedBox(
                 height: 20,
               ),
               SizedBox(
-                height: 190,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: getUserPresentations(homePageController),
+                height: 150,
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        final position = homePageController.currentPosition;
+                        if ((position - 198) >= 0) {
+                          homePageController.currentPosition -= 198;
+                        } else {
+                          homePageController.currentPosition = 0;
+                        }
+                        homePageController.scrollController.animateTo(
+                          homePageController.currentPosition,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.ease,
+                        );
+                      },
+                      padding: const EdgeInsets.all(0),
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(14.0),
+                        clipBehavior: Clip.antiAlias,
+                        decoration: const BoxDecoration(
+                          color: Colors.transparent,
+                        ),
+                        child: ListView.builder(
+                          clipBehavior: Clip.none,
+                          controller: homePageController.scrollController,
+                          itemCount:
+                              getUserPresentations(homePageController).length,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (BuildContext context, int index) {
+                            return GestureDetector(
+                              onPanUpdate: (details) {
+                                final position =
+                                    homePageController.currentPosition;
+                                if ((position - details.delta.dx) >= 0 &&
+                                    (position - details.delta.dx) <=
+                                        homePageController.scrollController
+                                            .position.maxScrollExtent) {
+                                  homePageController.currentPosition -=
+                                      details.delta.dx;
+                                }
+                                homePageController.scrollController
+                                    .jumpTo(homePageController.currentPosition);
+                              },
+                              child: getUserPresentations(
+                                  homePageController)[index],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        final position = homePageController.currentPosition;
+                        if ((position + 198) <=
+                            homePageController
+                                .scrollController.position.maxScrollExtent) {
+                          homePageController.currentPosition += 198;
+                        } else {
+                          homePageController.currentPosition =
+                              homePageController
+                                  .scrollController.position.maxScrollExtent;
+                        }
+                        homePageController.scrollController.animateTo(
+                          homePageController.currentPosition,
+                          duration: const Duration(milliseconds: 500),
+                          curve: Curves.ease,
+                        );
+                      },
+                      padding: const EdgeInsets.all(0),
+                      icon: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Wrap(
-                runSpacing: 10.0,
-                spacing: 10,
-                alignment: WrapAlignment.start,
-                children: getUserPresentations(homePageController),
+              const SizedBox(
+                height: 40,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Row(
+                  children: [
+                    Text(
+                      'Общедоступные презентации',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        color: Theme.of(context).colorScheme.onBackground,
+                      ),
+                    ),
+                    RawMaterialButton(
+                      // fillColor: Theme.of(context).colorScheme.errorContainer,
+                      shape: const CircleBorder(),
+                      elevation: 0.0,
+                      onPressed: getPublicListPresentation,
+                      child: Icon(
+                        Icons.refresh,
+                        weight: 3,
+                        // color: Theme.of(context).colorScheme.onPrimary,
+                        color: Theme.of(context).colorScheme.onBackground,
+                        size: 30,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Wrap(
+                  runSpacing: 10.0,
+                  // spacing: 10,
+                  alignment: WrapAlignment.start,
+                  children: getPublicPresentations(homePageController),
+                ),
+              ),
+              const SizedBox(
+                height: 100,
               ),
             ],
           ),
@@ -70,18 +193,25 @@ class JoinThePresentation extends ConsumerWidget {
     final homePageController = ref.read(homePageProvider.notifier);
     homePageController.context = context;
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 70),
       // color: Colors.black,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.background,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          // BoxShadow(
-          //   color: Colors.grey.withOpacity(0.5),
-          //   spreadRadius: 2,
-          //   blurRadius: 3,
-          //   offset: const Offset(0, 2), // changes position of shadow
-          // ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          strokeAlign: BorderSide.strokeAlignOutside,
+          color: Theme.of(context).colorScheme.surfaceVariant,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 5,
+            // offset: const Offset(-4, 7), // changes position of shadow
+            offset: const Offset(0, 0),
+          ),
         ],
       ),
       child: LayoutBuilder(
@@ -112,82 +242,94 @@ List<Widget> listElement(WidgetRef ref) {
   final homePageController = ref.read(homePageProvider.notifier);
   return <Widget>[
     Expanded(
-      child: Row(
-        children: [
-          Expanded(
-            child: TextFormField(
-              controller: homePageController.joinPresentTextController,
-              decoration: InputDecoration(
-                // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                filled: true,
-                fillColor: colorScheme.onPrimary,
-                border: const OutlineInputBorder(),
-                labelText: 'Код присоединения',
+      child: Form(
+        key: homePageController.formKey,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextFormField(
+                validator: nameUserValidator,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    homePageController.formKey.currentState!.validate();
+                  }
+                },
+                controller: homePageController.joinPresentTextController,
+                decoration: InputDecoration(
+                  // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  filled: true,
+                  fillColor: colorScheme.onPrimary,
+                  border: const OutlineInputBorder(),
+                  labelText: 'Код присоединения',
+                ),
               ),
             ),
-          ),
-          const SizedBox(
-            width: 20,
-          ),
-          Expanded(
-            child: TextFormField(
-              controller: homePageController.nameController,
-              decoration: InputDecoration(
-                // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
-                filled: true,
-                fillColor: colorScheme.onPrimary,
-                border: const OutlineInputBorder(),
-                labelText: 'Никнейм',
+            const SizedBox(
+              width: 20,
+            ),
+            Expanded(
+              child: TextFormField(
+                validator: nameUserValidator,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    homePageController.formKey.currentState!.validate();
+                  }
+                },
+                controller: homePageController.nameController,
+                decoration: InputDecoration(
+                  // fillColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  filled: true,
+                  fillColor: colorScheme.onPrimary,
+                  border: const OutlineInputBorder(),
+                  labelText: 'Никнейм',
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
     const SizedBox(
       width: 15,
       height: 15,
     ),
-    OutlinedButton.icon(
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 23.0, horizontal: 10),
-        // backgroundColor: Colors.green.shade300,
-        backgroundColor: colorScheme.primaryContainer,
-        side: const BorderSide(
-          color: Colors.transparent,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+    ElevatedButton(
+      onPressed: () {
+        if (homePageController.formKey.currentState!.validate()) {
+          ref.read(appDataProvider.notifier).viewingMode = true;
+          ref.read(multipleViewProvider.notifier).isManager = false;
+          final userName = homePageController.nameController.text;
+          final roomId = homePageController.joinPresentTextController.text;
+          ref.read(appDataProvider.notifier).idRoom = roomId;
+          joinTheRoom(
+            userName,
+            roomId,
+          );
+          getUserRoom(
+            userName,
+            roomId,
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        padding:
+            const EdgeInsets.only(left: 30, right: 30, top: 20, bottom: 22),
       ),
-      icon: Icon(
-        Icons.add,
-        size: 18,
-        color: colorScheme.onPrimaryContainer,
-      ),
-      label: Text(
+      child: Text(
         'Присоедениться',
         style: TextStyle(
-          color: colorScheme.onPrimaryContainer,
+          fontSize: 20,
+          color: colorScheme.onPrimary,
         ),
       ),
-      onPressed: () {
-        ref.read(appDataProvider.notifier).viewingMode = true;
-        ref.read(multipleViewProvider.notifier).isManager = false;
-        final userName = homePageController.nameController.text;
-        final roomId = homePageController.joinPresentTextController.text;
-        ref.read(appDataProvider.notifier).idRoom = roomId;
-        joinTheRoom(
-          userName,
-          roomId,
-        );
-        getUserRoom(
-          userName,
-          roomId,
-        );
-        // final idPresent = int.parse(roomId.split('-')[1]);
-        // getPresentation(idPresent);
-      },
     ),
   ];
+}
+
+String? nameUserValidator(String? text) {
+  if (text == null || text.isEmpty) {
+    return 'Заполните поле';
+  }
+  return null;
 }

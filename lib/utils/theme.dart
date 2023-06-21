@@ -84,7 +84,7 @@ ThemeData basicTheme() => ThemeData(
       //   foregroundColor: Colors.purple,
       // ),
 
-      accentColor: Colors.orange,
+      accentColor: Colors.white54,
       // buttonTheme: const ButtonThemeData(
       //   height: 80,
       //   buttonColor: Colors.deepPurple,

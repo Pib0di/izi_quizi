@@ -53,7 +53,7 @@ class SelectionSlide extends ConsumerWidget {
             child: Row(
               children: [
                 // if (slideDataController.isPickImage(context.widget.key!))
-                if (url != 'null')
+                if (url != 'null' && url != null)
                   Expanded(
                     // child:
                     //     slideDataController.getMediaWidget(context.widget.key!),
@@ -152,73 +152,73 @@ class SelectionSlide extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
                                 Icon(
-                                    Icons.image,
+                                  Icons.image,
+                                  size: 60,
+                                ),
+                                Text('Изображение')
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                          width: 125,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    10,
+                                  ),
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.audio_file_outlined,
                                     size: 60,
                                   ),
-                                  Text('Изображение')
+                                  Text('Аудио')
                                 ],
                               ),
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: SizedBox(
-                            width: 125,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                          width: 125,
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    10,
                                   ),
                                 ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.audio_file_outlined,
-                                      size: 60,
-                                    ),
-                                    Text('Аудио')
-                                  ],
-                                ),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(
+                                    Icons.video_camera_front_outlined,
+                                    size: 60,
+                                  ),
+                                  Text('Видео')
+                                ],
                               ),
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: SizedBox(
-                            width: 125,
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 20),
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(
-                                      10,
-                                    ),
-                                  ),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: const [
-                                    Icon(
-                                      Icons.video_camera_front_outlined,
-                                      size: 60,
-                                    ),
-                                    Text('Видео')
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(
@@ -261,53 +261,46 @@ class SelectionSlide extends ConsumerWidget {
         ),
         Expanded(
           flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: audioSlide ?? false
-                ? const Recorder()
-                : freeResponseSlide ?? false
-                ? Question(
-              surveySlide: surveySlide ?? false,
-              freeResponseSlide: freeResponseSlide ?? false,
-              key: UniqueKey(),
-            )
-                : Row(
-              children: [
-                          Expanded(
-                            child: Row(
-                              children: slideDataController
-                                  .getListQuestion(context.widget.key!),
-                            ),
+          child: audioSlide ?? false
+              ? const Recorder()
+              : freeResponseSlide ?? false
+                  ? Question(
+                      surveySlide: surveySlide ?? false,
+                      freeResponseSlide: freeResponseSlide ?? false,
+                      key: UniqueKey(),
+                    )
+                  : Row(
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: slideDataController
+                                .getListQuestion(context.widget.key!),
                           ),
-                          if (!appDataController.viewingMode)
-                            Positioned(
-                              right: -16,
-                              child: FloatingActionButton(
-                                onPressed: () {
-                                  String typeSlide;
-                                  if ((surveySlide ?? false) == true) {
-                                    typeSlide = 'surveySlide';
-                                  } else if ((freeResponseSlide ?? false) ==
-                                      true) {
-                                    typeSlide = 'freeResponseSlide';
-                                  } else {
-                                    typeSlide = '';
-                                  }
-                                  ref
-                                      .read(slideDataProvider.notifier)
-                                      .addListQuestion(
-                                        typeSlide,
-                                        context.widget.key!,
-                                      );
-                                  selectionSlideController.updateUi();
-                                },
-                                backgroundColor: Colors.blue,
-                                child: const Icon(Icons.add),
-                              ),
-                            ),
-                        ],
-            ),
-          ),
+                        ),
+                        if (!appDataController.viewingMode)
+                          FloatingActionButton(
+                            onPressed: () {
+                              String typeSlide;
+                              if ((surveySlide ?? false) == true) {
+                                typeSlide = 'surveySlide';
+                              } else if ((freeResponseSlide ?? false) == true) {
+                                typeSlide = 'freeResponseSlide';
+                              } else {
+                                typeSlide = '';
+                              }
+                              ref
+                                  .read(slideDataProvider.notifier)
+                                  .addListQuestion(
+                                    typeSlide,
+                                    context.widget.key!,
+                                  );
+                              selectionSlideController.updateUi();
+                            },
+                            backgroundColor: Colors.blue,
+                            child: const Icon(Icons.add),
+                          ),
+                      ],
+                    ),
         ),
       ],
     );

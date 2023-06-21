@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_screen.dart';
 import 'package:izi_quizi/utils/theme.dart';
 
@@ -15,7 +14,16 @@ AppDataState appData = AppDataState();
 // );
 
 void main() async {
-  webSocketProvider;
+  // Timer? timer;
+  // timer = Timer.periodic(const Duration(seconds: 1), (_) {
+  //   final socket = SocketConnection.channel;
+  //   if (socket.closeCode == null) {
+  //     print('WebSocket подключен');
+  //   } else {
+  //     print('WebSocket закрыт с кодом: ${socket.closeCode}');
+  //     final socket2 = SocketConnection.channel;
+  //   }
+  // });
   // SocketConnection.getConnection().stream.listen(ParseMessage().parse);
 
   runApp(

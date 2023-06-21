@@ -11,6 +11,7 @@ SQL sql = SQL();
 Future<void> main() async {
   final server = await HttpServer.bind('127.0.0.1', 80);
   // final server = await HttpServer.bind('45.91.8.210', 80);
+  // final server = await HttpServer.bind('172.17.0.4', 80); СЕРВЕР
   print('Listening on ${server.address}:${server.port}');
 
   await for (var request in server) {
@@ -55,19 +56,50 @@ void handleWebSocket(HttpRequest request) {
 }
 
 class SQL {
-  // late String host = 'localhost',
-  //     user = 'root',
-  //     password = '1234',
-  //     db = 'iziqizi';
-  // int port = 3306;
-
-  late String host = '45.91.8.210',
+  //local
+  late String host = 'localhost',
       user = 'root',
       password = '1234',
       db = 'iziqizi';
-  int port = 85;
+  int port = 3306;
 
-  Future<Map<dynamic, String>> listWidget(String userId) async {
+  // late String host = '45.91.8.210',
+  //     user = 'root',
+  //     password = '1234',
+  //     db = 'iziqizi';
+  // int port = 85;
+
+  Future<Map<dynamic, String>> publicPresentList() async {
+    final conn = await MySQLConnection.createConnection(
+      host: host,
+      port: port,
+      userName: user,
+      password: password,
+      databaseName: db,
+    );
+    await conn.connect();
+    final userPresent = <dynamic, String>{};
+
+    try {
+      IResultSet result;
+      if (conn.connected) {
+        result = await conn.execute(
+          'SELECT present.presentName, present.idPresent FROM iziqizi.present where present.public = \'true\';',
+        );
+        result.rowsStream.listen((row) {
+          userPresent['${row.colAt(1)}'] = row.colAt(0)!;
+        });
+      }
+      await Future.delayed(const Duration(milliseconds: 1500));
+    } on Exception {
+      // return "e.toString()";
+    }
+    await conn.close();
+
+    return userPresent;
+  }
+
+  Future<Map<dynamic, String>> userPresentList(String userId) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -123,7 +155,8 @@ class SQL {
         if (result.isNotEmpty) {
           if (pass.toString() == result.rows.first.colAt(1).toString()) {
             print(
-                'result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}');
+              'result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}',
+            );
             return 'authorized ${result.rows.first.colAt(0)}';
           } else {
             return 'authErr';
@@ -164,30 +197,6 @@ class SQL {
   }
 
   Future<String> register(String email, String pass) async {
-    final emailValid = RegExp(
-      r"^[a-zA-Z\d.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z\d](?:[a-zA-Z\d-]{0,253}[a-zA-Z\d])?(?:\.[a-zA-Z\d](?:[a-zA-Z\d-]{0,253}[a-zA-Z\d])?)*$",
-    ).hasMatch(email);
-
-    bool isPasswordValid(String password) {
-      if (password.length < 8) {
-        return false;
-      }
-      if (!password.contains(RegExp(r'[a-z]'))) {
-        return false;
-      }
-      if (!password.contains(RegExp(r'[A-Z]'))) {
-        return false;
-      }
-      if (!password.contains(RegExp(r'\d'))) {
-        return false;
-      }
-      if (!password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-        return false;
-      }
-      return true;
-    }
-
-    final passwordValid = isPasswordValid(pass);
 
     final conn = await MySQLConnection.createConnection(
       host: host,
@@ -199,25 +208,49 @@ class SQL {
     await conn.connect();
 
     if (conn.connected) {
-      if (emailValid && passwordValid) {
-        await conn.execute(
-            'INSERT INTO `iziquiziusers`.`users` (`email`, `password`) '
-            'VALUES (:email, :password);',
-            {
-              'email': email,
-              'password': pass,
-            });
+      try {
+        final result = await conn.execute(
+          'SELECT user.email FROM iziqizi.user where user.email = (:email) and user.password = (:pass);',
+          {'email': email, 'pass': pass},
+        );
+        for (final row in result.rows) {
+          print(row.colAt(0));
+
+          // if (row.colAt(0) != null){
+          //   json += row.colAt(0)!;
+          // }
+        }
+        if (result.rows.isEmpty ||
+            result.rows.first
+                    .colAt(0)
+                    .toString()
+                    .toLowerCase()
+                    .compareTo(email.toLowerCase()) !=
+                0) {
+          await conn.execute(
+              'INSERT INTO `iziqizi`.`user` (`email`, `password`) '
+              'VALUES (:email, :password);',
+              {
+                'email': email,
+                'password': pass,
+              });
+        } else {
+          return 'error';
+        }
+
+        return 'success';
+      } on Exception catch (e) {
+        return ('CreateError => $e');
+      } finally {
         await conn.close();
-        return 'Register';
-      } else {
-        return 'RegisterError';
       }
     } else {
       return 'ConnectErr';
     }
   }
 
-  Future<String> createPresent(String? namePresent, String? email) async {
+  Future<String> createPresent(
+      String? namePresent, String? email, bool isPublic) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -229,14 +262,17 @@ class SQL {
     if (conn.connected) {
       try {
         await conn.execute(
-          'INSERT INTO `iziqizi`.`present` (`userId`, `presentName`) VALUES (:idUser, :name);',
-          {'idUser': email, 'name': '$namePresent'},
+          'INSERT INTO `iziqizi`.`present` (`userId`, `presentName`, `public`) VALUES (:idUser, :name, :isPublic);',
+          {'idUser': email, 'name': '$namePresent', 'isPublic': '$isPublic'},
         );
-        await conn.execute(
+        final result = await conn.execute(
           'SELECT idPresent FROM iziqizi.present where userId = (:idUser) ;',
           {'idUser': email, 'name': '$namePresent'},
         );
-        return 'success';
+        final json = result.rows.last.colAt(0).toString();
+        print('jsons => $json');
+        await Future.delayed(const Duration(milliseconds: 500));
+        return 'success-$json';
       } on Exception catch (e) {
         return ('CreateError => $e');
       } finally {
@@ -247,7 +283,7 @@ class SQL {
     }
   }
 
-  Future<void> deletePresent(String? nameDeletePresent, String? email) async {
+  Future<String> deletePresent(String? nameDeletePresent, String? email) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -258,22 +294,24 @@ class SQL {
     await conn.connect();
     if (conn.connected) {
       try {
+        print('nameDeletePresent =>$nameDeletePresent');
         await conn.execute(
-          'DELETE FROM `iziquiziusers`.`present` WHERE (`present` = :nameDeletePresent);',
-          {'nameDeletePresent': '$nameDeletePresent'},
+          'DELETE FROM `iziqizi`.`present` WHERE (`idPresent` = :nameDeletePresent);',
+          {'nameDeletePresent': nameDeletePresent ?? ''},
         );
+        await conn.close();
+        return 'successful';
       } catch (e) {
         await conn.close();
       }
 
-      await conn.close();
     } else {}
+    return 'error';
   }
 
   Future<String> presentRename(
-    String? nameUpdate,
     String? newName,
-    String? email,
+    String? idPresent,
   ) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
@@ -285,13 +323,14 @@ class SQL {
     await conn.connect();
     if (conn.connected) {
       try {
-        await conn.execute(
-            'UPDATE `iziquiziusers`.`present` SET `present` = :newName WHERE (`present` = :nameUpdate);',
+        final result = await conn.execute(
+            'UPDATE `iziqizi`.`present` SET `presentName` = :newName WHERE (`idPresent` = :idPresent);',
+            // 'UPDATE `iziquiziusers`.`present` SET `present` = :newName WHERE (`present` = :nameUpdate);',
             {
-              'newName': '$newName',
-              'nameUpdate': '$nameUpdate',
+              'newName': newName,
+              'idPresent': idPresent,
             });
-        return 'success';
+        return 'renameSuccess';
       } catch (e) {
         return (e.toString());
       } finally {
@@ -302,7 +341,7 @@ class SQL {
     }
   }
 
-  Future<String> getSlideData(int idPresent) async {
+  Future<String> getSlideData(String idPresent) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -320,7 +359,9 @@ class SQL {
               'idPresent': idPresent,
             });
         for (final row in result.rows) {
-          json += row.colAt(0)!;
+          if (row.colAt(0) != null) {
+            json += row.colAt(0)!;
+          }
         }
       } finally {
         await conn.close();
@@ -333,7 +374,7 @@ class SQL {
   }
 
   Future<void> setSlideData(
-    int idPresent,
+    String idPresent,
     String idUser,
     String presentName,
     String jsonSlide,
@@ -349,12 +390,13 @@ class SQL {
     if (conn.connected) {
       try {
         await conn.execute(
-            'UPDATE `iziqizi`.`present` SET `slides_data` = (:jsonSlide) WHERE (`idPresent` = :idPresent) and (`userId` = :idUser) and (`presentName` = :presentName);',
+            // 'UPDATE `iziqizi`.`present` SET `slides_data` = :jsonSlide WHERE `userId` = :idUser and `presentName` = :presentName;',
+            'UPDATE `iziqizi`.`present` SET `slides_data` = :jsonSlide WHERE (`userId` = :idUser) and (`presentName` = :presentName);',
             {
-              'idPresent': idPresent,
+              // 'idPresent': idPresent,
+              'jsonSlide': jsonSlide,
               'idUser': idUser,
               'presentName': presentName,
-              'jsonSlide': jsonSlide,
             });
       } finally {
         await conn.close();
@@ -376,11 +418,14 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
               final res = await sql.createPresent(
                 jsonData['namePresent'],
                 jsonData['email'],
+                jsonData['isPublic'],
               );
-              if (res.toString() == 'success') {
+              final result = res.split('-');
+              if (result[0] == 'success') {
                 return {
                   'obj': 'create',
                   'success': 'true',
+                  'idPresent': result[1],
                 };
               } else {
                 return {
@@ -391,26 +436,40 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
             }
           case 'rename':
             {
-              await sql.presentRename(
-                jsonData['nameUpdate'],
+              final result = await sql.presentRename(
                 jsonData['newName'],
+                jsonData['idPresent'],
+              );
+              return {
+                'obj': 'renamePresent',
+                'result': result,
+              };
+            }
+          case 'deletePresentation':
+            {
+              final result = await sql.deletePresent(
+                jsonData['idDeletedPresent'],
                 jsonData['email'],
               );
-              break;
+              return {
+                'obj': 'deletePresentation',
+                'result': result,
+              };
             }
-          case 'delete':
+          case 'presentList': //user present list
             {
-              await sql.deletePresent(
-                jsonData['nameDeletePresent'],
-                jsonData['email'],
-              );
-              break;
-            }
-          case 'presentList':
-            {
-              final list = await sql.listWidget(jsonData['idUser']);
+              final list = await sql.userPresentList(jsonData['idUser']);
               Map<String, dynamic> json() => {
-                    'obj': 'listWidget',
+                    'obj': 'presentList',
+                    'list': list,
+                  };
+              return json();
+            }
+          case 'publicPresentList':
+            {
+              final list = await sql.publicPresentList();
+              Map<String, dynamic> json() => {
+                    'obj': 'publicPresentList',
                     'list': list,
                   };
               return json();
@@ -427,14 +486,17 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
             }
           case 'getSlideData':
             {
-              final list = await sql.getSlideData(
-                jsonData['idPresent'],
-              );
-              Map<String, dynamic> json() => {
-                    'obj': 'SlideData',
-                    'list': list,
-                  };
-              return json();
+              if (jsonData['idPresent'] != null) {
+                final list = await sql.getSlideData(
+                  jsonData['idPresent'],
+                );
+                Map<String, dynamic> json() => {
+                      'obj': 'SlideData',
+                      'list': list,
+                    };
+                return json();
+              }
+              break;
             }
           default:
             {}
@@ -466,10 +528,21 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
             }
           case 'register':
             {
-              await sql.deletePresent(
-                jsonData['nameDeletePresent'],
-                jsonData['email'],
-              );
+              final email = jsonData['email'].toString();
+              final pass = jsonData['pass'];
+              print('email => $email, password => $pass');
+              final result = await sql.register(email, pass);
+              if (result == 'success') {
+                return {
+                  'obj': 'registration',
+                  'valid': 'success',
+                };
+              } else {
+                return {
+                  'obj': 'registration',
+                  'valid': 'error',
+                };
+              }
               break;
             }
           default:

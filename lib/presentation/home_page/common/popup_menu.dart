@@ -23,16 +23,26 @@ class PopupMenu extends ConsumerWidget {
           if (item == 'exit') {
             authenticationController.notAuthorized();
             homePageController.tabController.index = 0;
+            appDataController.isAuthorized = false;
+            homePageController.userPresentations.clear();
             homePageController.updateUi();
           }
         },
-        itemBuilder: (context) => const <PopupMenuEntry<String>>[
-          PopupMenuDivider(),
+        itemBuilder: (context) => <PopupMenuEntry<String>>[
           PopupMenuItem<String>(
+            enabled: false,
+            child: Text('ID: ${appDataController.idUser}'),
+          ),
+          PopupMenuItem<String>(
+            enabled: false,
+            child: Text('Email: ${appDataController.email}'),
+          ),
+          const PopupMenuDivider(),
+          const PopupMenuItem<String>(
             value: 'pref',
             child: Text('Настройки'),
           ),
-          PopupMenuItem<String>(
+          const PopupMenuItem<String>(
             value: 'exit',
             child: Text(
               'Выход',
@@ -58,13 +68,21 @@ class PopupMenu extends ConsumerWidget {
             ),
           },
       },
-      itemBuilder: (context) => const <PopupMenuEntry<String>>[
-        PopupMenuDivider(),
+      itemBuilder: (context) => <PopupMenuEntry<String>>[
         PopupMenuItem<String>(
+          enabled: false,
+          child: Text('ID: ${appDataController.idUser}'),
+        ),
+        PopupMenuItem<String>(
+          enabled: false,
+          child: Text('Email: ${appDataController.email}'),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(
           value: 'settings',
           child: Text('Настройки'),
         ),
-        PopupMenuItem<String>(
+        const PopupMenuItem<String>(
           value: 'auth',
           child: Text(
             'Авторизоваться',

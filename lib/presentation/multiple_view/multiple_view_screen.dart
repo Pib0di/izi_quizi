@@ -129,21 +129,18 @@ class MultipleViewState extends ConsumerState<MultipleView> {
                         child: Container(
                           height: double.maxFinite,
                           padding: const EdgeInsets.all(8.0),
-                          child: Expanded(
-                            child: Consumer(
-                              builder: (context, ref, _) {
-                                ref.watch(multipleViewProvider);
-                                return ListView.builder(
-                                  itemCount: multipleViewController
-                                      .getUserListLength(),
-                                  itemBuilder:
-                                      (BuildContext context, int index) {
-                                    return multipleViewController
-                                        .getUserWidgets()[index];
-                                  },
-                                );
-                              },
-                            ),
+                          child: Consumer(
+                            builder: (context, ref, _) {
+                              ref.watch(multipleViewProvider);
+                              return ListView.builder(
+                                itemCount:
+                                    multipleViewController.getUserListLength(),
+                                itemBuilder: (BuildContext context, int index) {
+                                  return multipleViewController
+                                      .getUserWidgets()[index];
+                                },
+                              );
+                            },
                           ),
                         ),
                       ),

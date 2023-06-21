@@ -13,12 +13,14 @@ class AppDataState extends StateNotifier<int> {
 
   final currentPresentName = TextEditingController();
 
-  int idPresent = 0;
-  String idUser = '1';
+  String idPresent = '-1';
+  String idUser = '';
   String email = '';
   String presentName = '';
   bool isMobile = false;
   bool isMobileDevice = true;
+  bool isAuthorized = false;
+  bool isPublic = false;
 
   bool viewingMode = false;
 

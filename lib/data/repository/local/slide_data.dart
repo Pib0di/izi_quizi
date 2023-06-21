@@ -42,7 +42,7 @@ class SlideData extends StateNotifier<int> {
 
   Map<String, dynamic> dataSlide = {};
 
-  void clear() {
+  void clearPresentation() {
     sequenceArray.clear();
     listSlide.clear();
     // dataSlide.clear();

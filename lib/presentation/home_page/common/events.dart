@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/domain/home_page_case.dart';
+import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
+import 'package:izi_quizi/utils/theme.dart';
 
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [TabBarEvents()],
-      ),
+    return const Center(
+      child: TabBarEvents(),
     );
   }
 }
 
-class TabBarEvents extends StatefulWidget {
+class TabBarEvents extends ConsumerStatefulWidget {
   const TabBarEvents({super.key});
 
   @override
-  State<TabBarEvents> createState() => TabBarEventsState();
+  TabBarEventsState createState() => TabBarEventsState();
 }
 
-class TabBarEventsState extends State<TabBarEvents>
+class TabBarEventsState extends ConsumerState<TabBarEvents>
     with TickerProviderStateMixin {
   late TabController tabController;
 
@@ -33,35 +34,122 @@ class TabBarEventsState extends State<TabBarEvents>
 
   @override
   Widget build(BuildContext context) {
+    final homePageController = ref.read(homePageProvider.notifier);
     return Column(
       children: <Widget>[
         Align(
           alignment: Alignment.centerLeft,
-          child: TabBar(
-            unselectedLabelColor: Colors.teal,
-            labelColor: Colors.lightBlue,
-            indicatorColor: Colors.teal,
-            controller: tabController,
-            tabs: const <Widget>[
-              Tab(text: 'Текущие'),
-              Tab(text: 'Завершенные'),
-              Tab(text: 'Созданные'),
-            ],
+          child: Container(
+            color: colorScheme.secondaryContainer,
+            child: TabBar(
+              unselectedLabelColor: colorScheme.onSecondaryContainer,
+              labelColor: colorScheme.primary,
+              indicatorColor: colorScheme.secondary,
+              controller: tabController,
+              tabs: <Widget>[
+                Tab(
+                  child: Text(
+                    'Текущие',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    'Завершенные',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                Tab(
+                  child: Text(
+                    'Созданные',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         // SizedBox(width: 400,),
-        Container(
-          color: Colors.grey[200],
+        SizedBox(
+          // color: Colors.grey[200],
           // padding: const EdgeInsets.only(left: 20),
-          height: MediaQuery.of(context).size.height - 104,
-          // height: 400,
+          // height: MediaQuery.of(context).size.height - 104,
+          height: 180,
           width: double.maxFinite,
           child: TabBarView(
             controller: tabController,
             children: [
               current(context),
-              completed(context),
-              created(context),
+              Container(
+                padding: const EdgeInsets.all(14.0),
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                ),
+                child: ListView.builder(
+                  clipBehavior: Clip.none,
+                  controller: homePageController.scrollController,
+                  itemCount: getUserPresentations(homePageController).length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      onPanUpdate: (details) {
+                        final position = homePageController.currentPosition;
+                        if ((position - details.delta.dx) >= 0 &&
+                            (position - details.delta.dx) <=
+                                homePageController.scrollController.position
+                                    .maxScrollExtent) {
+                          homePageController.currentPosition -=
+                              details.delta.dx;
+                        }
+                        homePageController.scrollController
+                            .jumpTo(homePageController.currentPosition);
+                      },
+                      child: getUserPresentations(homePageController)[index],
+                    );
+                  },
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(14.0),
+                clipBehavior: Clip.antiAlias,
+                decoration: const BoxDecoration(
+                  color: Colors.transparent,
+                ),
+                child: ListView.builder(
+                  clipBehavior: Clip.none,
+                  controller: homePageController.scrollController,
+                  itemCount: getUserPresentations(homePageController).length,
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (BuildContext context, int index) {
+                    return GestureDetector(
+                      onPanUpdate: (details) {
+                        final position = homePageController.currentPosition;
+                        if ((position - details.delta.dx) >= 0 &&
+                            (position - details.delta.dx) <=
+                                homePageController.scrollController.position
+                                    .maxScrollExtent) {
+                          homePageController.currentPosition -=
+                              details.delta.dx;
+                        }
+                        homePageController.scrollController
+                            .jumpTo(homePageController.currentPosition);
+                      },
+                      child: getUserPresentations(homePageController)[index],
+                    );
+                  },
+                ),
+              ),
+              // created(context),
             ],
           ),
         ),
@@ -72,18 +160,31 @@ class TabBarEventsState extends State<TabBarEvents>
 
 Container current(BuildContext context) {
   return Container(
-    margin: EdgeInsets.symmetric(
-      horizontal: MediaQuery.of(context).size.width * 0.1,
+    // margin: EdgeInsets.symmetric(
+    //   horizontal: MediaQuery.of(context).size.width * 0.1,
+    // ),
+    height: double.maxFinite,
+    color: colorScheme.background,
+    child: Padding(
+      padding: const EdgeInsets.only(top: 90.0),
+      child: Text(
+        'Текущие сессии отсутствуют',
+        style: TextStyle(
+          fontSize: 30,
+          fontWeight: FontWeight.w700,
+          color: colorScheme.surfaceVariant,
+        ),
+        textAlign: TextAlign.center,
+      ),
     ),
-    height: 1000,
-    color: Colors.teal,
-    child: ListView(
-      children: [
-        Container(
-          height: 1000,
-        )
-      ],
-    ),
+
+    // ListView(
+    //   children: [
+    //     Container(
+    //       height: 1000,
+    //     )
+    //   ],
+    // ),
   );
 }
 

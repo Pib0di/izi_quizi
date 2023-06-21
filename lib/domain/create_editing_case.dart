@@ -11,12 +11,8 @@ import 'package:izi_quizi/presentation/creating_editing_presentation/create_edit
 import 'package:izi_quizi/widgets/item_shel/items_shel.dart';
 import 'package:universal_html/html.dart';
 
-void renameQuiz(String email, String currentNamePresent, String newName) {
-  renamePresent(email, currentNamePresent, newName);
-}
-
 void saveQuiz(
-    int idPresent, String idUser, String presentName, String jsonSlide) {
+    String idPresent, String idUser, String presentName, String jsonSlide) {
   setPresentation(idPresent, idUser, presentName, jsonSlide);
 }
 
@@ -124,6 +120,10 @@ class CreateEditingCase extends StateNotifier<int> {
       default:
         {}
     }
+  }
+
+  void updateUi() {
+    state++;
   }
 }
 

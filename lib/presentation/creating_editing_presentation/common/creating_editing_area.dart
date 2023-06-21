@@ -69,17 +69,15 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
               color: Theme.of(context).colorScheme.secondaryContainer,
               clipBehavior: Clip.none,
               width: 190,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: slidesPreviewController.selectedIndex != 0
-                    ? Column(
-                  children: selectWidget[
-                            slidesPreviewController.selectedIndex == 0
-                                ? 0
-                                : slidesPreviewController.selectedIndex - 1],
-                )
-                    : const SlidesPreview(),
-              ),
+              padding: const EdgeInsets.all(8.0),
+              child: slidesPreviewController.selectedIndex != 0
+                  ? Column(
+                      children: selectWidget[
+                          slidesPreviewController.selectedIndex == 0
+                              ? 0
+                              : slidesPreviewController.selectedIndex - 1],
+                    )
+                  : const SlidesPreview(),
             ),
             const VerticalDivider(),
             const PresentationCreationArea()
@@ -262,7 +260,10 @@ List<Widget> textMenu(CreateEditingCase createEditingController) {
   return <Widget>[
     ElevatedButtonFactory.numAddItem(
       onPressed: () => createEditingController.addItem('heading'),
-      child: const Text('Заголовок'),
+      child: const Text('Заголовок',
+          style: TextStyle(
+            fontSize: 20,
+          )),
     ),
     ElevatedButtonFactory.numAddItem(
       onPressed: () => createEditingController.addItem('mainText'),

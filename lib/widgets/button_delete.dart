@@ -15,41 +15,38 @@ class ButtonDelete extends ConsumerWidget {
     final deleteItemKeyController = ref.read(delItemKey.notifier);
     final currentSlideNum = ref.read(currentSlideNumber.notifier);
     final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
-    return Positioned(
-      right: 0,
-      child: Container(
-        margin: const EdgeInsets.all(5),
-        width: 30,
-        height: 30,
-        child: RawMaterialButton(
-          fillColor: Colors.redAccent,
-          shape: const CircleBorder(),
-          elevation: 0.0,
-          onPressed: () {
-            if (slideDataController.getLengthListSlideWidget() ==
-                currentSlideNum.state) {
-              --currentSlideNum.state;
-            }
+    return Container(
+      margin: const EdgeInsets.all(5),
+      width: 30,
+      height: 30,
+      child: RawMaterialButton(
+        fillColor: Colors.redAccent,
+        shape: const CircleBorder(),
+        elevation: 0.0,
+        onPressed: () {
+          if (slideDataController.getLengthListSlideWidget() ==
+              currentSlideNum.state) {
+            --currentSlideNum.state;
+          }
 
-            final buttonId = ref.read(currentSlideNumber.notifier);
-            if (buttonId.state -
-                    1 -
-                    slideDataController.countWidgetSlides(buttonId.state - 1) <
-                slideDataController.listSlide.length) {
-              slideDataController
-                  .indexOfListSlide(buttonId.state - 1)
-                  .delItem(deleteItemKey);
-              deleteItemKeyController.state = deleteItemKey;
-            }
+          final buttonId = ref.read(currentSlideNumber.notifier);
+          if (buttonId.state -
+                  1 -
+                  slideDataController.countWidgetSlides(buttonId.state - 1) <
+              slideDataController.listSlide.length) {
+            slideDataController
+                .indexOfListSlide(buttonId.state - 1)
+                .delItem(deleteItemKey);
+            deleteItemKeyController.state = deleteItemKey;
+          }
 
-            slideDataController.deleteListQuestion(deleteItemKey);
-            slidesPreviewController.delItem(deleteItemKey);
-            createEditingController.updateUi();
-          },
-          child: const Icon(
-            Icons.delete,
-            size: 20,
-          ),
+          slideDataController.deleteListQuestion(deleteItemKey);
+          slidesPreviewController.delItem(deleteItemKey);
+          createEditingController.updateUi();
+        },
+        child: const Icon(
+          Icons.delete,
+          size: 20,
         ),
       ),
     );
