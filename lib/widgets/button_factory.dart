@@ -34,7 +34,7 @@ class ElevatedButtonFactory extends StatelessWidget {
 }
 
 class ConsumerTextButton extends ConsumerWidget {
-  ConsumerTextButton.showDialog({
+  const ConsumerTextButton.showDialog({
     this.addedItem,
     this.id,
     this.child,
@@ -43,7 +43,7 @@ class ConsumerTextButton extends ConsumerWidget {
     super.key,
   });
 
-  void Function()? onPressed;
+  final void Function()? onPressed;
   final bool? closeAfterClicking;
   final String? addedItem;
   final int? id;

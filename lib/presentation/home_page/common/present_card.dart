@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
@@ -9,12 +11,14 @@ import 'package:izi_quizi/presentation/single_view/single_view_state.dart';
 
 class PresentCard extends ConsumerStatefulWidget {
   const PresentCard({
-    this.isPublic,
     required this.idPresent,
     required this.presentName,
+    this.uint8List,
+    this.isPublic,
     super.key,
   });
 
+  final Uint8List? uint8List;
   final bool? isPublic;
   final String idPresent;
   final String presentName;
@@ -31,6 +35,9 @@ class PresentCardState extends ConsumerState<PresentCard> {
     return Container(
       margin: const EdgeInsets.only(right: 24),
       decoration: BoxDecoration(
+        // image: DecorationImage(
+        //   image: Image.memory(uint8List!),
+        // ),
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
@@ -45,24 +52,27 @@ class PresentCardState extends ConsumerState<PresentCard> {
         children: [
           Container(
             clipBehavior: Clip.hardEdge,
-            width: 190,
-            height: 150,
+            width: 290,
+            height: 230,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.secondaryContainer,
-              // color: const Color(0xff7c94b6),
-              // image: const DecorationImage(
-              //   image: NetworkImage(
-              //     'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg',
-              //   ),
-              //   fit: BoxFit.cover,
+              // image: DecorationImage(
+              //   image: Image.memory(uint8List!),
               // ),
+              // color: const Color(0xff7c94b6),
+              image: DecorationImage(
+                image: MemoryImage(
+                  widget.uint8List ?? Uint8List(0),
+                ),
+                fit: BoxFit.cover,
+              ),
               borderRadius: BorderRadius.circular(15),
             ),
             child: RawMaterialButton(
               // padding: const EdgeInsets.only(bottom: 10),
               shape: const RoundedRectangleBorder(),
               onPressed: () {
-                ref.read(singleViewProvider.notifier).state = 0;
+                ref.read(singleViewProvider.notifier).set(0);
                 // final numSelectSlide = singleViewController.getState();
 
                 getPresentation(widget.idPresent);
@@ -84,7 +94,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
                 children: [
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     // margin: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: const BoxDecoration(
                       color: Color(0xE5DFFFD6),
@@ -122,7 +132,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
                       builder: (context) {
                         return SimpleDialog(
                           backgroundColor:
-                              Theme.of(context).colorScheme.background,
+                          Theme.of(context).colorScheme.background,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -154,7 +164,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
                             ],
                           ),
                           children: <Widget>[
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             Row(
@@ -172,7 +182,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
                                         .colorScheme
                                         .secondaryContainer,
                                     padding: const EdgeInsets.all(16.0),
-                                    textStyle: TextStyle(
+                                    textStyle: const TextStyle(
                                       fontSize: 20,
                                     ),
                                   ),
@@ -193,10 +203,11 @@ class PresentCardState extends ConsumerState<PresentCard> {
                                       appDataController.email,
                                       widget.idPresent.toString(),
                                     );
-                                    ScaffoldMessenger.of(ref
-                                            .read(homePageProvider.notifier)
-                                            .context!)
-                                        .showSnackBar(
+                                    ScaffoldMessenger.of(
+                                      ref
+                                          .read(homePageProvider.notifier)
+                                          .context!,
+                                    ).showSnackBar(
                                       const SnackBar(
                                         behavior: SnackBarBehavior.floating,
                                         duration: Duration(seconds: 2),
@@ -221,7 +232,7 @@ class PresentCardState extends ConsumerState<PresentCard> {
                                         .colorScheme
                                         .secondaryContainer,
                                     padding: const EdgeInsets.all(16.0),
-                                    textStyle: TextStyle(
+                                    textStyle: const TextStyle(
                                       fontSize: 20,
                                     ),
                                   ),

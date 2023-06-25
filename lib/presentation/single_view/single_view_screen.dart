@@ -47,8 +47,10 @@ class SingleViewPresentationState
                     onPressed: () {
                       final addDataController =
                           ref.read(appDataProvider.notifier);
-                      removeUser(addDataController.idUserInRoom,
-                          addDataController.getIdRoom());
+                      removeUser(
+                        addDataController.idUserInRoom,
+                        addDataController.getIdRoom(),
+                      );
                       Navigator.pop(context);
                     },
                     padding: const EdgeInsets.all(0),
@@ -164,12 +166,13 @@ class SingleViewPresentationState
                               height: 20,
                             ),
                             Container(
-                                height: 600,
-                                clipBehavior: Clip.hardEdge,
-                                decoration: BoxDecoration(
-                                    color: Colors.transparent,
-                                ),
-                                child: const ReportWidget()),
+                              height: 600,
+                              clipBehavior: Clip.hardEdge,
+                              decoration: const BoxDecoration(
+                                color: Colors.transparent,
+                              ),
+                              child: const ReportWidget(),
+                            ),
                           ],
                         ),
                       ),
@@ -219,12 +222,13 @@ class SingleViewPresentationState
                         ),
                       ),
                       onPressed: () {
-                        multipleViewController.isShowReporting =
-                            !multipleViewController.isShowReporting;
-                        multipleViewController.updateUi();
+                        multipleViewController
+                          ..isShowReporting =
+                              !multipleViewController.isShowReporting
+                          ..updateUi();
                       },
                     ),
-                  SizedBox(
+                  const SizedBox(
                     width: 10,
                   ),
                   OutlinedButton.icon(

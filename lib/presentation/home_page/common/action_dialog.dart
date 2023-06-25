@@ -12,10 +12,10 @@ import 'package:izi_quizi/utils/theme.dart';
 ///A presentation dialog box that allows you to select an action (single viewing, multiple viewing, editing)
 class PresentationDialog<T> extends PopupRoute<T> {
   PresentationDialog({
-    this.isPublic,
     required this.idPresent,
     required this.presentName,
     required this.ref,
+    this.isPublic,
     Key? key,
   });
 
@@ -73,7 +73,9 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
                   ),
                   onPressed: () {
                     // request.getSlideData(idPresent, presentName); //Т.К ДАННЫЕ УЖЕ ЗАПРОШЕНЫ ПРИ НАЖАТИИ
@@ -109,17 +111,21 @@ class PresentationDialog<T> extends PopupRoute<T> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 15),
+                      horizontal: 30,
+                      vertical: 15,
+                    ),
                   ),
                   onPressed: (!(isPublic ?? true) ||
                           appDataController.isAuthorized)
                       ? () {
-                          ref.read(multipleViewProvider.notifier).isHideMenu =
+                    ref.read(multipleViewProvider.notifier).isHideMenu =
                               false;
                           ref.read(multipleViewProvider.notifier).isManager =
                               true;
                           createRoom(
-                              appDataController.idUser, idPresent.toString());
+                            appDataController.idUser,
+                            idPresent.toString(),
+                          );
                           // slideDataController.setItemsView();
                           appDataController.idRoom =
                               '${appDataController.idUser}-${idPresent.toString()}';
@@ -165,7 +171,9 @@ class PresentationDialog<T> extends PopupRoute<T> {
                           ? colorScheme.outline
                           : colorScheme.primary,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 15),
+                        horizontal: 30,
+                        vertical: 15,
+                      ),
                     ),
                     onPressed: !(isPublic ?? true)
                         ? () {

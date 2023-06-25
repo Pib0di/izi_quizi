@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/domain/home_page_case.dart';
-import 'package:izi_quizi/presentation/authentication/authentication_popup_screen.dart';
-import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
+import 'package:izi_quizi/presentation/home_page/authentication/authentication_popup_screen.dart';
+import 'package:izi_quizi/presentation/home_page/authentication/authentication_state.dart';
 import 'package:izi_quizi/presentation/home_page/common/events.dart';
 import 'package:izi_quizi/presentation/home_page/common/home.dart';
 import 'package:izi_quizi/presentation/home_page/common/popup_menu.dart';
@@ -187,7 +187,7 @@ class HomePageState extends ConsumerState<HomePage>
           ),
           // color: Theme.of(context).colorScheme.background,
           margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.1,
+            horizontal: MediaQuery.of(context).size.width * 0.04,
           ),
           child: TabBarView(
             controller: homePageController.tabController,

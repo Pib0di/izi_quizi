@@ -14,14 +14,11 @@ class MultipleView extends ConsumerStatefulWidget {
 }
 
 class MultipleViewState extends ConsumerState<MultipleView> {
-  final _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context) {
     final multipleViewController = ref.read(multipleViewProvider.notifier);
     final appDataController = ref.read(appDataProvider.notifier);
     ref.watch(multipleViewProvider);
-    print('hello');
 
     return Scaffold(
       body: Row(
@@ -163,7 +160,6 @@ class ReportWidget extends ConsumerWidget {
     ref.watch(multipleViewProvider);
     final singleViewController = ref.read(singleViewProvider.notifier);
     Row row;
-    Row rowdataList;
     final textWidgetList = <Widget>[];
     final reportWidget = <Widget>[];
     presentationQuizReport.forEach((key, value) {
@@ -174,7 +170,7 @@ class ReportWidget extends ConsumerWidget {
           for (var i = 0; i < value.dataList.length; ++i) {
             textWidgetList.add(
               Padding(
-                padding: EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.only(right: 8),
                 child: Text(
                   value.dataList[i],
                   style: TextStyle(

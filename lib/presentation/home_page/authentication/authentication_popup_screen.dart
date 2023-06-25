@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/domain/authentication_case.dart';
-import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
+import 'package:izi_quizi/presentation/home_page/authentication/authentication_state.dart';
 
 class Join extends ConsumerStatefulWidget {
   const Join({super.key});
@@ -188,7 +188,10 @@ Widget circularProgress = Row(
     Container(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: const SizedBox(
-          width: 28, height: 28, child: CircularProgressIndicator()),
+        width: 28,
+        height: 28,
+        child: CircularProgressIndicator(),
+      ),
     ),
     const SizedBox(
       width: 10,

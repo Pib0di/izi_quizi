@@ -1,6 +1,8 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'jsonParse.dart';
+// ignore_for_file: non_constant_identifier_names
+
+part of 'json_parse.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

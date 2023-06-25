@@ -1,11 +1,14 @@
+// ignore_for_file: avoid_dynamic_calls
+
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
-import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
+import 'package:izi_quizi/presentation/home_page/authentication/authentication_state.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
 import 'package:izi_quizi/presentation/multiple_view/multiple_view_screen.dart';
 import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
@@ -15,16 +18,11 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 final webSocketProvider = StreamProvider<String>((ref) async* {
   ref.onDispose(() {});
   SocketConnection.websocket().listen(
-    (data) {
+        (data) {
       ref.read(parseMessageProvider.notifier).parse(data);
     },
-    onError: (error) {
-      print('Ошибка приема сообщения11111111111111111: $error');
-    },
-    onDone: () {
-      print('Соединение закрыто11111111111');
-      SocketConnection.reconnect();
-    },
+    onError: (error) {},
+    onDone: SocketConnection.reconnect,
   );
 
   // final socket = SocketConnection.channel.stream.listen(
@@ -71,27 +69,24 @@ final webSocket = container.read(webSocketProvider);
 
 class SocketConnection {
   static var channel = WebSocketChannel.connect(
-    // Uri.parse('ws://45.91.8.210:80'),
-    Uri.parse('ws://127.0.0.1:80'), //local
+    Uri.parse('ws://45.91.8.210:80'),
+    // Uri.parse('ws://127.0.0.1:80'), //local
   );
 
   static void reconnect() {
-    print('Переподключение');
-    if (channel != null && channel.closeCode == null) {
+    if (channel.closeCode == null) {
       // channel.sink.close();
     }
     channel = WebSocketChannel.connect(
-      // Uri.parse('ws://45.91.8.210:80'),
-      Uri.parse('ws://127.0.0.1:80'), //local
+      Uri.parse('ws://45.91.8.210:80'),
+      // Uri.parse('ws://127.0.0.1:80'), //local
     );
   }
 
   static void sendMessage(data) {
     if (channel.closeCode == null) {
-      print('WebSocket подключен => ${channel.closeCode}');
       // reconnect();
     } else {
-      print('WebSocket закрыт с кодом: ${channel.closeCode}');
       reconnect();
     }
     channel.sink.add(data);
@@ -101,7 +96,7 @@ class SocketConnection {
     return channel;
   }
 
-  static websocket() {
+  static Stream websocket() {
     return SocketConnection.channel.stream;
   }
 }
@@ -109,56 +104,60 @@ class SocketConnection {
 //- - - - - - - - - - - - - - - - - - - - MultipleView - - - - - - - - - - - - - - - - -
 void createRoom(String idUser, String idPresent) {
   Map<String, dynamic> json() => {
-        'request_to': 'multipleView',
-        'action': 'createRoom',
-        'idUser': idUser,
-        'idPresent': idPresent,
-      };
+    'request_to': 'multipleView',
+    'action': 'createRoom',
+    'idUser': idUser,
+    'idPresent': idPresent,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void joinRoom(String userName, String idRoom) {
   Map<String, dynamic> json() => {
-        'request_to': 'multipleView',
-        'action': 'joinRoom',
-        'userName': userName,
-        'idRoom': idRoom,
-      };
+    'request_to': 'multipleView',
+    'action': 'joinRoom',
+    'userName': userName,
+    'idRoom': idRoom,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void getUserRoom(String userName, String idRoom) {
   Map<String, dynamic> json() => {
-        'request_to': 'multipleView',
-        'action': 'getUserRoom',
-        'userName': userName,
-        'idRoom': idRoom,
-      };
+    'request_to': 'multipleView',
+    'action': 'getUserRoom',
+    'userName': userName,
+    'idRoom': idRoom,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void removeUser(String idUserInRoom, String idRoom) {
   Map<String, dynamic> json() => {
-        'request_to': 'multipleView',
-        'action': 'removeUser',
-        'idUserInRoom': idUserInRoom,
-        'idRoom': idRoom,
-      };
+    'request_to': 'multipleView',
+    'action': 'removeUser',
+    'idUserInRoom': idUserInRoom,
+    'idRoom': idRoom,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void presentationManagement(String command, String idRoom) {
   Map<String, dynamic> json() => {
-        'request_to': 'multipleView',
-        'action': 'presentationManagement',
-        'command': command,
-        'idRoom': idRoom,
-      };
+    'request_to': 'multipleView',
+    'action': 'presentationManagement',
+    'command': command,
+    'idRoom': idRoom,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void presentationQuizRequest(
-    String idRoom, int numSlide, String typeSlide, String data) {
+  String idRoom,
+  int numSlide,
+  String typeSlide,
+  String data,
+) {
   Map<String, dynamic> json() => {
         'request_to': 'multipleView',
         'action': 'presentationQuizRequest',
@@ -171,39 +170,38 @@ void presentationQuizRequest(
 }
 
 //- - - - - - - - - - - - - - - - - - - - BD - - - - - - - - - - - - - - - - -
-void setPresentation(
-  String idPresent,
-  String idUser,
-  String presentName,
-  String jsonSlide,
+void setPresentation(String idPresent,
+    String idUser,
+    String presentName,
+    String jsonSlide,
 ) {
   Map<String, dynamic> json() => {
-        'request_to': 'bd',
-        'action': 'setSlideData',
-        'idPresent': idPresent,
-        'idUser': idUser,
-        'presentName': presentName,
-        'slideData': jsonSlide,
-      };
+    'request_to': 'bd',
+    'action': 'setSlideData',
+    'idPresent': idPresent,
+    'idUser': idUser,
+    'presentName': presentName,
+    'slideData': jsonSlide,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void getPresentation(String idPresent) {
   Map<String, dynamic> json() => {
-        'request_to': 'bd',
-        'action': 'getSlideData',
-        'idPresent': idPresent,
-      };
+    'request_to': 'bd',
+    'action': 'getSlideData',
+    'idPresent': idPresent,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void deletePresent(String email, String idDeletedPresent) {
   Map<String, dynamic> json() => {
-        'request_to': 'bd',
-        'action': 'deletePresentation',
-        'email': email,
-        'idDeletedPresent': idDeletedPresent,
-      };
+    'request_to': 'bd',
+    'action': 'deletePresentation',
+    'email': email,
+    'idDeletedPresent': idDeletedPresent,
+  };
   // var jsonRequest = jsonEncode(json());
   SocketConnection.sendMessage(jsonEncode(json()));
   // Map<String, dynamic> users = jsonDecode(json);
@@ -211,32 +209,32 @@ void deletePresent(String email, String idDeletedPresent) {
 
 void createPresent(String idUser, String namePresent, bool isPublic) {
   Map<String, dynamic> json() => {
-        'request_to': 'bd',
-        'action': 'create',
-        'email': idUser,
-        'isPublic': isPublic,
-        'namePresent': namePresent,
-      };
+    'request_to': 'bd',
+    'action': 'create',
+    'email': idUser,
+    'isPublic': isPublic,
+    'namePresent': namePresent,
+  };
   // var jsonRequest = jsonEncode(json());
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 void renamePresent(String idPresent, String newName) {
   Map<String, dynamic> json() => {
-        'request_to': 'bd',
-        'action': 'rename',
-        'newName': newName,
-        'idPresent': idPresent,
-      };
+    'request_to': 'bd',
+    'action': 'rename',
+    'newName': newName,
+    'idPresent': idPresent,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
 Future<void> getUserListPresentation(String idUser) async {
   Map<String, dynamic> json() => {
-        'request_to': 'bd',
-        'action': 'presentList',
-        'idUser': idUser,
-      };
+    'request_to': 'bd',
+    'action': 'presentList',
+    'idUser': idUser,
+  };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
 
@@ -244,6 +242,17 @@ Future<void> getPublicListPresentation() async {
   Map<String, dynamic> json() => {
         'request_to': 'bd',
         'action': 'publicPresentList',
+      };
+  SocketConnection.sendMessage(jsonEncode(json()));
+}
+
+Future<void> getPublicListImagePresentation(
+  Map<String, dynamic> imageName,
+) async {
+  Map<String, dynamic> json() => {
+        'request_to': 'bd',
+        'action': 'imageRequest',
+        'imageName': imageName,
       };
   SocketConnection.sendMessage(jsonEncode(json()));
 }
@@ -270,6 +279,16 @@ Future<String> register(String email, String password) async {
   return '_connection._channel';
 }
 
+void uploadImage(Uint8List imageBytes, String idPresent) {
+  Map<String, dynamic> json() => {
+        'request_to': 'bd',
+        'action': 'uploadImage',
+        'imageBytes': imageBytes,
+        'idPresent': idPresent,
+      };
+  SocketConnection.sendMessage(jsonEncode(json()));
+}
+
 final parseMessageProvider = StateNotifierProvider<ParseMessage, int>((ref) {
   return ParseMessage(ref);
 });
@@ -280,8 +299,6 @@ class ParseMessage extends StateNotifier<int> {
   final Ref ref;
 
   Future<void> parse(jsonData) async {
-    print("jsonData => $jsonData");
-
     final data = Map<String, dynamic>.from(json.decode(jsonData));
     switch (data['obj']) {
       case 'auth':
@@ -312,10 +329,6 @@ class ParseMessage extends StateNotifier<int> {
         {
           final valid = data['valid'];
           if (valid == 'success') {
-            final authenticationController =
-                ref.read(authenticationProvider.notifier);
-            authenticationController.registrationError = false;
-            authenticationController.update();
             ScaffoldMessenger.of(ref.read(homePageProvider.notifier).context!)
                 .showSnackBar(
               const SnackBar(
@@ -358,9 +371,9 @@ class ParseMessage extends StateNotifier<int> {
         }
       case 'presentList':
         {
-          if (!data['list']!.isEmpty) {
-            final homePageController = ref.read(homePageProvider.notifier);
-            homePageController
+          final Map<String, dynamic> list = data['list'];
+          if (list.isNotEmpty) {
+            ref.read(homePageProvider.notifier)
               ..currentPosition = 0
               ..userPresentations.clear()
               ..setUserPresentName(data['list'])
@@ -370,11 +383,30 @@ class ParseMessage extends StateNotifier<int> {
         }
       case 'publicPresentList':
         {
-          if (!data['list']!.isEmpty) {
-            final homePageController = ref.read(homePageProvider.notifier);
-            homePageController
+          final Map<String, dynamic> list = data['list'];
+          if (list.isNotEmpty) {
+            ref.read(homePageProvider.notifier)
               ..publicPresentName.clear()
               ..setPublicPresentName(data['list'])
+              ..updateUi();
+          }
+          break;
+        }
+      case 'imageRequest':
+        {
+          final idPresentList = data['idPresentList'].cast<String>();
+          final List<dynamic> uint8List = data['uint8List'];
+
+          final finalUint8List = <Uint8List>[];
+          for (var element in uint8List) {
+            final imageBytes = Uint8List.fromList(element.cast<int>());
+            finalUint8List.add(imageBytes);
+          }
+          final uint8Lists = finalUint8List.cast<Uint8List>();
+
+          if (idPresentList.isNotEmpty && uint8List.isNotEmpty) {
+            ref.read(homePageProvider.notifier)
+              ..setPublicPresentNameImage(idPresentList, uint8Lists)
               ..updateUi();
           }
           break;
@@ -406,7 +438,9 @@ class ParseMessage extends StateNotifier<int> {
         }
       case 'deletePresentation':
         {
-          if (!data['result']!.isEmpty && data['result'] == 'successful') {
+          final String result = data['result'];
+
+          if (result.isNotEmpty && result == 'successful') {
             unawaited(getPublicListPresentation());
             ScaffoldMessenger.of(ref.read(homePageProvider.notifier).context!)
                 .showSnackBar(
@@ -433,8 +467,8 @@ class ParseMessage extends StateNotifier<int> {
         {
           if (data['success'] == 'true') {
             final homePageController = ref.read(homePageProvider.notifier);
-            final appDataController = ref.read(appDataProvider.notifier);
-            appDataController.idPresent = data['idPresent'];
+            final appDataController = ref.read(appDataProvider.notifier)
+              ..idPresent = data['idPresent'];
             unawaited(getUserListPresentation(appDataController.idUser));
             unawaited(getPublicListPresentation());
             ScaffoldMessenger.of(homePageController.context!).showSnackBar(
@@ -465,13 +499,9 @@ class ParseMessage extends StateNotifier<int> {
         }
       case 'multipleView':
         {
-          final idRoom = data['idRoom'];
-          final presentName = data['presentName'];
           final idUserInRoom = data['idUser'];
-          final appDataController = ref.read(appDataProvider.notifier);
-          appDataController.idUserInRoom = idUserInRoom;
+          ref.read(appDataProvider.notifier).idUserInRoom = idUserInRoom;
 
-          print("multipleView create!!! $idRoom, $presentName");
           break;
         }
       case 'joinRoom':
@@ -514,7 +544,6 @@ class ParseMessage extends StateNotifier<int> {
         }
       case 'messageReceived':
         {
-          final senderId = data['senderId'].toString();
           final message = data['message'].toString();
           final singleViewController = ref.read(singleViewProvider.notifier);
 
@@ -541,7 +570,6 @@ class ParseMessage extends StateNotifier<int> {
         }
       case 'getUser':
         {
-          print('getUser => ${data['listUser']}');
           ref.read(multipleViewProvider.notifier).setUserList(data['listUser']);
           ref.read(multipleViewProvider.notifier).updateUi();
           break;
@@ -549,44 +577,47 @@ class ParseMessage extends StateNotifier<int> {
       case 'removeUser':
         {
           final singleViewController = ref.read(singleViewProvider.notifier);
-          await showDialog<String>(
-            context: singleViewController.context,
-            builder: (BuildContext context) => AlertDialog(
-              title: const Text('Вы были исключены из викторины'),
-              actions: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('ОК'),
-                ),
-              ],
+          unawaited(
+            showDialog<String>(
+              context: singleViewController.context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('Вы были исключены из викторины'),
+                actions: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('ОК'),
+                  ),
+                ],
+              ),
             ),
           );
           Navigator.pop(singleViewController.context);
           // Navigator.pop(singleViewController.context);
-          print('removeUser???');
           break;
         }
       case 'disposeRoom':
         {
+          print('disposeRoom');
           final singleViewController = ref.read(singleViewProvider.notifier);
-          await showDialog<String>(
-            context: singleViewController.context,
-            builder: (BuildContext context) => AlertDialog(
-              title: const Text('Организатор покинул комнату'),
-              actions: <Widget>[
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('ОК'),
-                ),
-              ],
+          unawaited(
+            showDialog<String>(
+              context: singleViewController.context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('Организатор покинул комнату'),
+                actions: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: const Text('ОК'),
+                  ),
+                ],
+              ),
             ),
           );
           Navigator.pop(singleViewController.context);
-          print('disposeRoom???');
           break;
         }
       case 'presentationQuizRequest':
@@ -623,15 +654,14 @@ class ParseMessage extends StateNotifier<int> {
 Map<String, Report> presentationQuizReport = {};
 
 class Report {
-  Report(
-    String numSlide,
-    String typeSlide,
-    String data,
-  ) {
+  Report(String numSlide,
+      String typeSlide,
+      String data,) {
     numSlideList.add(numSlide);
     typeSlideList.add(typeSlide);
     dataList.add(data);
   }
+
   final numSlideList = <String>[];
   final typeSlideList = <String>[];
   final dataList = <String>[];

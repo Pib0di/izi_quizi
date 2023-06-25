@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/common_functionality/jsonParse.dart';
+import 'package:izi_quizi/common_functionality/json_parse.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
 import 'package:izi_quizi/data/repository/server/server_data.dart';
 import 'package:izi_quizi/domain/create_editing_case.dart';

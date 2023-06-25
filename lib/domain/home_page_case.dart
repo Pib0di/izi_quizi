@@ -1,3 +1,7 @@
+// ignore_for_file: avoid_dynamic_calls
+
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
@@ -40,19 +44,21 @@ void createQuizDialog(BuildContext context, WidgetRef ref) {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Consumer(builder: (context, ref, _) {
-                ref.watch(homePageProvider);
-                return Switch(
-                  value: appDataController.isPublic,
-                  onChanged: (bool value) {
-                    appDataController.isPublic = value;
-                    homePageController.updateUi();
-                  },
-                );
-              }),
+              Consumer(
+                builder: (context, ref, _) {
+                  ref.watch(homePageProvider);
+                  return Switch(
+                    value: appDataController.isPublic,
+                    onChanged: (bool value) {
+                      appDataController.isPublic = value;
+                      homePageController.updateUi();
+                    },
+                  );
+                },
+              ),
             ],
           ),
           SizedBox(
@@ -110,32 +116,60 @@ void createQuizDialog(BuildContext context, WidgetRef ref) {
   );
 }
 
-List<Widget> getUserPresentations(HomePageController appDataController) {
+List<Widget> getUserPresentations(HomePageController homePageController) {
   final presentCardList = <Widget>[];
-  final userPresentation = appDataController.getUserPresentName();
+  final userPresentation = homePageController.getUserPresentName();
+
   for (var i = 0; i < userPresentation.length; ++i) {
+    final presentName = userPresentation.values.elementAt(i).split('&')[0];
+
     presentCardList.add(
       PresentCard(
         idPresent: userPresentation.keys.elementAt(i),
-        presentName: userPresentation.values.elementAt(i),
+        presentName: presentName,
       ),
     );
   }
   return presentCardList;
 }
 
-List<Widget> getPublicPresentations(HomePageController appDataController) {
+List<Widget> getPublicPresentations(HomePageController homePageController) {
   final presentCardList = <Widget>[];
-  final userPresentation = appDataController.getPublicPresentName();
+  final userPresentation = homePageController.getPublicPresentName();
+  final userPresentationImage =
+      homePageController.getPublicPresentationsImage();
+
+  final imageNameMap = <String, dynamic>{};
+  final imageNameList = <String>[];
   for (var i = 0; i < userPresentation.length; ++i) {
+    final presentName =
+        userPresentation.values.elementAt(i).split('&')[0].toString();
+    final imageName =
+        userPresentation.values.elementAt(i).split('&')[1].toString();
+
+    var uint8List = Uint8List(0);
+    if (userPresentationImage.isNotEmpty) {
+      uint8List = userPresentationImage[userPresentation.keys.elementAt(i)];
+    }
+
+    imageNameMap.putIfAbsent(
+      userPresentation.keys.elementAt(i),
+      () => imageName,
+    );
+    imageNameList.add(imageName);
     presentCardList.add(
       PresentCard(
         isPublic: true,
         idPresent: userPresentation.keys.elementAt(i),
-        presentName: userPresentation.values.elementAt(i),
+        presentName: presentName,
+        uint8List: uint8List,
       ),
     );
   }
+  if (imageNameMap.isNotEmpty) {
+    getPublicListImagePresentation(imageNameMap);
+  }
+
   return presentCardList;
 }
 

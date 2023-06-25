@@ -45,7 +45,7 @@ class HomePageScreen extends ConsumerWidget {
                 height: 20,
               ),
               SizedBox(
-                height: 150,
+                height: 230,
                 child: Row(
                   children: [
                     IconButton(
@@ -98,7 +98,8 @@ class HomePageScreen extends ConsumerWidget {
                                     .jumpTo(homePageController.currentPosition);
                               },
                               child: getUserPresentations(
-                                  homePageController)[index],
+                                homePageController,
+                              )[index],
                             );
                           },
                         ),
@@ -190,8 +191,7 @@ class JoinThePresentation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final homePageController = ref.read(homePageProvider.notifier);
-    homePageController.context = context;
+    ref.read(homePageProvider.notifier).context = context;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 40),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 70),

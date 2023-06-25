@@ -118,7 +118,6 @@ class User {
   User(this.webSocket, this.idUser) : id = webSocket.hashCode.toRadixString(16);
 
   void send(data) {
-    print('send => $data');
     webSocket.add(jsonEncode(data));
   }
 }

@@ -1,22 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:mysql_client/mysql_client.dart';
+
+// import 'package:path_provider/path_provider.dart';
 
 import 'multiple_processing.dart';
 
 SQL sql = SQL();
 
 Future<void> main() async {
-  final server = await HttpServer.bind('127.0.0.1', 80);
-  // final server = await HttpServer.bind('45.91.8.210', 80);
-  // final server = await HttpServer.bind('172.17.0.4', 80); СЕРВЕР
-  print('Listening on ${server.address}:${server.port}');
+  // final server = await HttpServer.bind('127.0.0.1', 80);
+  final server = await HttpServer.bind('172.17.0.3', 80); //СЕРВЕР
 
   await for (var request in server) {
     if (WebSocketTransformer.isUpgradeRequest(request)) {
-      print('request.method => ${request.method}');
       handleWebSocket(request);
     } else {
       request.response.statusCode = HttpStatus.badRequest;
@@ -33,7 +33,6 @@ void handleWebSocket(HttpRequest request) {
         final answer = await redirection(message, webSocket);
 
         if (webSocket.readyState == WebSocket.open) {
-          print('add => ${jsonEncode(answer)}');
           webSocket.add(jsonEncode(answer));
         }
       },
@@ -49,25 +48,32 @@ void handleWebSocket(HttpRequest request) {
             room.removeUser(id);
           }
         }
-        print('Room.rooms.length => ${Room.rooms.length}');
       },
     );
   });
 }
 
+String generateUniqueFileName(String extension) {
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
+  final random = DateTime.now().microsecondsSinceEpoch % 10000;
+  final uniqueName = '$timestamp$random';
+  final fileName = '$uniqueName.$extension';
+  return fileName;
+}
+
 class SQL {
   //local
-  late String host = 'localhost',
-      user = 'root',
-      password = '1234',
-      db = 'iziqizi';
-  int port = 3306;
-
-  // late String host = '45.91.8.210',
+  // late String host = 'localhost',
   //     user = 'root',
   //     password = '1234',
   //     db = 'iziqizi';
-  // int port = 85;
+  // int port = 3306;
+
+  late String host = '45.91.8.210',
+      user = 'root',
+      password = '1234',
+      db = 'iziqizi';
+  int port = 85;
 
   Future<Map<dynamic, String>> publicPresentList() async {
     final conn = await MySQLConnection.createConnection(
@@ -82,12 +88,13 @@ class SQL {
 
     try {
       IResultSet result;
+      IResultSet imageName;
       if (conn.connected) {
         result = await conn.execute(
-          'SELECT present.presentName, present.idPresent FROM iziqizi.present where present.public = \'true\';',
+          'SELECT present.presentName, present.idPresent, present.image_name FROM iziqizi.present where present.public = \'true\';',
         );
         result.rowsStream.listen((row) {
-          userPresent['${row.colAt(1)}'] = row.colAt(0)!;
+          userPresent['${row.colAt(1)}'] = '${row.colAt(0)!}&${row.colAt(2)!}';
         });
       }
       await Future.delayed(const Duration(milliseconds: 1500));
@@ -114,11 +121,11 @@ class SQL {
       IResultSet result;
       if (conn.connected) {
         result = await conn.execute(
-          'SELECT present.presentName, present.idPresent FROM iziqizi.present where present.userId = :userId;',
+          'SELECT present.presentName, present.idPresent, present.image_name FROM iziqizi.present where present.userId = :userId;',
           {'userId': userId},
         );
         result.rowsStream.listen((row) {
-          userPresent['${row.colAt(1)}'] = row.colAt(0)!;
+          userPresent['${row.colAt(1)}'] = '${row.colAt(0)!}&${row.colAt(2)!}';
         });
       }
       await Future.delayed(const Duration(milliseconds: 1500));
@@ -150,13 +157,9 @@ class SQL {
         );
         // await Future.delayed(const Duration(milliseconds: 1500));
         await conn.close();
-        print('result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}');
 
         if (result.isNotEmpty) {
           if (pass.toString() == result.rows.first.colAt(1).toString()) {
-            print(
-              'result.rows.first.colAt(0) => ${result.rows.first.colAt(0)}',
-            );
             return 'authorized ${result.rows.first.colAt(0)}';
           } else {
             return 'authErr';
@@ -197,7 +200,6 @@ class SQL {
   }
 
   Future<String> register(String email, String pass) async {
-
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -214,8 +216,6 @@ class SQL {
           {'email': email, 'pass': pass},
         );
         for (final row in result.rows) {
-          print(row.colAt(0));
-
           // if (row.colAt(0) != null){
           //   json += row.colAt(0)!;
           // }
@@ -250,7 +250,10 @@ class SQL {
   }
 
   Future<String> createPresent(
-      String? namePresent, String? email, bool isPublic) async {
+    String? namePresent,
+    String? email,
+    bool isPublic,
+  ) async {
     final conn = await MySQLConnection.createConnection(
       host: host,
       port: port,
@@ -270,7 +273,6 @@ class SQL {
           {'idUser': email, 'name': '$namePresent'},
         );
         final json = result.rows.last.colAt(0).toString();
-        print('jsons => $json');
         await Future.delayed(const Duration(milliseconds: 500));
         return 'success-$json';
       } on Exception catch (e) {
@@ -294,7 +296,6 @@ class SQL {
     await conn.connect();
     if (conn.connected) {
       try {
-        print('nameDeletePresent =>$nameDeletePresent');
         await conn.execute(
           'DELETE FROM `iziqizi`.`present` WHERE (`idPresent` = :nameDeletePresent);',
           {'nameDeletePresent': nameDeletePresent ?? ''},
@@ -304,7 +305,6 @@ class SQL {
       } catch (e) {
         await conn.close();
       }
-
     } else {}
     return 'error';
   }
@@ -403,11 +403,41 @@ class SQL {
       }
     } else {}
   }
+
+  Future<String> addPreview(String imageName, String idPresent) async {
+    final conn = await MySQLConnection.createConnection(
+      host: host,
+      port: port,
+      userName: user,
+      password: password,
+      databaseName: db,
+    );
+    await conn.connect();
+    if (conn.connected) {
+      try {
+        print('idPresent => $idPresent');
+        await conn.execute(
+          'UPDATE `iziqizi`.`present` SET `image_name` = :imageName WHERE (`idPresent` = :idPresent);',
+          {
+            'imageName': imageName,
+            'idPresent': idPresent,
+          },
+        );
+
+        return 'success';
+      } on Exception catch (e) {
+        return ('error');
+      } finally {
+        await conn.close();
+      }
+    } else {
+      return ('Create present connect error');
+    }
+  }
 }
 
 Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
   final jsonData = Map<String, dynamic>.from(json.decode(data));
-  print('request => $jsonData');
   switch (jsonData['request_to']) {
     // *********************** Database queries *************************
     case 'bd':
@@ -456,6 +486,32 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                 'result': result,
               };
             }
+          case 'uploadImage':
+            {
+              final imageBytes =
+                  Uint8List.fromList(jsonData['imageBytes'].cast<int>());
+              final uniqueFileName = generateUniqueFileName('jpg');
+              await sql.addPreview(uniqueFileName, jsonData['idPresent']);
+
+              void saveFileLocally(Uint8List imageBytes) async {
+                final directory = Directory('/var/lib/docker/volumes');
+
+                final filePath = '${directory.path}/$uniqueFileName';
+
+                if (!directory.existsSync()) {
+                  directory.createSync(recursive: true);
+                }
+                final file = File(filePath);
+                await file.writeAsBytes(imageBytes);
+                print('Файл успешно сохранен по пути: $filePath');
+              }
+
+              saveFileLocally(imageBytes);
+              return {
+                'obj': 'uploadImage',
+                'result': 'fileBytes',
+              };
+            }
           case 'presentList': //user present list
             {
               final list = await sql.userPresentList(jsonData['idUser']);
@@ -471,6 +527,44 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
               Map<String, dynamic> json() => {
                     'obj': 'publicPresentList',
                     'list': list,
+                  };
+              return json();
+            }
+          case 'imageRequest':
+            {
+              final Map<String, dynamic> imageNameList = jsonData['imageName'];
+
+              final directory = Directory('/var/lib/docker/volumes');
+              final uint8List = <Uint8List>[];
+              final idPresentList = <String>[];
+
+              Future<void> imageName(
+                List<Uint8List> uint8List,
+                List<String> idPresentList,
+              ) async {
+                imageNameList.forEach((key, value) async {
+                  final filePath = '${directory.path}/$value';
+                  final file = File(filePath);
+                  if (!file.existsSync()) {
+                    print('Файл не найден: $filePath, file => ${file}');
+                    uint8List.add(Uint8List(0));
+                  } else {
+                    final fileBytes = await file.readAsBytes();
+                    uint8List.add(fileBytes);
+                    print('Файл успешно отправлен по пути: $fileBytes');
+                  }
+                  idPresentList.add(key);
+                });
+              }
+
+              await imageName(uint8List, idPresentList);
+
+              await Future.delayed(const Duration(milliseconds: 1500));
+
+              Map<String, dynamic> json() => {
+                    'obj': 'imageRequest',
+                    'idPresentList': idPresentList,
+                    'uint8List': uint8List,
                   };
               return json();
             }
@@ -530,7 +624,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
             {
               final email = jsonData['email'].toString();
               final pass = jsonData['pass'];
-              print('email => $email, password => $pass');
               final result = await sql.register(email, pass);
               if (result == 'success') {
                 return {
@@ -543,7 +636,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                   'valid': 'error',
                 };
               }
-              break;
             }
           default:
             {}
@@ -572,11 +664,7 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                     'idRoom': idRoom,
                     'presentName': presentName,
                   };
-              // webSocket.listen((event) { }).onDone(() {
-              //   room.removeUser(idUser);
-              // });
               return json();
-              break;
             }
           case 'joinRoom':
             {
@@ -610,7 +698,6 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                 };
               }
               return json;
-              break;
             }
           case 'getUserRoom':
             {
@@ -630,8 +717,8 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
               final String idUserInRoom = jsonData['idUserInRoom'];
               final String idRoom = jsonData['idRoom'];
               if (Room.rooms.containsKey(idRoom) == true) {
-                final room = Room.getOrCreateRoom(idRoom);
-                room.removeUser(idUserInRoom);
+                final room = Room.getOrCreateRoom(idRoom)
+                  ..removeUser(idUserInRoom);
                 final list = room.getListUser();
                 room.sendUserList(
                   list,
@@ -684,12 +771,7 @@ Future<Map<String, dynamic>> redirection(data, WebSocket webSocket) async {
                     user.report.add(report);
                   }
 
-                  final hostUser = room.users.first;
-                  // final userId = <String>[];
-                  // final numSlideList = <String>[];
-                  // final typeSlideList = <String>[];
-                  // final dataList = <String>[];
-                  hostUser.send({
+                  room.users.first.send({
                     'obj': 'presentationQuizRequest',
                     'idUser': user.id,
                     'numSlide': report.numSlide.toString(),

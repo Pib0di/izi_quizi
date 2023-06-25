@@ -12,7 +12,11 @@ import 'package:izi_quizi/widgets/item_shel/items_shel.dart';
 import 'package:universal_html/html.dart';
 
 void saveQuiz(
-    String idPresent, String idUser, String presentName, String jsonSlide) {
+  String idPresent,
+  String idUser,
+  String presentName,
+  String jsonSlide,
+) {
   setPresentation(idPresent, idUser, presentName, jsonSlide);
 }
 
@@ -137,6 +141,12 @@ Future<void> pickFileWeb(int slideNum, Ref ref) async {
 
     reader.onLoad.listen((event) {
       imageData = reader.result as Uint8List;
+      if (imageData != null) {
+        uploadImage(
+          imageData!,
+          ref.read(appDataProvider.notifier).idPresent,
+        );
+      }
       final imageWidget = Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -158,7 +168,7 @@ Future<void> pickFileWeb(int slideNum, Ref ref) async {
 
 Future<void> pickFilePC(int slideNum, Ref ref) async {
   final result = await FilePicker.platform.pickFiles(
-    dialogTitle: "Выберите изображение или gif",
+    dialogTitle: 'Выберите изображение или gif',
     type: FileType.image,
     // allowedExtensions: ['jpg','gif','jpeg'],
   );
@@ -166,7 +176,6 @@ Future<void> pickFilePC(int slideNum, Ref ref) async {
   if (result != null) {
     final imageFile = file.File(result.files.single.path!);
 
-    print(result.files.single.path!);
     final imageWidget = Container(
       // margin: const EdgeInsets.all(0),
       decoration: BoxDecoration(

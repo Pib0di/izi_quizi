@@ -69,7 +69,7 @@ class SelectionSlideController extends StateNotifier<int> {
     isPlayRecord = false;
     try {
       if (await _audioRecorder.hasPermission()) {
-        final res = await _audioRecorder.isEncoderSupported(
+        await _audioRecorder.isEncoderSupported(
           AudioEncoder.aacLc,
         );
 
@@ -80,7 +80,9 @@ class SelectionSlideController extends StateNotifier<int> {
 
         _startTimer();
       }
-    } catch (e) {}
+    } catch (e) {
+      return;
+    }
   }
 
   Future<void> stop() async {

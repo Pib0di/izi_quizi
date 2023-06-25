@@ -1,4 +1,4 @@
-// ignore_for_file: directives_ordering
+// ignore_for_file: directives_ordering, must_be_immutable
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -117,7 +117,11 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
       ..watch(itemShelProvider)
       ..watch(itemNum);
 
-    select = itemId.state == itemCount ? true : false;
+    if (itemId.state == itemCount) {
+      select = true;
+    } else {
+      select = false;
+    }
     buttonDelete = ButtonDelete.deleteItemId(
       context.widget.key!,
       key: UniqueKey(),
@@ -194,32 +198,31 @@ class ItemsShelState extends ConsumerState<ItemsShel> {
         ),
       );
     }
-
-    Widget rotateTrigger() {
-      return Positioned(
-        top: 25,
-        left: widget.width / 2,
-        child: GestureDetector(
-          onPanUpdate: (details) => setState(
-            () => {
-              angle += details.delta.dx * 0.01,
-            },
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(3),
-            ),
-            child: const Icon(Icons.rotate_right, color: Color(0xFF66D286)),
-          ),
-        ),
-      );
-    }
+    //todo rotation widget
+    // Widget rotateTrigger() {
+    //   return Positioned(
+    //     top: 25,
+    //     left: widget.width / 2,
+    //     child: GestureDetector(
+    //       onPanUpdate: (details) => setState(
+    //         () => {
+    //           angle += details.delta.dx * 0.01,
+    //         },
+    //       ),
+    //       child: Container(
+    //         decoration: BoxDecoration(
+    //           borderRadius: BorderRadius.circular(3),
+    //         ),
+    //         child: const Icon(Icons.rotate_right, color: Color(0xFF66D286)),
+    //       ),
+    //     ),
+    //   );
+    // }
 
     return RepaintBoundary(
       child: GestureDetector(
         onPanUpdate: (details) => setState(
-          () =>
-          {
+          () => {
             offset = details.delta,
             widget.top += offset.dy,
             widget.left += offset.dx,

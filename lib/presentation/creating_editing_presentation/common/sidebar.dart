@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -101,9 +103,7 @@ class SidebarItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref
-      ..watch(slidesPreviewProvider)
-      ..watch(currentSlideNumber);
+    ref..watch(slidesPreviewProvider)..watch(currentSlideNumber);
 
     final counter = ref.read(currentSlideNumber.notifier);
     final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
@@ -136,7 +136,7 @@ class SidebarItem extends ConsumerWidget {
                           color: const Color(0xff18540d),
                           strokeAlign: BorderSide.strokeAlignOutside,
                           width:
-                              counter.state == buttonId ? width : widthBorder,
+                          counter.state == buttonId ? width : widthBorder,
                         ),
                         // color: const Color(0xff84b67c),
                         color: Colors.transparent,
@@ -151,12 +151,12 @@ class SidebarItem extends ConsumerWidget {
                           if (imageFile.length > 10)
                             FadeInImage(
                               placeholder:
-                                  const AssetImage('assets/image/loading.png'),
+                              const AssetImage('assets/image/loading.png'),
                               image: MemoryImage(imageFile),
                               fit: BoxFit.contain,
                               fadeInDuration: const Duration(milliseconds: 300),
                               fadeOutDuration:
-                                  const Duration(milliseconds: 300),
+                              const Duration(milliseconds: 300),
                             ),
                           ElevatedButton(
                             onHover: (val) {
@@ -351,7 +351,7 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
         );
         slidesPreviewController.addItem();
         slideDataController
-          // ..addListSlideWidget(selectionSlide)
+        // ..addListSlideWidget(selectionSlide)
           ..addSelectionSlide(selectionSlide)
           ..initializeQuestion('surveySlide', selectionSlide.key!)
           ..addSelectSlideTextController(selectionSlide.key!);
@@ -374,7 +374,7 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
         );
         slidesPreviewController.addItem();
         slideDataController
-          // ..addListSlideWidget(selectionSlide)
+        // ..addListSlideWidget(selectionSlide)
           ..addSelectionSlide(selectionSlide)
           ..initializeQuestion('freeResponseSlide', selectionSlide.key!)
           ..addSelectSlideTextController(selectionSlide.key!);
@@ -390,7 +390,7 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
         );
         slidesPreviewController.addItem();
         slideDataController
-          // ..addListSlideWidget(selectionSlide)
+        // ..addListSlideWidget(selectionSlide)
           ..addSelectionSlide(selectionSlide)
           ..initializeQuestion('', selectionSlide.key!)
           ..addSelectSlideTextController(selectionSlide.key!);
@@ -414,10 +414,10 @@ List<ExpandedButtonFactory> getSlideMenuItems(WidgetRef ref) {
     ExpandedButtonFactory(
       onPressed: () {
         final selectionSlide =
-            SelectionSlide(audioSlide: true, key: UniqueKey());
+        SelectionSlide(audioSlide: true, key: UniqueKey());
         slidesPreviewController.addItem();
         slideDataController
-          // ..addListSlideWidget(selectionSlide)
+        // ..addListSlideWidget(selectionSlide)
           ..addSelectionSlide(selectionSlide)
           ..addSelectSlideTextController(selectionSlide.key!);
       },

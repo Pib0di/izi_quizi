@@ -46,7 +46,7 @@ class TabBarEventsState extends ConsumerState<TabBarEvents>
               labelColor: colorScheme.primary,
               indicatorColor: colorScheme.secondary,
               controller: tabController,
-              tabs: <Widget>[
+              tabs: const <Widget>[
                 Tab(
                   child: Text(
                     'Текущие',

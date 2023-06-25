@@ -24,7 +24,6 @@ class MultipleViewState extends StateNotifier<int> {
     userList = userPresentName;
     initUserListWidget();
     updateUi();
-    print('userList => $userList');
   }
 
   List<Widget> getUserWidgets() {
@@ -88,7 +87,6 @@ class UserListItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appDataController = ref.read(appDataProvider.notifier);
-    print('${appDataController.idUserInRoom} ======= $idUser');
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Container(

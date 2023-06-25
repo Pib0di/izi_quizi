@@ -15,6 +15,7 @@ import 'package:izi_quizi/widgets/button_delete.dart';
 import 'package:izi_quizi/widgets/selection_slide/selection_slide_state.dart';
 import 'package:universal_html/html.dart' as html;
 
+// ignore: must_be_immutable
 class Question extends ConsumerWidget {
   Question({this.surveySlide, this.freeResponseSlide, super.key});
 
@@ -184,9 +185,12 @@ class Question extends ConsumerWidget {
                           multipleViewController.updateUi();
                         },
                         style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.yellow,
                           backgroundColor: backgroundColor,
-                          onPrimary: Colors.yellow,
-                          onSurface: Colors.yellow,
+                          disabledForegroundColor:
+                              Colors.yellow.withOpacity(0.38),
+                          disabledBackgroundColor:
+                              Colors.yellow.withOpacity(0.12),
                         ),
                         child: Text(
                           textEditingController.text,
@@ -268,7 +272,7 @@ Future<void> pickImageWeb(Ref ref) async {
 
 Future<void> pickImagePC(Ref ref) async {
   final result = await FilePicker.platform.pickFiles(
-    dialogTitle: "Выберите изображение или gif",
+    dialogTitle: 'Выберите изображение или gif',
     type: FileType.image,
     // allowedExtensions: ['jpg','gif','jpeg'],
   );
@@ -299,8 +303,11 @@ Future<void> pickImagePC(Ref ref) async {
 }
 
 class CheckButton extends ConsumerWidget {
-  const CheckButton(
-      {required this.isSurvey, required this.keyParent, super.key});
+  const CheckButton({
+    required this.isSurvey,
+    required this.keyParent,
+    super.key,
+  });
 
   final bool isSurvey;
   final Key keyParent;
@@ -319,8 +326,10 @@ class CheckButton extends ConsumerWidget {
         shape: const CircleBorder(),
         elevation: 0.0,
         onPressed: () {
-          slideDataController.isSurveySlide(context.widget.key!,
-              ref.read(selectionSlideProvider.notifier).currentKeySelectSlide);
+          slideDataController.isSurveySlide(
+            context.widget.key!,
+            ref.read(selectionSlideProvider.notifier).currentKeySelectSlide,
+          );
           selectionSlideController.updateUi();
         },
         child: isSurvey

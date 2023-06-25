@@ -6,7 +6,7 @@ import 'package:izi_quizi/presentation/creating_editing_presentation/common/pres
 import 'package:izi_quizi/presentation/creating_editing_presentation/common/sidebar.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/utils/theme.dart';
-import 'package:izi_quizi/widgets/buttonFactory.dart';
+import 'package:izi_quizi/widgets/button_factory.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class CreatingEditingArea extends ConsumerStatefulWidget {
@@ -56,7 +56,7 @@ class CreatingEditingAreaState extends ConsumerState<CreatingEditingArea> {
               },
               labelType: NavigationRailLabelType.all,
               destinations:
-              getNavRailDestination(slidesPreviewController.selectedIndex),
+                  getNavRailDestination(slidesPreviewController.selectedIndex),
             ),
             // const VerticalDivider(),
             // VerticalDivider(
@@ -178,8 +178,9 @@ List<NavigationRailDestination> getNavRailDestination(int selectedIndex) {
   ];
 }
 
-List<Widget> mediaMenu(BuildContext context,
-    CreateEditingCase createEditingController,
+List<Widget> mediaMenu(
+  BuildContext context,
+  CreateEditingCase createEditingController,
 ) {
   return <Widget>[
     ElevatedButtonFactory.numAddItem(
@@ -213,8 +214,8 @@ List<Widget> mediaMenu(BuildContext context,
                         // image: NetworkImage(createEditingController.urlTextController.text ?? ''),
                         // image: CachedNetworkImageProvider(url ?? ''),
                         image: CachedNetworkImageProvider(
-                            createEditingController.urlTextController.text ??
-                                ''),
+                          createEditingController.urlTextController.text,
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -222,25 +223,25 @@ List<Widget> mediaMenu(BuildContext context,
                 ],
               ),
             ),
-            actions: <Widget>[
+                actions: const <Widget>[
               ConsumerTextButton.showDialog(
                 closeAfterClicking: true,
-                child: const Text('отмена'),
+                child: Text('отмена'),
               ),
               ConsumerTextButton.showDialog(
                 closeAfterClicking: false,
                 addedItem: 'image',
-                child: const Text('проводник'),
+                child: Text('Добавить фото на превью'),
               ),
               if (true)
                 ConsumerTextButton.showDialog(
                   closeAfterClicking: false,
                   addedItem: 'image',
                   id: -4,
-                  child: const Text('вставить'),
+                  child: Text('вставить'),
                 ),
             ],
-              ),
+          ),
         )
       },
       child: const Text('Изображения'),
@@ -260,10 +261,12 @@ List<Widget> textMenu(CreateEditingCase createEditingController) {
   return <Widget>[
     ElevatedButtonFactory.numAddItem(
       onPressed: () => createEditingController.addItem('heading'),
-      child: const Text('Заголовок',
-          style: TextStyle(
-            fontSize: 20,
-          )),
+      child: const Text(
+        'Заголовок',
+        style: TextStyle(
+          fontSize: 20,
+        ),
+      ),
     ),
     ElevatedButtonFactory.numAddItem(
       onPressed: () => createEditingController.addItem('mainText'),

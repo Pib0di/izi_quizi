@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/presentation/authentication/authentication_popup_screen.dart';
-import 'package:izi_quizi/presentation/authentication/authentication_state.dart';
+import 'package:izi_quizi/presentation/home_page/authentication/authentication_popup_screen.dart';
+import 'package:izi_quizi/presentation/home_page/authentication/authentication_state.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
 
 class PopupMenu extends ConsumerWidget {

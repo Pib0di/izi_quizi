@@ -11,9 +11,8 @@ class PresentationCreationArea extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final slideDataController = ref.read(slideDataProvider.notifier);
-    final slidesPreviewController = ref.read(slidesPreviewProvider.notifier);
-
-    slidesPreviewController.screenshotController = ScreenshotController();
+    final slidesPreviewController = ref.read(slidesPreviewProvider.notifier)
+      ..screenshotController = ScreenshotController();
 
     return Expanded(
       child: Center(
@@ -62,8 +61,14 @@ class PresentationCreationArea extends ConsumerWidget {
                                 } else {
                                   count = 0;
                                 }
-                                if (slideDataController.getSlide().isNotEmpty){
-                                  ref.read(selectionSlideProvider.notifier).currentKeySelectSlide = slideDataController.getSlide()[count].key ?? UniqueKey();
+                                if (slideDataController.getSlide().isNotEmpty) {
+                                  ref
+                                          .read(selectionSlideProvider.notifier)
+                                          .currentKeySelectSlide =
+                                      slideDataController
+                                              .getSlide()[count]
+                                              .key ??
+                                          UniqueKey();
                                 }
 
                                 // return SelectionSlide(key: UniqueKey());

@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:izi_quizi/data/repository/local/slide_data.dart';
@@ -75,173 +77,6 @@ class QuizItem with _$QuizItem {
       _$QuizItemFromJson(json);
 }
 
-// *************************** messageReceived ***********************
-// @freezed
-// class MessageReceived with _$MessageReceived {
-//   factory MessageReceived({
-//     @Default('') String obj,
-//     @Default('') String senderId,
-//     List<Message>? message,
-//   }) = _MessageReceived;
-//
-//   factory MessageReceived.fromJson(Map<String, dynamic> json) => _$MessageReceivedFromJson(json);
-// }
-//
-// @freezed
-// class Message with _$Message {
-//   factory Message.listUser({
-//     @JsonKey(name: 'message') StringMessage? message,
-//   }) = _ListUser;
-//
-//   factory Message.fromJson(Map<String, dynamic> json) =>
-//       _$MessageFromJson(json);
-// }
-// @freezed
-// class StringMessage with _$StringMessage {
-//   factory StringMessage({
-//     @Default({}) @JsonKey(name: 'listUser') Map<String, dynamic>? listUser,
-// }) = _StringMessage;
-//
-//   factory StringMessage.fromJson(Map<String, dynamic> json) =>
-//       _$StringMessageFromJson(json);
-// }
-
-///parse slides
-class JsonParse {
-  int? numSlide;
-  List<SlidesData>? slidesData;
-
-  JsonParse({this.numSlide, this.slidesData});
-
-  JsonParse.fromJson(Map<String, dynamic> json) {
-    numSlide = json['num_slide'];
-    if (json['slides_data'] != null) {
-      slidesData = <SlidesData>[];
-      json['slides_data'].forEach((v) {
-        slidesData!.add(SlidesData.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['num_slide'] = numSlide;
-    if (slidesData != null) {
-      data['slides_data'] = slidesData!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class SlidesData {
-  List<TextItems>? textItems;
-  List<ImageItems>? imageItems;
-
-  SlidesData({this.textItems, this.imageItems});
-
-  SlidesData.fromJson(Map<String, dynamic> json) {
-    if (json['text_items'] != null) {
-      textItems = <TextItems>[];
-      json['text_items'].forEach((v) {
-        textItems!.add(TextItems.fromJson(v));
-      });
-    }
-    if (json['image_items'] != null) {
-      imageItems = <ImageItems>[];
-      json['image_items'].forEach((v) {
-        imageItems!.add(ImageItems.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    if (textItems != null) {
-      data['text_items'] = textItems!.map((v) => v.toJson()).toList();
-    }
-    if (imageItems != null) {
-      data['image_items'] = imageItems!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-}
-
-class TextItems {
-  String? text;
-  double? offsetX;
-  double? offsetY;
-  double? width;
-  double? height;
-  String? property;
-
-  TextItems({
-    this.text,
-    this.offsetX,
-    this.offsetY,
-    this.width,
-    this.height,
-    this.property,
-  });
-
-  TextItems.fromJson(Map<String, dynamic> json) {
-    text = json['text'];
-    offsetX = json['offsetX'].toDouble();
-    offsetY = json['offsetY'].toDouble();
-    width = json['width'].toDouble();
-    height = json['height'].toDouble();
-    property = json['property'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['text'] = text;
-    data['offsetX'] = offsetX;
-    data['offsetY'] = offsetY;
-    data['width'] = width;
-    data['height'] = height;
-    data['property'] = property;
-    return data;
-  }
-}
-
-class ImageItems {
-  String? url;
-  double? offsetX;
-  double? offsetY;
-  double? width;
-  double? height;
-  String? property;
-
-  ImageItems({
-    this.url,
-    this.offsetX,
-    this.offsetY,
-    this.width,
-    this.height,
-    this.property,
-  });
-
-  ImageItems.fromJson(Map<String, dynamic> json) {
-    url = json['url'];
-    offsetX = json['offsetX'];
-    offsetY = json['offsetY'];
-    width = json['width'];
-    height = json['height'];
-    property = json['property'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final data = <String, dynamic>{};
-    data['url'] = url;
-    data['offsetX'] = offsetX;
-    data['offsetY'] = offsetY;
-    data['width'] = width;
-    data['height'] = height;
-    data['property'] = property;
-    return data;
-  }
-}
-
 final slideJsonProvider = StateNotifierProvider<SlideJson, int>((ref) {
   return SlideJson(ref);
 });
@@ -296,8 +131,8 @@ class SlideJson extends StateNotifier<int> {
 
     final slideDataController = ref.read(slideDataProvider.notifier);
     for (var i = 0;
-        i < slideDataController.getListSelectionSlide().length;
-        ++i) {
+    i < slideDataController.getListSelectionSlide().length;
+    ++i) {
       final selectionSlide = slideDataController.getListSelectionSlide()[i];
 
       final questions = <String>[];
@@ -315,7 +150,7 @@ class SlideJson extends StateNotifier<int> {
       final quizItem = QuizItem(
         type: selectionSlide.getType(),
         questions: questions,
-        question: question ?? '',
+        question: question,
         isSurveyList: isSurveyList,
         urlImg: selectionSlide.getUrl(),
       );

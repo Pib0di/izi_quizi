@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:izi_quizi/common_functionality/jsonParse.dart';
+import 'package:izi_quizi/common_functionality/json_parse.dart';
 import 'package:izi_quizi/data/repository/local/slide_items.dart';
 import 'package:izi_quizi/presentation/creating_editing_presentation/create_editing_state.dart';
 import 'package:izi_quizi/presentation/multiple_view/multiple_view_state.dart';
@@ -167,23 +167,22 @@ class SlideData extends StateNotifier<int> {
   }
 
   void parseListQuestion(String typeSlide, Key key, bool? survey) {
-    Question question;
-    if (typeSlide == 'surveySlide') {
-      question = Question(
-        surveySlide: true,
-        key: UniqueKey(),
-      );
-      question!.isSurvey = survey ?? false;
-    } else if (typeSlide == 'freeResponseSlide') {
-      question = Question(
-        freeResponseSlide: true,
-        key: UniqueKey(),
-      );
-    } else {
-      question = Question(
-        key: UniqueKey(),
-      );
-    }
+    // Question question;
+    // if (typeSlide == 'surveySlide') {
+    //   question = Question(
+    //     surveySlide: true,
+    //     key: UniqueKey(),
+    //   )..isSurvey = survey ?? false;
+    // } else if (typeSlide == 'freeResponseSlide') {
+    //   question = Question(
+    //     freeResponseSlide: true,
+    //     key: UniqueKey(),
+    //   );
+    // } else {
+    //   question = Question(
+    //     key: UniqueKey(),
+    //   );
+    // }
     listQuestion.putIfAbsent(key, () => []);
     addListQuestion(typeSlide, key);
   }
@@ -293,11 +292,6 @@ class SlideData extends StateNotifier<int> {
     return listWidget;
   }
 
-  JsonParse dataSlideParse(Map<String, dynamic> data) {
-    // return JsonParse.fromJson(json.decode(data['list']));
-    return JsonParse.fromJson(json.decode(data['list']));
-  }
-
   Slides getSlidesJson(Map<String, dynamic> data) {
     return Slides.fromJson(json.decode(data['list']));
   }
@@ -370,7 +364,6 @@ class SlideData extends StateNotifier<int> {
           ..addSelectSlideTextController(quizSlideKey);
         var i = 0;
         element.quizItem!.questions?.forEach((value) {
-          print('element.quizItem => ${value}');
           slideDataController.parseListQuestion(
             quizSlide!.getType(),
             quizSlideKey,
@@ -460,7 +453,6 @@ class SlideData extends StateNotifier<int> {
           ..addSelectSlideTextController(quizSlideKey);
         var i = 0;
         element.quizItem!.questions?.forEach((value) {
-          print('element.quizItem => ${value}');
           slideDataController.parseListQuestion(
             quizSlide!.getType(),
             quizSlideKey,
@@ -483,71 +475,6 @@ class SlideData extends StateNotifier<int> {
       } else {
         addListSlide(slide);
       }
-    });
-  }
-
-  void setItemsEdit() {
-    final jsonParse = dataSlideParse(dataSlide);
-    listSlide.clear();
-    jsonParse.slidesData?.forEach((element) {
-      final slide = SlideItems();
-
-      ref.read(slidesPreviewProvider.notifier).addItem();
-
-      element.textItems?.forEach((element) {
-        final itemsShelText = ItemsShel.textWidgetJson(
-          key: UniqueKey(),
-          text: element.text!,
-          width: element.width!,
-          height: element.height!,
-          left: element.offsetX!,
-          top: element.offsetY!,
-        );
-        slide.addItemShel(itemsShelText);
-      });
-      element.imageItems?.forEach((element) {
-        final itemsShelImage = ItemsShel.imageWidgetJson(
-          key: UniqueKey(),
-          url: element.url!,
-          width: element.width!,
-          height: element.height!,
-          left: element.offsetX!,
-          top: element.offsetY!,
-        );
-        slide.addItemShel(itemsShelImage);
-      });
-
-      listSlide.add(slide);
-    });
-  }
-  void setItemsView() {
-    final jsonParse = dataSlideParse(dataSlide);
-    listSlide.clear();
-    jsonParse.slidesData?.forEach((element) {
-      final slide = SlideItems();
-      element.textItems?.forEach((element) {
-        final itemsViewText = ItemsViewPresentation.textWidgetJson(
-          key: UniqueKey(),
-          text: element.text!,
-          width: element.width!,
-          height: element.height!,
-          left: element.offsetX!,
-          top: element.offsetY!,
-        );
-        slide.addItemsView(itemsViewText);
-      });
-      element.imageItems?.forEach((element) {
-        final itemsViewImage = ItemsViewPresentation.imageWidgetJson(
-          key: UniqueKey(),
-          url: element.url!,
-          width: element.width!,
-          height: element.height!,
-          left: element.offsetX!,
-          top: element.offsetY!,
-        );
-        slide.addItemsView(itemsViewImage);
-      });
-      listSlide.add(slide);
     });
   }
 }
