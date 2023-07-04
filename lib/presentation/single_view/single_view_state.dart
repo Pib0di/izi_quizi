@@ -1,16 +1,42 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:izi_quizi/data/repository/local/slide_data.dart';
 
 /// number of the current slide
-final slideNumProvider = StateNotifierProvider((ref) {
-  return Counter();
+final singleViewProvider = StateNotifierProvider((ref) {
+  return SingleViewController(ref);
 });
 
-class Counter extends StateNotifier<int> {
-  Counter() : super(0);
+// state - number of the selected slide
+class SingleViewController extends StateNotifier<int> {
+  SingleViewController(this.ref) : super(0);
 
-  void increment() => ++state;
+  Ref ref;
+  late BuildContext context;
 
-  void decrement() => --state;
+  int getTotalSlide() {
+    return ref.read(slideDataProvider.notifier).getLengthListSlideWidget() - 1;
+  }
 
-  void set(int value) => state = value;
+  void increment() {
+    if (state < getTotalSlide()) {
+      ++state;
+    }
+  }
+
+  void decrement() {
+    if (state > 0) {
+      --state;
+    }
+  }
+
+  void set(int num) {
+    if (num <= getTotalSlide() && num >= 0) {
+      state = num;
+    }
+  }
+
+  int getState() {
+    return state;
+  }
 }

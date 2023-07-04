@@ -1,0 +1,1111 @@
+@startuml
+set namespaceSeparator ::
+
+class "izi_quizi::common_functionality::jsonParse.dart::JsonParse" {
+  +int? numSlide
+  +List<SlidesData>? slidesData
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::SlidesData" {
+  +List<TextItems>? textItems
+  +List<ImageItems>? imageItems
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::TextItems" {
+  +String? text
+  +double? offsetX
+  +double? offsetY
+  +double? width
+  +double? height
+  +String? property
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::ImageItems" {
+  +String? url
+  +double? offsetX
+  +double? offsetY
+  +double? width
+  +double? height
+  +String? property
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::SlideJson" {
+  {static} -SlideJson _instance
+  +JsonParse slideJson()
+}
+
+"izi_quizi::common_functionality::jsonParse.dart::SlideJson" o-- "izi_quizi::common_functionality::jsonParse.dart::SlideJson"
+
+class "izi_quizi::data::repository::local::app_data.dart::AppData" {
+  {static} -AppData _instance
+  {static} +String idUser
+  {static} +String email
+  {static} +String presentName
+  {static} +String typeBrowser
+  +Map<String, dynamic> userPresentName
+  +WidgetRef? ref
+  {static} +bool isAuth
+  +StateProvider<bool> authorized
+  +Future<void> checkMobileBrowser()
+  +void setUserPresentName()
+  +Map<String, dynamic> getUserPresentName()
+  +void widgetRef()
+  +StateController<bool> authStateController()
+  +StateProvider<bool> authStateProvider()
+  +void authentication()
+}
+
+"izi_quizi::data::repository::local::app_data.dart::AppData" o-- "izi_quizi::data::repository::local::app_data.dart::AppData"
+"izi_quizi::data::repository::local::app_data.dart::AppData" o-- "flutter_riverpod::src::consumer.dart::WidgetRef"
+"izi_quizi::data::repository::local::app_data.dart::AppData" o-- "riverpod::src::state_provider.dart::StateProvider<bool>"
+
+class "izi_quizi::data::repository::local::side_slides.dart::SideSlides" {
+  {static} -SideSlides _instance
+  +ScreenshotController screenshotController
+  +List<NavSlideButton> sideList
+  +Future<dynamic> updatePreview()
+  +int getLengthSideList()
+  +void addSlide()
+  +void updateCount()
+  +List<NavSlideButton> getSlide()
+  +void setSlide()
+  +void delItem()
+}
+
+"izi_quizi::data::repository::local::side_slides.dart::SideSlides" o-- "izi_quizi::data::repository::local::side_slides.dart::SideSlides"
+"izi_quizi::data::repository::local::side_slides.dart::SideSlides" o-- "screenshot::screenshot.dart::ScreenshotController"
+
+class "izi_quizi::data::repository::local::side_slides.dart::NavSlideButton" {
+  +Key keyDelete
+  +Uint8List imageFile
+  +int buttonId
+  +void setButtonId()
+  +void setImagePreview()
+  +NavSlideButtonState createState()
+}
+
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButton" o-- "flutter::src::foundation::key.dart::Key"
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButton" o-- "dart::typed_data::Uint8List"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::data::repository::local::side_slides.dart::NavSlideButton"
+
+class "izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState" {
+  +double width
+  +double widthBorder
+  +bool select
+  -Widget _hoverMenu
+  +ScreenshotController screenshotController
+  +void kh()
+  +Widget build()
+}
+
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState" o-- "flutter::src::widgets::framework.dart::Widget"
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState" o-- "screenshot::screenshot.dart::ScreenshotController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState"
+
+class "izi_quizi::data::repository::local::side_slides.dart::ListSlide" {
+  +ListSlideState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::data::repository::local::side_slides.dart::ListSlide"
+
+class "izi_quizi::data::repository::local::side_slides.dart::ListSlideState" {
+  +Future<void> waitUntilBuildComplete()
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::data::repository::local::side_slides.dart::ListSlideState"
+
+class "izi_quizi::data::repository::local::slide_data.dart::SlideData" {
+  {static} -SlideData _instance
+  +List<SlideItems> listSlide
+  +Map<String, dynamic> dataSlide
+  +void setDataSlide()
+  +Map<String, dynamic> getDataSlide()
+  +void addListSlide()
+  +int getLengthListSlide()
+  +SlideItems indexOfListSlide()
+  +void removeAt()
+  +List<SlideItems> getListSlide()
+  +JsonParse dataSlideParse()
+  +void setItemsEdit()
+  +void setItemsView()
+}
+
+"izi_quizi::data::repository::local::slide_data.dart::SlideData" o-- "izi_quizi::data::repository::local::slide_data.dart::SlideData"
+
+class "izi_quizi::data::repository::local::slide_data.dart::ItemsShelDataText" {
+  +String type
+  +String text
+  +double offsetX
+  +double offsetY
+  +double width
+  +double height
+  +String property
+}
+
+class "izi_quizi::data::repository::local::slide_data.dart::ItemsShelDataImage" {
+  +String type
+  +String? url
+  +double offsetX
+  +double offsetY
+  +double width
+  +double height
+  +String? property
+}
+
+class "izi_quizi::data::repository::server::server_data_impl.dart::SocketConnection" {
+  {static} -WebSocketChannel _channel
+  {static} +void sendMessage()
+  {static} +WebSocketChannel getConnection()
+}
+
+"izi_quizi::data::repository::server::server_data_impl.dart::SocketConnection" o-- "web_socket_channel::src::channel.dart::WebSocketChannel"
+
+class "izi_quizi::data::repository::server::server_data_impl.dart::RequestImpl" {
+  +void createRoom()
+  +void joinRoom()
+  +void setPresentation()
+  +void getPresentation()
+  +void deletePresent()
+  +void createPresent()
+  +void renamePresent()
+  +Future<void> listWidget()
+  +Future<String> authentication()
+  +Future<String> register()
+}
+
+class "izi_quizi::data::repository::server::server_data_impl.dart::ParseMessageImpl" {
+  +Future<void> parse()
+}
+
+class "izi_quizi::domain::authentication::authentication.dart::AuthenticationImpl" {
+  +void authorize()
+  +void register()
+  +String? checkPassword()
+  +String? checkEmail()
+  +void update()
+}
+
+class "izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl" {
+  {static} -CreateEditingImpl _instance
+  +WidgetRef? ref
+  +void getRef()
+  +void itemNum()
+  +void renameQuiz()
+  +void saveQuiz()
+  +void addItem()
+}
+
+"izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl" o-- "izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl"
+"izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl" o-- "flutter_riverpod::src::consumer.dart::WidgetRef"
+
+class "izi_quizi::domain::home_page::home_page.dart::HomePageCaseImpl" {
+  +void joinRoom()
+  +void createQuiz()
+  +void createQuizDialog()
+}
+
+class "izi_quizi::domain::multipe_view::multiple_view_data.dart::MultipleViewData" {
+  {static} -MultipleViewData _instance
+  +Map<String, dynamic> userList
+  +List<Widget> userListWidget
+  +void setUserList()
+  +Map<String, dynamic> getUserList()
+  +void initUserListWidget()
+  +void addUserWidget()
+  +List<Widget> getUserWidgets()
+}
+
+"izi_quizi::domain::multipe_view::multiple_view_data.dart::MultipleViewData" o-- "izi_quizi::domain::multipe_view::multiple_view_data.dart::MultipleViewData"
+
+class "izi_quizi::main.dart::MyApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::main.dart::MyApp"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" {
+  +GlobalKey<FormState>? formKey
+  +String? restorationId
+  +Key? fieldKey
+  +String? hintText
+  +String? labelText
+  +String? helperText
+  +String? helperTexts
+  +void Function(String?)? onChanged
+  +String? Function(String?)? validator
+  +void Function(String)? onFieldSubmitted
+  +TextInputAction? textInputAction
+  +TextEditingController? myControllerPass
+  +State<PasswordField> createState()
+}
+
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::foundation::key.dart::Key"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::form.dart::void Function(String)"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::form.dart::String Function(String)"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::foundation::basic_types.dart::void Function(String)"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::services::text_input.dart::TextInputAction"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState" {
+  -RestorableBool _obscureText
+  +String? restorationId
+  +String? hintText
+  +void restoreState()
+  +Widget build()
+}
+
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState" o-- "flutter::src::widgets::restoration_properties.dart::RestorableBool"
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState"
+"flutter::src::widgets::restoration.dart::RestorationMixin" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::Join" {
+  +JoinState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::Join"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" {
+  +TextEditingController myControllerEmail
+  +TextEditingController controllerPass
+  -GlobalKey<FormState> _formKey
+  +bool buttonPressed
+  +bool isAuth
+  +Widget errorWidget
+  +Widget build()
+}
+
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState"
+
+class "izi_quizi::presentation::authentication::authentication_state.dart::AuthUpdate" {
+  +void increment()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::authentication::authentication_state.dart::AuthUpdate"
+
+class "izi_quizi::presentation::creating_editing_presentation::create_editing_state.dart::ItemId" {
+  +void set()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::creating_editing_presentation::create_editing_state.dart::ItemId"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationEdit" {
+  +String currentNamePresent
+  +TextEditingController myController
+  +Widget build()
+}
+
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationEdit" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationEdit"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemo" {
+  +NavRailDemoState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemo"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState" {
+  -RestorableInt _selectedIndex
+  +ListSlide listSlide
+  +String restorationId
+  +void restoreState()
+  +void dispose()
+  +Widget build()
+}
+
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState" o-- "flutter::src::widgets::restoration_properties.dart::RestorableInt"
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState" o-- "izi_quizi::data::repository::local::side_slides.dart::ListSlide"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState"
+"flutter::src::widgets::restoration.dart::RestorationMixin" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewport" {
+  +State<PresentationViewport> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewport"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewportState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewportState"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory" {
+  +void Function()? onPressed
+  +Widget child
+  +Widget build()
+}
+
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory" o-- "null::void Function()"
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidget" {
+  +MyStatefulWidgetState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidget"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState" {
+  -TabController _tabController
+  +void initState()
+  +void setStates()
+  +Widget build()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState" o-- "flutter::src::material::tab_controller.dart::TabController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEvents" {
+  +State<TabBarEvents> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEvents"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState" {
+  +TabController tabController
+  +void initState()
+  +Widget build()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState" o-- "flutter::src::material::tab_controller.dart::TabController"
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::JoinThePresentation" {
+  {static} +TextEditingController controller
+  -List<Widget> _list
+  +Widget build()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::JoinThePresentation" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::JoinThePresentation"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::PresentCard" {
+  +int idPresent
+  +String presentName
+  +State<PresentCard> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::PresentCard"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::_PresentCardState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::_PresentCardState"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog" {
+  +int idPresent
+  +String presentName
+  +SlideData slideData
+  +Color? barrierColor
+  +bool barrierDismissible
+  +String? barrierLabel
+  +Duration transitionDuration
+  +Widget buildPage()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog" o-- "izi_quizi::data::repository::local::slide_data.dart::SlideData"
+"izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog" o-- "dart::ui::Color"
+"flutter::src::widgets::routes.dart::PopupRoute" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog"
+
+class "izi_quizi::presentation::home_page::home_page_state.dart::IsAuth" {
+  +bool isAuth
+  +void set()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::home_page::home_page_state.dart::IsAuth"
+
+class "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::MultipleView" {
+  +_MultipleViewState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::MultipleView"
+
+class "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::_MultipleViewState" {
+  -GlobalKey<FormState> _formKey
+  +Widget build()
+}
+
+"izi_quizi::presentation::multipe_view::multiple_view_screen.dart::_MultipleViewState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::_MultipleViewState"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::SingleViewPresentation" {
+  +ViewPresentationState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::SingleViewPresentation"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::ViewPresentationState" {
+  {static} +double heightBox
+  {static} +double heightIcon
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::ViewPresentationState"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentation" {
+  +String type
+  +TextEditingController controller
+  +int itemId
+  +String text
+  +String url
+  +double width
+  +double height
+  +double left
+  +double top
+  +ItemsViewPresentationState createState()
+}
+
+"izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentation" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentation"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentationState" {
+  +double angle
+  +void initState()
+  +void dispose()
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentationState"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::PresentationViewport" {
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::PresentationViewport"
+
+class "izi_quizi::presentation::single_view::single_view_state.dart::Counter" {
+  +void increment()
+  +void decrement()
+  +void set()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::single_view::single_view_state.dart::Counter"
+
+class "izi_quizi::widgets::items_shel.dart::ItemsShel" {
+  +String type
+  +ItemsShelDataText itemsShelDataText
+  +ItemsShelDataImage itemsShelDataImage
+  +TextEditingController controller
+  +int itemCount
+  +String text
+  +String url
+  +double width
+  +double height
+  +Offset offsetPos
+  +Widget? widgetInit
+  +double left
+  +double top
+  +ItemsShelDataText? getItemsShelDataText()
+  +ItemsShelDataImage? getItemsShelDataImage()
+  +ItemsShelState createState()
+}
+
+"izi_quizi::widgets::items_shel.dart::ItemsShel" o-- "izi_quizi::data::repository::local::slide_data.dart::ItemsShelDataText"
+"izi_quizi::widgets::items_shel.dart::ItemsShel" o-- "izi_quizi::data::repository::local::slide_data.dart::ItemsShelDataImage"
+"izi_quizi::widgets::items_shel.dart::ItemsShel" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"izi_quizi::widgets::items_shel.dart::ItemsShel" o-- "dart::ui::Offset"
+"izi_quizi::widgets::items_shel.dart::ItemsShel" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::widgets::items_shel.dart::ItemsShel"
+
+class "izi_quizi::widgets::items_shel.dart::ItemsShelState" {
+  +Color color
+  +Offset offset
+  +double angle
+  +BoxBorder? border
+  +BoxBorder? setBorder
+  +bool hover
+  +bool select
+  +int itemCount
+  +Widget rightBottomTriger()
+  +Widget leftTopTriger()
+  +Widget rotateTriger()
+  +void initState()
+  +void dispose()
+  +Widget build()
+}
+
+"izi_quizi::widgets::items_shel.dart::ItemsShelState" o-- "dart::ui::Color"
+"izi_quizi::widgets::items_shel.dart::ItemsShelState" o-- "dart::ui::Offset"
+"izi_quizi::widgets::items_shel.dart::ItemsShelState" o-- "flutter::src::painting::box_border.dart::BoxBorder"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::widgets::items_shel.dart::ItemsShelState"
+
+class "izi_quizi::widgets::slide.dart::PresentationCreationArea" {
+  +SlideData data
+  +int numWidget
+  +List<Widget> listWidgets
+  +List<SlideItems> listSlide
+  -List<Widget> _selectWidget
+  +Future<Uint8List> imageElementToUint8List()
+  +Future<void> pickFileWeb()
+  +void addWidget()
+  +Widget sideMenu()
+  +Widget area()
+  +Widget build()
+}
+
+"izi_quizi::widgets::slide.dart::PresentationCreationArea" o-- "izi_quizi::data::repository::local::slide_data.dart::SlideData"
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "izi_quizi::widgets::slide.dart::PresentationCreationArea"
+
+class "izi_quizi::widgets::slide_item.dart::SlideItems" {
+  +List<ItemsShel> listItems
+  +List<ItemsViewPresentation> listItemsView
+  +int lengthArr()
+  +List<ItemsShel> getListItems()
+  +void addItemShel()
+  +void addItemsView()
+  +void delItem()
+  +Stack getSlide()
+  +Stack getSlideView()
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "izi_quizi::widgets::slide_item.dart::SlideItems"
+
+class "izi_quizi::widgets::widgets_collection.dart::ButtonDelete" {
+  +Key deleteItemKey
+  +Widget build()
+}
+
+"izi_quizi::widgets::widgets_collection.dart::ButtonDelete" o-- "flutter::src::foundation::key.dart::Key"
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "izi_quizi::widgets::widgets_collection.dart::ButtonDelete"
+  _fe_analyzer_shared 31.0.0 (58.0.0 available)  analyzer 2.8.0 (5.10.0 available)
+  cli_util 0.3.5 (0.4.0 available)
+> source_span 1.10.0 (was 1.9.1)
+Building package executables... (4.8s)
+  _fe_analyzer_shared 31.0.0 (58.0.0 available)
+  _fe_analyzer_shared 31.0.0 (58.0.0 available)
+  analyzer 2.8.0 (5.10.0 available)
+  cli_util 0.3.5 (0.4.0 available)
+> source_span 1.10.0 (was 1.9.1)
+Building package executables... (4.8s)
+Built dcdg:dcdg.
+Installed executable dcdg.
+Warning: Pub installs executables into C:\Users\2001a\AppData\Local\Pub\Cache\bin, which is not on your path.
+You can fix that by adding that directory to your system's "Path" environment variable.
+A web search for "configure windows path" will show you how.
+Activated dcdg 4.1.0.
+PS C:\Users\2001a\YandexDisk\university\diplom\izi_quizi> dart pub global run dcdg
+@startuml
+set namespaceSeparator ::
+
+class "izi_quizi::common_functionality::jsonParse.dart::JsonParse" {
+  +int? numSlide
+  +List<SlidesData>? slidesData
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::SlidesData" {
+  +List<TextItems>? textItems
+  +List<ImageItems>? imageItems
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::TextItems" {
+  +String? text
+  +double? offsetX
+  +double? offsetY
+  +double? width
+  +double? height
+  +String? property
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::ImageItems" {
+  +String? url
+  +double? offsetX
+  +double? offsetY
+  +double? width
+  +double? height
+  +String? property
+  +Map<String, dynamic> toJson()
+}
+
+class "izi_quizi::common_functionality::jsonParse.dart::SlideJson" {
+  {static} -SlideJson _instance
+  +JsonParse slideJson()
+}
+
+"izi_quizi::common_functionality::jsonParse.dart::SlideJson" o-- "izi_quizi::common_functionality::jsonParse.dart::SlideJson"
+
+class "izi_quizi::data::repository::local::app_data.dart::AppData" {
+  {static} -AppData _instance
+  {static} +String idUser
+  {static} +String email
+  {static} +String presentName
+  {static} +String typeBrowser
+  +Map<String, dynamic> userPresentName
+  +WidgetRef? ref
+  {static} +bool isAuth
+  +StateProvider<bool> authorized
+  +Future<void> checkMobileBrowser()
+  +void setUserPresentName()
+  +Map<String, dynamic> getUserPresentName()
+  +void widgetRef()
+  +StateController<bool> authStateController()
+  +StateProvider<bool> authStateProvider()
+  +void authentication()
+}
+
+"izi_quizi::data::repository::local::app_data.dart::AppData" o-- "izi_quizi::data::repository::local::app_data.dart::AppData"
+"izi_quizi::data::repository::local::app_data.dart::AppData" o-- "flutter_riverpod::src::consumer.dart::WidgetRef"
+"izi_quizi::data::repository::local::app_data.dart::AppData" o-- "riverpod::src::state_provider.dart::StateProvider<bool>"
+
+class "izi_quizi::data::repository::local::side_slides.dart::SideSlides" {
+  {static} -SideSlides _instance
+  +ScreenshotController screenshotController
+  +List<NavSlideButton> sideList
+  +Future<dynamic> updatePreview()
+  +int getLengthSideList()
+  +void addSlide()
+  +void updateCount()
+  +List<NavSlideButton> getSlide()
+  +void setSlide()
+  +void delItem()
+}
+
+"izi_quizi::data::repository::local::side_slides.dart::SideSlides" o-- "izi_quizi::data::repository::local::side_slides.dart::SideSlides"
+"izi_quizi::data::repository::local::side_slides.dart::SideSlides" o-- "screenshot::screenshot.dart::ScreenshotController"
+
+class "izi_quizi::data::repository::local::side_slides.dart::NavSlideButton" {
+  +Key keyDelete
+  +Uint8List imageFile
+  +int buttonId
+  +void setButtonId()
+  +void setImagePreview()
+  +NavSlideButtonState createState()
+}
+
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButton" o-- "flutter::src::foundation::key.dart::Key"
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButton" o-- "dart::typed_data::Uint8List"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::data::repository::local::side_slides.dart::NavSlideButton"
+
+class "izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState" {
+  +double width
+  +double widthBorder
+  +bool select
+  -Widget _hoverMenu
+  +ScreenshotController screenshotController
+  +void kh()
+  +Widget build()
+}
+
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState" o-- "flutter::src::widgets::framework.dart::Widget"
+"izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState" o-- "screenshot::screenshot.dart::ScreenshotController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::data::repository::local::side_slides.dart::NavSlideButtonState"
+
+class "izi_quizi::data::repository::local::side_slides.dart::ListSlide" {
+  +ListSlideState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::data::repository::local::side_slides.dart::ListSlide"
+
+class "izi_quizi::data::repository::local::side_slides.dart::ListSlideState" {
+  +Future<void> waitUntilBuildComplete()
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::data::repository::local::side_slides.dart::ListSlideState"
+
+class "izi_quizi::data::repository::local::slide_data.dart::SlideData" {
+  {static} -SlideData _instance
+  +List<SlideItems> listSlide
+  +Map<String, dynamic> dataSlide
+  +void setDataSlide()
+  +Map<String, dynamic> getDataSlide()
+  +void addListSlide()
+  +int getLengthListSlide()
+  +SlideItems indexOfListSlide()
+  +void removeAt()
+  +List<SlideItems> getListSlide()
+  +JsonParse dataSlideParse()
+  +void setItemsEdit()
+  +void setItemsView()
+}
+
+"izi_quizi::data::repository::local::slide_data.dart::SlideData" o-- "izi_quizi::data::repository::local::slide_data.dart::SlideData"
+
+class "izi_quizi::data::repository::local::slide_data.dart::ItemsShelDataText" {
+  +String type
+  +String text
+  +double offsetX
+  +double offsetY
+  +double width
+  +double height
+  +String property
+}
+
+class "izi_quizi::data::repository::local::slide_data.dart::ItemsShelDataImage" {
+  +String type
+  +String? url
+  +double offsetX
+  +double offsetY
+  +double width
+  +double height
+  +String? property
+}
+
+class "izi_quizi::data::repository::server::server_data_impl.dart::SocketConnection" {
+  {static} -WebSocketChannel _channel
+  {static} +void sendMessage()
+  {static} +WebSocketChannel getConnection()
+}
+
+"izi_quizi::data::repository::server::server_data_impl.dart::SocketConnection" o-- "web_socket_channel::src::channel.dart::WebSocketChannel"
+
+class "izi_quizi::data::repository::server::server_data_impl.dart::RequestImpl" {
+  +void createRoom()
+  +void joinRoom()
+  +void setPresentation()
+  +void getPresentation()
+  +void deletePresent()
+  +void createPresent()
+  +void renamePresent()
+  +Future<void> listWidget()
+  +Future<String> authentication()
+  +Future<String> register()
+}
+
+class "izi_quizi::data::repository::server::server_data_impl.dart::ParseMessageImpl" {
+  +Future<void> parse()
+}
+
+class "izi_quizi::domain::authentication::authentication.dart::AuthenticationImpl" {
+  +void authorize()
+  +void register()
+  +String? checkPassword()
+  +String? checkEmail()
+  +void update()
+}
+
+class "izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl" {
+  {static} -CreateEditingImpl _instance
+  +WidgetRef? ref
+  +void getRef()
+  +void itemNum()
+  +void renameQuiz()
+  +void saveQuiz()
+  +void addItem()
+}
+
+"izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl" o-- "izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl"
+"izi_quizi::domain::creating_editing_presentation::create_editing.dart::CreateEditingImpl" o-- "flutter_riverpod::src::consumer.dart::WidgetRef"
+
+class "izi_quizi::domain::home_page::home_page.dart::HomePageCaseImpl" {
+  +void joinRoom()
+  +void createQuiz()
+  +void createQuizDialog()
+}
+
+class "izi_quizi::domain::multipe_view::multiple_view_data.dart::MultipleViewData" {
+  {static} -MultipleViewData _instance
+  +Map<String, dynamic> userList
+  +List<Widget> userListWidget
+  +void setUserList()
+  +Map<String, dynamic> getUserList()
+  +void initUserListWidget()
+  +void addUserWidget()
+  +List<Widget> getUserWidgets()
+}
+
+"izi_quizi::domain::multipe_view::multiple_view_data.dart::MultipleViewData" o-- "izi_quizi::domain::multipe_view::multiple_view_data.dart::MultipleViewData"
+
+class "izi_quizi::main.dart::MyApp" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::main.dart::MyApp"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" {
+  +GlobalKey<FormState>? formKey
+  +String? restorationId
+  +Key? fieldKey
+  +String? hintText
+  +String? labelText
+  +String? helperText
+  +String? helperTexts
+  +void Function(String?)? onChanged
+  +String? Function(String?)? validator
+  +void Function(String)? onFieldSubmitted
+  +TextInputAction? textInputAction
+  +TextEditingController? myControllerPass
+  +State<PasswordField> createState()
+}
+
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::foundation::key.dart::Key"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::form.dart::void Function(String)"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::form.dart::String Function(String)"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::foundation::basic_types.dart::void Function(String)"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::services::text_input.dart::TextInputAction"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::PasswordField"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState" {
+  -RestorableBool _obscureText
+  +String? restorationId
+  +String? hintText
+  +void restoreState()
+  +Widget build()
+}
+
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState" o-- "flutter::src::widgets::restoration_properties.dart::RestorableBool"
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState"
+"flutter::src::widgets::restoration.dart::RestorationMixin" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::_PasswordFieldState"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::Join" {
+  +JoinState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::Join"
+
+class "izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" {
+  +TextEditingController myControllerEmail
+  +TextEditingController controllerPass
+  -GlobalKey<FormState> _formKey
+  +bool buttonPressed
+  +bool isAuth
+  +Widget errorWidget
+  +Widget build()
+}
+
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::authentication::authentication_popup_screen.dart::JoinState"
+
+class "izi_quizi::presentation::authentication::authentication_state.dart::AuthUpdate" {
+  +void increment()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::authentication::authentication_state.dart::AuthUpdate"
+
+class "izi_quizi::presentation::creating_editing_presentation::create_editing_state.dart::ItemId" {
+  +void set()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::creating_editing_presentation::create_editing_state.dart::ItemId"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationEdit" {
+  +String currentNamePresent
+  +TextEditingController myController
+  +Widget build()
+}
+
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationEdit" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationEdit"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemo" {
+  +NavRailDemoState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemo"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState" {
+  -RestorableInt _selectedIndex
+  +ListSlide listSlide
+  +String restorationId
+  +void restoreState()
+  +void dispose()
+  +Widget build()
+}
+
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState" o-- "flutter::src::widgets::restoration_properties.dart::RestorableInt"
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState" o-- "izi_quizi::data::repository::local::side_slides.dart::ListSlide"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState"
+"flutter::src::widgets::restoration.dart::RestorationMixin" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::NavRailDemoState"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewport" {
+  +State<PresentationViewport> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewport"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewportState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::PresentationViewportState"
+
+class "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory" {
+  +void Function()? onPressed
+  +Widget child
+  +Widget build()
+}
+
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory" o-- "null::void Function()"
+"izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory" o-- "flutter::src::widgets::framework.dart::Widget"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::presentation::creating_editing_presentation::creating_editing_screen.dart::ElevatedButtonFactory"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidget" {
+  +MyStatefulWidgetState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidget"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState" {
+  -TabController _tabController
+  +void initState()
+  +void setStates()
+  +Widget build()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState" o-- "flutter::src::material::tab_controller.dart::TabController"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::MyStatefulWidgetState"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEvents" {
+  +State<TabBarEvents> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEvents"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState" {
+  +TabController tabController
+  +void initState()
+  +Widget build()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState" o-- "flutter::src::material::tab_controller.dart::TabController"
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState"
+"flutter::src::widgets::ticker_provider.dart::TickerProviderStateMixin" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::TabBarEventsState"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::JoinThePresentation" {
+  {static} +TextEditingController controller
+  -List<Widget> _list
+  +Widget build()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::JoinThePresentation" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::JoinThePresentation"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::PresentCard" {
+  +int idPresent
+  +String presentName
+  +State<PresentCard> createState()
+}
+
+"flutter::src::widgets::framework.dart::StatefulWidget" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::PresentCard"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::_PresentCardState" {
+  +Widget build()
+}
+
+"flutter::src::widgets::framework.dart::State" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::_PresentCardState"
+
+class "izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog" {
+  +int idPresent
+  +String presentName
+  +SlideData slideData
+  +Color? barrierColor
+  +bool barrierDismissible
+  +String? barrierLabel
+  +Duration transitionDuration
+  +Widget buildPage()
+}
+
+"izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog" o-- "izi_quizi::data::repository::local::slide_data.dart::SlideData"
+"izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog" o-- "dart::ui::Color"
+"flutter::src::widgets::routes.dart::PopupRoute" <|-- "izi_quizi::presentation::home_page::home_page_screen.dart::PresentationDialog"
+
+class "izi_quizi::presentation::home_page::home_page_state.dart::IsAuth" {
+  +bool isAuth
+  +void set()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::home_page::home_page_state.dart::IsAuth"
+
+class "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::MultipleView" {
+  +_MultipleViewState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::MultipleView"
+
+class "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::_MultipleViewState" {
+  -GlobalKey<FormState> _formKey
+  +Widget build()
+}
+
+"izi_quizi::presentation::multipe_view::multiple_view_screen.dart::_MultipleViewState" o-- "flutter::src::widgets::framework.dart::GlobalKey<FormState>"
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::multipe_view::multiple_view_screen.dart::_MultipleViewState"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::SingleViewPresentation" {
+  +ViewPresentationState createState()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::SingleViewPresentation"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::ViewPresentationState" {
+  {static} +double heightBox
+  {static} +double heightIcon
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::ViewPresentationState"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentation" {
+  +String type
+  +TextEditingController controller
+  +int itemId
+  +String text
+  +String url
+  +double width
+  +double height
+  +double left
+  +double top
+  +ItemsViewPresentationState createState()
+}
+
+"izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentation" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter_riverpod::src::consumer.dart::ConsumerStatefulWidget" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentation"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentationState" {
+  +double angle
+  +void initState()
+  +void dispose()
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerState" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::ItemsViewPresentationState"
+
+class "izi_quizi::presentation::single_view::single_view_screen.dart::PresentationViewport" {
+  +Widget build()
+}
+
+"flutter_riverpod::src::consumer.dart::ConsumerWidget" <|-- "izi_quizi::presentation::single_view::single_view_screen.dart::PresentationViewport"
+
+class "izi_quizi::presentation::single_view::single_view_state.dart::Counter" {
+  +void increment()
+  +void decrement()
+  +void set()
+}
+
+"state_notifier::state_notifier.dart::StateNotifier" <|-- "izi_quizi::presentation::single_view::single_view_state.dart::Counter"
+
+class "izi_quizi::widgets::items_shel.dart::ItemsShel" {
+  +String type
+  +ItemsShelDataText itemsShelDataText
+  +ItemsShelDataImage itemsShelDataImage
+  +TextEditingController controller
+  +int itemCount
+  +String text
+  +String url
+}
+
+"izi_quizi::widgets::widgets_collection.dart::ProjectName" o-- "flutter::src::widgets::editable_text.dart::TextEditingController"
+"flutter::src::widgets::framework.dart::StatelessWidget" <|-- "izi_quizi::widgets::widgets_collection.dart::ProjectName"
+
+
+@enduml

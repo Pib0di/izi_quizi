@@ -1,65 +1,101 @@
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:izi_quizi/presentation/home_page/home_page_state.dart';
 
-class AppData {
-  static final AppData _instance = AppData._internal();
+final appDataProvider = StateNotifierProvider((ref) {
+  return AppDataState();
+});
 
-  factory AppData() {
-    return _instance;
+class AppDataState extends StateNotifier<int> {
+  AppDataState() : super(0);
+
+  final currentPresentName = TextEditingController();
+
+  String idPresent = '-1';
+  String idUser = '';
+  String email = '';
+  String presentName = '';
+  bool isMobile = false;
+  bool isMobileDevice = true;
+  bool isAuthorized = false;
+  bool isPublic = false;
+
+  bool viewingMode = false;
+
+  String idRoom = '';
+  String idUserInRoom = '';
+
+  String getIdRoom() {
+    return idRoom;
   }
 
-  AppData._internal();
+  Map<String, dynamic> userPresentations = {};
 
-  static String idUser = '1';
-  static String email = '';
-  static String presentName = '';
-  static String typeBrowser = 'Browser';
+  Map<String, dynamic> getUserPresentName() {
+    return userPresentations;
+  }
 
-  Future<void> checkMobileBrowser() async {
+  void setIdUser(String userId) {
+    idUser = userId;
+  }
+
+  void setEmail(String userEmail) {
+    email = userEmail;
+  }
+
+  Future<void> checkMobileMode() async {
+    isMobile = await isMobileBrowser();
+
+    if (Platform.isAndroid || Platform.isIOS) {
+      isMobileDevice = true;
+    } else {
+      isMobileDevice = false;
+    }
+  }
+
+  WidgetRef? ref;
+
+  void updateUi() {
+    ++state;
+  }
+}
+
+Future<bool> isMobileBrowser() async {
+  try {
     final response =
         await http.get(Uri.parse('https://httpbin.org/user-agent'));
     final userAgent = response.body;
 
     if (userAgent.contains('Mobile')) {
-      typeBrowser = 'Mobile';
+      return true;
+      // typeBrowser = 'Mobile';
     } else if (userAgent.contains('Browser')) {
-      typeBrowser = 'Browser';
+      return true;
+      // typeBrowser = 'Browser';
+    } else {
+      return false;
     }
+  } catch (e) {
+    return false;
   }
+}
 
-  // set of user presentations
-  Map<String, dynamic> userPresentName = {};
-
-  void setUserPresentName(Map<String, dynamic> userPresentName) {
-    this.userPresentName = userPresentName;
-  }
-
-  Map<String, dynamic> getUserPresentName() {
-    return userPresentName;
-  }
-
-  // authentication ui Update
-  WidgetRef? ref;
-  static const bool isAuth = false;
-  final authorized = StateProvider<bool>(
-    (ref) => isAuth,
+class AppData {
+  AppData(
+    this.idUser,
+    this.email,
+    this.presentName,
+    this.typeBrowser,
+    this.isMobile,
   );
 
-  void widgetRef(WidgetRef ref) {
-    this.ref = ref;
-  }
+  String idUser;
+  String email;
+  String presentName;
+  String typeBrowser;
+  bool isMobile = false;
 
-  StateController<bool> authStateController() {
-    return ref!.watch(authorized.notifier);
-  }
-
-  StateProvider<bool> authStateProvider() {
-    return authorized;
-  }
-
-  void authentication(bool valid) {
-    ref!.refresh(authorized.notifier).state = valid;
-    ref!.watch(isAuthorized.notifier).isAuth = valid;
-  }
+  Map<String, dynamic> userPresentations = {};
 }

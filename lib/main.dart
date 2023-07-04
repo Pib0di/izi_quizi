@@ -1,43 +1,30 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:izi_quizi/data/repository/local/app_data.dart';
-import 'package:izi_quizi/data/repository/server/server_data_impl.dart';
-import 'package:izi_quizi/domain/multipe_view/multiple_view_data.dart';
 import 'package:izi_quizi/presentation/home_page/home_page_screen.dart';
+import 'package:izi_quizi/utils/theme.dart';
 
-RequestImpl request = RequestImpl();
-bool widgetListIsReload = false;
-
-AppData appData = AppData();
-MultipleViewData multipleViewData = MultipleViewData();
+AppDataState appData = AppDataState();
 
 // - PROVIDER - - - - - - - - - - - - - - - - - - - - - - - - - -
-/// номер текущего слайда
-final buttonID = StateProvider((ref) => 0);
-
-/// количество созданных слайдов
-final counterSlide = StateProvider((ref) => 0);
-
-/// номер элемента в слайде для удаления
-const Key key = Key('');
-final delItemId = StateProvider<Key>(
-  (ref) => key,
-);
-
 /// локальный путь до фотографии
-final File file = File('');
-final fileProvider = StateProvider<File>(
-  (ref) => file,
-);
-
-// final container = ProviderContainer();
+// final File file = File('');
+// final fileProvider = StateProvider<File>(
+//   (ref) => file,
+// );
 
 void main() async {
-  await appData.checkMobileBrowser();
-
-  SocketConnection.getConnection().stream.listen(ParseMessageImpl().parse);
+  // Timer? timer;
+  // timer = Timer.periodic(const Duration(seconds: 1), (_) {
+  //   final socket = SocketConnection.channel;
+  //   if (socket.closeCode == null) {
+  //     print('WebSocket подключен');
+  //   } else {
+  //     print('WebSocket закрыт с кодом: ${socket.closeCode}');
+  //     final socket2 = SocketConnection.channel;
+  //   }
+  // });
+  // SocketConnection.getConnection().stream.listen(ParseMessage().parse);
 
   runApp(
     const ProviderScope(child: MyApp()),
@@ -52,12 +39,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'IziQuizi',
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.green,
-      ),
+      theme: basicTheme(),
+      // theme: ThemeData(
+      //   useMaterial3: true,
+      //   primarySwatch: Colors.green,
+      // ),
       home: const Scaffold(
-        body: MyStatefulWidget(),
+        body: HomePage(),
       ),
     );
   }
